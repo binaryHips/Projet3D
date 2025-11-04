@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+
 
 // Definitions
 
@@ -8,15 +10,14 @@
 #define DEBUG true
 #endif
 
-#define DEBUG_EXCEPT = \
 #if DEBUG
-#else noexcept
+    #define DEBUG_EXCEPT 
+#else
+    #define DEBUG_EXCEPT noexcept
 #endif
 
 // assertions (https://www.foonathan.net/2016/09/assertions/)
 namespace {
-    #include <stdio>
-
     struct source_location{
         const char* file_name;
         unsigned line_number;
@@ -27,11 +28,11 @@ namespace {
     class BaseHandler{
         static void handle(const source_location& loc, const char* expr) noexcept {
             std::cout << "ASSERTION FAILED\n" <<
-            "   File " loc.file_name "\n"
-            "   Function " loc.function_name "\n"
-            "   Line " std::to_string(line_number) "\n"
-            "On expression ( " expr " )" 
-            << std::endl;
+            "   File " << loc.file_name << "\n" <<
+            "   Function " << loc.function_name << "\n" <<
+            "   Line " << std::to_string(loc.line_number) << "\n" <<
+            "On expression ( " << expr << " )" << 
+            std::endl;
         }
     };
 
