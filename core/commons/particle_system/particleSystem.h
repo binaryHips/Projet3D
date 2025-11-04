@@ -14,6 +14,8 @@ protected:
 
 class ParticleSystemBase__{
 protected:
+    u32 nbParticles;
+
     void update(float deltaTime);
 
     void spawn(u32 n);
