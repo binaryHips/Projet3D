@@ -1,0 +1,2 @@
+/usr/bin/ar qc libCore.a CMakeFiles/Core.dir/commons/image/image.cpp.o CMakeFiles/Core.dir/commons/particleSystem/particleSystem.cpp.o
+/usr/bin/ranlib libCore.a

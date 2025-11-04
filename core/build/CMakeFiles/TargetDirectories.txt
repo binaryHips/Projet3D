@@ -1,0 +1,3 @@
+/home/e20210002460/Master/M2/Projet3D/core/build/CMakeFiles/Core.dir
+/home/e20210002460/Master/M2/Projet3D/core/build/CMakeFiles/edit_cache.dir
+/home/e20210002460/Master/M2/Projet3D/core/build/CMakeFiles/rebuild_cache.dir

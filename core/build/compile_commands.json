@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/e20210002460/Master/M2/Projet3D/core/build",
+  "command": "/usr/bin/g++   -g -std=gnu++20 -o CMakeFiles/Core.dir/commons/image/image.cpp.o -c /home/e20210002460/Master/M2/Projet3D/core/commons/image/image.cpp",
+  "file": "/home/e20210002460/Master/M2/Projet3D/core/commons/image/image.cpp"
+},
+{
+  "directory": "/home/e20210002460/Master/M2/Projet3D/core/build",
+  "command": "/usr/bin/g++   -g -std=gnu++20 -o CMakeFiles/Core.dir/commons/particleSystem/particleSystem.cpp.o -c /home/e20210002460/Master/M2/Projet3D/core/commons/particleSystem/particleSystem.cpp",
+  "file": "/home/e20210002460/Master/M2/Projet3D/core/commons/particleSystem/particleSystem.cpp"
+}
+]
