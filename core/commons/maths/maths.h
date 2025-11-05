@@ -354,15 +354,15 @@ public:
     inline
     float squareNorm() const { return squareLength(); }
     void normalize() { float L = length(); mVals[0] /= L; mVals[1] /= L;}
-    static float dot( vec3 const & a , vec3 const & b ) {
+    static float dot( vec2 const & a , vec2 const & b ) {
        return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
     }
 
-    void operator += (vec3 const & other) {
+    void operator += (vec2 const & other) {
         mVals[0] += other[0];
         mVals[1] += other[1];
     }
-    void operator -= (vec3 const & other) {
+    void operator -= (vec2 const & other) {
         mVals[0] -= other[0];
         mVals[1] -= other[1];
     }
@@ -377,7 +377,7 @@ public:
 
     vec2 normalized() const { return vec2(*this) / length();}
 
-    static vec2 compProduct(vec3 const & a , vec3 const & b) {
+    static vec2 compProduct(vec2 const & a , vec2 const & b) {
         return vec2(a[0]*b[0] , a[1]*b[1]);
     }
 };
@@ -405,6 +405,173 @@ static inline std::ostream & operator << (std::ostream & s , vec2 const & p) {
     return s;
 }
 static inline std::istream & operator >> (std::istream & s , vec2 & p) {
+    s >> p[0] >> p[1];
+    return s;
+}
+
+class ivec2;
+static inline ivec2 operator + (ivec2 const & a , ivec2 const & b);
+static inline ivec2 operator - (ivec2 const & a , ivec2 const & b);
+static inline ivec2 operator * (int a , ivec2 const & b);
+static inline ivec2 operator / (ivec2 const &  a , int b);
+class ivec2 {
+private:
+    std::array<int, 2> mVals;
+public:
+    ivec2() {mVals[0] = mVals[1] = 0.f;}
+    ivec2( int x , int y) {
+       mVals[0] = x; mVals[1] = y;
+    }
+    int & operator [] (unsigned int c) { return mVals[c]; }
+    int operator [] (unsigned int c) const { return mVals[c]; }
+    ivec2& operator = (ivec2 const & other) {
+       mVals[0] = other[0] ; mVals[1] = other[1];
+       return *this;
+    }
+    int squareLength() const {
+       return mVals[0]*mVals[0] + mVals[1]*mVals[1];
+    }
+    int length() const { return sqrt( squareLength() ); }
+    inline
+    int norm() const { return length(); }
+    inline
+    int squareNorm() const { return squareLength(); }
+    void normalize() { int L = length(); mVals[0] /= L; mVals[1] /= L;}
+    static int dot( ivec2 const & a , ivec2 const & b ) {
+       return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+    }
+
+    void operator += (vec2 const & other) {
+        mVals[0] += other[0];
+        mVals[1] += other[1];
+    }
+    void operator -= (ivec2 const & other) {
+        mVals[0] -= other[0];
+        mVals[1] -= other[1];
+    }
+    void operator *= (int s) {
+        mVals[0] *= s;
+        mVals[1] *= s;
+    }
+    void operator /= (int s) {
+        mVals[0] /= s;
+        mVals[1] /= s;
+    }
+
+    ivec2 normalized() const { return ivec2(*this) / length();}
+
+    static ivec2 compProduct(ivec2 const & a , ivec2 const & b) {
+        return ivec2(a[0]*b[0] , a[1]*b[1]);
+    }
+};
+
+static inline ivec2 operator + (ivec2 const & a , ivec2 const & b) {
+   return ivec2(a[0]+b[0] , a[1]+b[1]);
+}
+static inline ivec2 operator - (ivec2 const & a , ivec2 const & b) {
+   return ivec2(a[0]-b[0] , a[1]-b[1]);
+}
+static inline ivec2 operator - (ivec2 const & a) {
+   return ivec2(-a[0] , -a[1]);
+}
+static inline ivec2 operator * (int a , ivec2 const & b) {
+   return ivec2(a*b[0] , a*b[1]);
+}
+static inline ivec2 operator * (ivec2 const & b , int a ) {
+   return ivec2(a*b[0] , a*b[1]);
+}
+static inline ivec2 operator / (ivec2 const &  a , int b) {
+   return ivec2(a[0]/b , a[1]/b);
+}
+static inline std::ostream & operator << (std::ostream & s , ivec2 const & p) {
+    s << p[0] << "," << p[1];
+    return s;
+}
+static inline std::istream & operator >> (std::istream & s , ivec2 & p) {
+    s >> p[0] >> p[1];
+    return s;
+}
+
+
+class uvec2;
+static inline uvec2 operator + (uvec2 const & a , uvec2 const & b);
+static inline uvec2 operator - (uvec2 const & a , uvec2 const & b);
+static inline uvec2 operator * (unsigned int a , uvec2 const & b);
+static inline uvec2 operator / (uvec2 const &  a , unsigned int b);
+class uvec2 {
+private:
+    std::array<unsigned int, 2> mVals;
+public:
+    uvec2() {mVals[0] = mVals[1] = 0.f;}
+    uvec2( unsigned int x , unsigned int y) {
+       mVals[0] = x; mVals[1] = y;
+    }
+    unsigned int & operator [] (unsigned unsigned int c) { return mVals[c]; }
+    unsigned int operator [] (unsigned unsigned int c) const { return mVals[c]; }
+    uvec2& operator = (uvec2 const & other) {
+       mVals[0] = other[0] ; mVals[1] = other[1];
+       return *this;
+    }
+    unsigned int squareLength() const {
+       return mVals[0]*mVals[0] + mVals[1]*mVals[1];
+    }
+    unsigned int length() const { return sqrt( squareLength() ); }
+    inline
+    unsigned int norm() const { return length(); }
+    inline
+    unsigned int squareNorm() const { return squareLength(); }
+    void normalize() { unsigned int L = length(); mVals[0] /= L; mVals[1] /= L;}
+    static unsigned int dot( uvec2 const & a , uvec2 const & b ) {
+       return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+    }
+
+    void operator += (vec2 const & other) {
+        mVals[0] += other[0];
+        mVals[1] += other[1];
+    }
+    void operator -= (uvec2 const & other) {
+        mVals[0] -= other[0];
+        mVals[1] -= other[1];
+    }
+    void operator *= (unsigned int s) {
+        mVals[0] *= s;
+        mVals[1] *= s;
+    }
+    void operator /= (unsigned int s) {
+        mVals[0] /= s;
+        mVals[1] /= s;
+    }
+
+    uvec2 normalized() const { return uvec2(*this) / length();}
+
+    static uvec2 compProduct(uvec2 const & a , uvec2 const & b) {
+        return uvec2(a[0]*b[0] , a[1]*b[1]);
+    }
+};
+
+static inline uvec2 operator + (uvec2 const & a , uvec2 const & b) {
+   return uvec2(a[0]+b[0] , a[1]+b[1]);
+}
+static inline uvec2 operator - (uvec2 const & a , uvec2 const & b) {
+   return uvec2(a[0]-b[0] , a[1]-b[1]);
+}
+static inline uvec2 operator - (uvec2 const & a) {
+   return uvec2(-a[0] , -a[1]);
+}
+static inline uvec2 operator * (unsigned int a , uvec2 const & b) {
+   return uvec2(a*b[0] , a*b[1]);
+}
+static inline uvec2 operator * (uvec2 const & b , unsigned int a ) {
+   return uvec2(a*b[0] , a*b[1]);
+}
+static inline uvec2 operator / (uvec2 const &  a , unsigned int b) {
+   return uvec2(a[0]/b , a[1]/b);
+}
+static inline std::ostream & operator << (std::ostream & s , uvec2 const & p) {
+    s << p[0] << "," << p[1];
+    return s;
+}
+static inline std::istream & operator >> (std::istream & s , uvec2 & p) {
     s >> p[0] >> p[1];
     return s;
 }

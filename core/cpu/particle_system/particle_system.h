@@ -6,6 +6,8 @@ class ParticlePageCPU : public ParticlePageBase__{
     vec3 positions[PAGE_SIZE];
     vec3 velocity[PAGE_SIZE];
 
+    
+
     void update(float deltaTime);
 };
 
@@ -16,7 +18,5 @@ class ParticleSystemCPU : public ParticleSystemBase__{
     void update(float deltaTime);
 
     void spawn(u32 n);
-
-
 
 };
