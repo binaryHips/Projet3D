@@ -3,10 +3,6 @@ project(Projet3D VERSION 0.1.0 LANGUAGES C CXX)
 
 add_subdirectory(core)
 
-include_directories(
-	core/includes
-)
-
 add_executable(app
 	main.cpp
 )
