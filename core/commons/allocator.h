@@ -33,11 +33,11 @@ public:
   }
 
   inline pointer allocate (size_type n) {
-     return (pointer)_aligned_malloc(n*sizeof(value_type), N);
+     return (pointer)aligned_malloc(N, n*sizeof(value_type));
   }
 
   inline void deallocate (pointer p, size_type) {
-    _aligned_free (p);
+    free (p);
   }
 
   inline void construct (pointer p, const value_type & wert) {
@@ -61,5 +61,3 @@ public:
     return !(*this == other);
   }
 };
-
-#endif

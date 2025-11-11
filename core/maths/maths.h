@@ -506,8 +506,8 @@ public:
     uvec2( unsigned int x , unsigned int y) {
        mVals[0] = x; mVals[1] = y;
     }
-    unsigned int & operator [] (unsigned unsigned int c) { return mVals[c]; }
-    unsigned int operator [] (unsigned unsigned int c) const { return mVals[c]; }
+    unsigned int & operator [] (unsigned int c) { return mVals[c]; }
+    unsigned int operator [] (unsigned int c) const { return mVals[c]; }
     uvec2& operator = (uvec2 const & other) {
        mVals[0] = other[0] ; mVals[1] = other[1];
        return *this;

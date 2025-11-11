@@ -1,16 +1,13 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(core VERSION 0.1.0 LANGUAGES C CXX)
 
-include(GNUInstallDirs)
-
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# SAUVEUR https://stackoverflow.com/questions/17511496/how-to-create-a-shared-library-with-cmake
 add_library(core STATIC
     defines.h
 
-    commons/maths/maths.h
+    maths/maths.h
 
     commons/allocator.h
 
@@ -30,4 +27,4 @@ add_library(core STATIC
 )
 
 target_include_directories(core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/includes)
-target_include_directories(core PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

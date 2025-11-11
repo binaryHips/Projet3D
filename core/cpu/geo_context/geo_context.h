@@ -3,19 +3,21 @@
 #include <memory>
 
 #include "commons/geo_context/geo_context.h"
+#include "cpu/map/map.h"
+#include "cpu/particle_system/particle_system.h"
 
 class GeoContextCPU : public GeoContextBase__ {
-
+public:
     // std::vector<FeatureMap> featureMaps;
 
     ParticleSystemCPU particleSystem;
 
-    std::vector<mapCPU> maps;
+    std::vector<MapCPU> maps;
 
-    void addMap(mapCPU &&map){
+    void addMap(MapCPU &&map){
         for (u32 i = 0; i < maps.size(); ++i){
             if (maps[i].yIndex > map.yIndex){
-                maps.insert(i, std::move(map));
+                maps.insert(maps.begin() + i, std::move(map));
                 return;
             }
         }
