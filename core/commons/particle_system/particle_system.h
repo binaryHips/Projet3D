@@ -3,7 +3,7 @@
 #include <vector>
 
 class ParticlePageBase__{
-protected:
+public:
     enum {
         PAGE_SIZE = 256
     };
