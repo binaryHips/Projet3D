@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "glwidget.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -16,9 +18,16 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     void resizeEvent(QResizeEvent* event);
+
+    GLWidget *openGLWidget;
+
     ~MainWindow();
 
     Ui::MainWindow *ui;
+
+public slots:
+    void mapClicked();
+    void returnClicked();
 
 private:
 };

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QVBoxLayout>
+#include "clickablelabel.h"
 
 class MapItem : public QWidget
 {
@@ -13,10 +14,13 @@ public:
     explicit MapItem(QString image_path, QWidget *parent = nullptr);
     ~MapItem();
     QVBoxLayout layout;
-    QLabel map_image;
-
+    ClickableLabel map_image;
 
 signals:
+
+public slots:
+    void clickedImage();
+
 };
 
 #endif // MAPITEM_H
