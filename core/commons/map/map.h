@@ -47,6 +47,7 @@ public:
         return data[v[0]+ v[1] * sX];
     }
 
-
 #endif
+
+    void convolve
 };
