@@ -19,6 +19,19 @@ void MainWindow::resizeEvent(QResizeEvent* event)
     std::cout << "Resize" << std::endl;
 }
 
+void MainWindow::mapClicked()
+{
+    std::cout << "help" << std::endl;
+    ui->stackedWidget->setCurrentWidget(ui->page_2);
+}
+
+void MainWindow::returnClicked()
+{
+    std::cout << "help" << std::endl;
+    ui->stackedWidget->setCurrentWidget(ui->page);
+}
+
+
 MainWindow::~MainWindow()
 {
     delete ui;

@@ -19,7 +19,14 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        glwidget.cpp
+        glwidget.h
+        mesh.cpp
+        mesh.h
+        clickablelabel.cpp
+        clickablelabel.h
 )
+
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ui
@@ -41,8 +48,15 @@ else()
         add_executable(ui
             ${PROJECT_SOURCES}
             mapitem.h mapitem.cpp
+            glwidget.h glwidget.cpp
+            mesh.h mesh.cpp
+            clickablelabel.h clickablelabel.cpp
 
         )
+        target_include_directories(ui PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+
     endif()
 endif()
 

@@ -16,11 +16,17 @@ MapItem::MapItem(QString image_path, QWidget *parent)
     int h = map_image.height()/2;
 
     map_image.setPixmap(map->scaled(w,h,Qt::KeepAspectRatio));
+    // map_image.setPixmap(*map);
+
 
     layout.addWidget(&map_image);
 
 }
 
+void MapItem::clickedImage()
+{
+    std::cout << "hello" << std::endl;
+}
 
 MapItem::~MapItem(){
 }
