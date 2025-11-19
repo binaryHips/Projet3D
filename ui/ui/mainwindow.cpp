@@ -12,13 +12,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->gl_settings_layout->addStretch();
 }
 
-// TODO : Implement custom feature to resize the images correctly :)
-void MainWindow::resizeEvent(QResizeEvent* event)
-{
-    QMainWindow::resizeEvent(event);
-    std::cout << "Resize" << std::endl;
-}
-
 void MainWindow::mapClicked()
 {
     std::cout << "help" << std::endl;

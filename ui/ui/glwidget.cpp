@@ -73,7 +73,7 @@ GLWidget::GLWidget(QWidget *parent)
         setFormat(fmt);
     }
 
-    loadMeshFromFile("/home/drew/Desktop/3DProject/Refercence projects/TP1_IG_Avancé/suzanne.off");
+    loadMeshFromFile("/home/drew/Desktop/3DProject/Projet3D/ui/ui/suzanne.off");
 
 }
 
@@ -169,11 +169,11 @@ void GLWidget::initializeGL()
 
     m_program = new QOpenGLShaderProgram;
     // Compile vertex shader
-    if (!m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, "/home/drew/Desktop/3DProject/Projet3D/ui/ui/vshader.glsl"))
+    if (!m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vshader.glsl"))
         close();
 
     // Compile fragment shader
-    if (!m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, "/home/drew/Desktop/3DProject/Projet3D/ui/ui/fshader.glsl"))
+    if (!m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fshader.glsl"))
         close();
 
     m_program->bindAttributeLocation("vertex", 0);
@@ -213,7 +213,7 @@ void GLWidget::initializeGL()
 
     // Our camera never changes in this example.
     m_view.setToIdentity();
-    m_view.translate(0, 0, -1);
+    m_view.translate(0, 0, -3.5);
 
     // Light position is fixed.
     m_program->setUniformValue(m_light_pos_loc, QVector3D(0, 0, 70));

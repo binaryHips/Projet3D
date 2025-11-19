@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>742</width>
-    <height>609</height>
+    <width>639</width>
+    <height>630</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,9 +21,9 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="page">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="2,0,1">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+         <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,1">
           <item>
            <widget class="GLWidget" name="widget" native="true"/>
           </item>
@@ -75,6 +75,13 @@
          </layout>
         </item>
         <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QScrollArea" name="scrollArea">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -96,8 +103,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>704</width>
-             <height>298</height>
+             <width>601</width>
+             <height>176</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -106,13 +113,6 @@
             </item>
            </layout>
           </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
-          </property>
          </widget>
         </item>
        </layout>
@@ -137,7 +137,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>742</width>
+     <width>639</width>
      <height>23</height>
     </rect>
    </property>

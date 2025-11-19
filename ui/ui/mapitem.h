@@ -13,8 +13,12 @@ public:
     explicit MapItem(QWidget *parent = nullptr);
     explicit MapItem(QString image_path, QWidget *parent = nullptr);
     ~MapItem();
-    QVBoxLayout layout;
-    ClickableLabel map_image;
+
+    virtual void resizeEvent(QResizeEvent* event) override;
+
+    QVBoxLayout *layout;
+    QPixmap map;
+    ClickableLabel *map_image;
 
 signals:
 

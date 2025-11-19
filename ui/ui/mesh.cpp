@@ -94,6 +94,8 @@ void Mesh::extrude(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
     add(QVector3D(x1, y1, -0.05f), n);
 }
 
+// FIXME : Does not work with ressource relative paths
+// NOt corrected yet cuz we dont gaf about loading meshes
 void Mesh::load_mesh_off(QString filename) {
     std::cout << "Loading mesh" << std::endl;
     std::string filename_s = filename.toStdString();

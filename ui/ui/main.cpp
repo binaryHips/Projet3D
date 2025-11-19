@@ -13,25 +13,31 @@ int main(int argc, char *argv[])
     MainWindow w;
 
     MapItem * item = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(&item->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
+    QObject::connect(item->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
 
     MapItem * item_2 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(&item_2->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
+    QObject::connect(item_2->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
 
     MapItem * item_3 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(&item_3->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
+    QObject::connect(item_3->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
 
     MapItem * item_4 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(&item_4->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
+    QObject::connect(item_4->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
 
     MapItem * item_5 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(&item_5->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
+    QObject::connect(item_5->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
 
-    w.ui->maps_layout->addLayout(&item->layout);
-    w.ui->maps_layout->addLayout(&item_2->layout);
-    w.ui->maps_layout->addLayout(&item_3->layout);
-    w.ui->maps_layout->addLayout(&item_4->layout);
-    w.ui->maps_layout->addLayout(&item_5->layout);
+    w.ui->maps_layout->addWidget(item);
+    w.ui->maps_layout->addWidget(item_2);
+    w.ui->maps_layout->addWidget(item_3);
+    w.ui->maps_layout->addWidget(item_4);
+    w.ui->maps_layout->addWidget(item_5);
+
+    // w.ui->maps_layout->addLayout(&item->layout);
+    // w.ui->maps_layout->addLayout(&item_2->layout);
+    // w.ui->maps_layout->addLayout(&item_3->layout);
+    // w.ui->maps_layout->addLayout(&item_4->layout);
+    // w.ui->maps_layout->addLayout(&item_5->layout);
 
 
     QObject::connect(w.ui->test_btn , SIGNAL(clicked()), &w , SLOT(returnClicked()));

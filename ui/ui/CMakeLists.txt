@@ -51,6 +51,7 @@ else()
             glwidget.h glwidget.cpp
             mesh.h mesh.cpp
             clickablelabel.h clickablelabel.cpp
+            ressources.qrc
 
         )
         target_include_directories(ui PRIVATE
