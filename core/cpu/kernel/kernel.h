@@ -21,20 +21,19 @@ class  Kernel {
             for (u32 j = 0; j < map.sY; ++j){
 
                 vec3 val;
-                for (int   u = -kernel.extent; u <= std::min(kernel.extent, map.sX - i - 1); ++u){ // don't go above size. Branchless.
-                    for (int   v = -kernel.extent; v <=std::min(kernel.extent, map.sX - i - 1); ++v){
+
+                for (int u = -kernel.extent; u <= kernel.extent, map.sX; ++u){
+                    for (int v = -kernel.extent; v <= kernel.extent, map.sY; ++v){
                         
-                        int k = i+u;
-                        int l = j+v;
+                        int k = std::clamp(i+u, 0, map.sX);
+                        int l = std::clamp(j+v, 0, map.sY);
 
                         val += map(k, l)*kernel(u, v);
                     }
-                    //std::cout << "\n";
                 }
                 result(i, j) = val;
             }
         }
         return result;
-
     }
 };

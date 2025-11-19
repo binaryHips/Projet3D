@@ -11,7 +11,7 @@ void ParticlePageCPU::update(float deltaTime, const GeoContextCPU &context){
     const __m512 delta = _mm512_set1_ps(deltaTime);
 
     const vec3 gravity = context.settings.gravity;
-    const __m512 gravityExpanded[3] = { // expand the virtual stream
+    const __m512 gravityExpanded[3] = { // expand as virtual stream
         _mm512_set_ps(  gravity[0], gravity[1], gravity[2], gravity[0],
                         gravity[1], gravity[2], gravity[0], gravity[1],
                         gravity[2], gravity[0], gravity[1], gravity[2],
