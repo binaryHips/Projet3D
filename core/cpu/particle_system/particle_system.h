@@ -1,23 +1,52 @@
 #pragma once
 #include "commons/particle_system/particle_system.h"
 
-
+class GeoContextCPU;
 class ParticlePageCPU : public ParticlePageBase__{
+public:
+    // align to 512 bits
+    alignas(64) vec3 position[PAGE_SIZE];
 
-    vec3 positions[PAGE_SIZE];
-    vec3 velocity[PAGE_SIZE];
+    alignas(64) vec3 velocity[PAGE_SIZE];
 
+    // Maybe float is too big? could use u8 ? idk
+
+    alignas(64) float water[PAGE_SIZE];
+    alignas(64) float dust[PAGE_SIZE];
     
+    alignas(64) float lifetime[PAGE_SIZE];
 
-    void update(float deltaTime);
+    void update(float deltaTime, const GeoContextCPU &context);
+    void addParticle(const vec3 &position, const vec3 &velocity);
 };
 
 class ParticleSystemCPU : public ParticleSystemBase__{
 
     std::vector<ParticlePageCPU> pages;
+    const GeoContextCPU *context;
 
-    void update(float deltaTime);
+    ParticleSystemCPU(const GeoContextCPU *context)
+        : context(context)
+        {}
 
-    void spawn(u32 n);
+    void update(float deltaTime){
+        for (ParticlePageCPU& page: pages){
+            page.update(deltaTime, *context);
+        }
+    }
+
+    void spawn(u32 n){
+        while (n > 0){
+            ParticlePageCPU& lastPage = pages.back();
+            const u32 remainingInLastPage = ParticlePageCPU::PAGE_SIZE - lastPage.nbParticles;
+
+            // fill the page like crazy
+            const u32 toFill = std::max(remainingInLastPage, n);
+
+            for (; lastPage.nbParticles < toFill; ++lastPage.nbParticles ){
+                lastPage.addParticle(vec3(0.0f), vec3(rand()/float(RAND_MAX), 2.0f, rand()/float(RAND_MAX)));
+            }
+        }
+    }
 
 };

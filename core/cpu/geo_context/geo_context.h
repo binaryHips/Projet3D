@@ -8,7 +8,8 @@
 
 class GeoContextCPU : public GeoContextBase__ {
 public:
-    // std::vector<FeatureMap> featureMaps;
+
+    std::vector<MapCPU> featureMaps;
 
     ParticleSystemCPU particleSystem;
 

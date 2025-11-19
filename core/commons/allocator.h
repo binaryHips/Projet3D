@@ -1,7 +1,6 @@
 #pragma once 
 
-#include <stdlib.h>
-#include <malloc.h>
+#include <cstdlib>
 
 template <typename T, std::size_t N = 16>
 class AlignmentAllocator {
@@ -33,11 +32,11 @@ public:
   }
 
   inline pointer allocate (size_type n) {
-     return (pointer)aligned_malloc(N, n*sizeof(value_type));
+     return (pointer)std::aligned_alloc(N, n*sizeof(value_type));
   }
 
   inline void deallocate (pointer p, size_type) {
-    free (p);
+    std::free (p);
   }
 
   inline void construct (pointer p, const value_type & wert) {
