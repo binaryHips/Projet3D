@@ -1,136 +1,326 @@
 #include "mesh.h"
-#include <qmath.h>
-#include <iostream>
-#include <fstream>
-#include <QDebug>
 
-Mesh::Mesh()
-    : m_count(0)
-{
-    //    generateCube();
-    //    QString filename = QString("/home/e20210007813/Bureau/MasterInfo/M2/App-Interactive/TP1/suzanne.off");
-    //    load_mesh_off(filename);
-}
+// Include standard headers
+#include <stdlib.h>
+
+// // Include GLEW
+// #include <GL/glew.h>
+
+// // Include GLFW
+// #include <GLFW/glfw3.h>
+
+// Include GLM
+// #include <glm/glm.hpp>
+// #include <glm/gtc/matrix_transform.hpp>
+
+// #include <common/shader.hpp>
+// #include <common/objloader.hpp>
+// #include <common/vboindexer.hpp>
+
+// #include "engine/core/resourceLoader/resourceLoader.h"
+// #include "engine/utils/utils.h"
+
+// #include "engine/external/common/tangentspace.hpp"
+
+// Qt class includes
+
+#include <QOpenGLFunctions>
+#include <QMatrix4x4>
+#include <QVector>
+#include <QVector3D>
+#include <QVector2D>
+#include <QPair>
+#include <QString>
+#include <QDataStream>
+
+#include "tangentspace.h"
+#include "shader.h"
 
 
-void Mesh::add(const QVector3D &v, const QVector3D &n)
-{
-    GLfloat *p = m_data.data() + m_count;
-    *p++ = v.x();
-    *p++ = v.y();
-    *p++ = v.z();
-    *p++ = n.x();
-    *p++ = n.y();
-    *p++ = n.z();
-    m_count += 6;
-}
+GLuint TRI_GL_TYPE = GL_UNSIGNED_INT; // change with TRI_IDX_TYPE in mesh.h!
 
-void Mesh::triangle(QVector3D p1, QVector3D p2, QVector3D p3)
-{
-    QVector3D A = p2 - p1;
-    QVector3D B = p3 - p1;
-    QVector3D normal = A.crossProduct(A,B);
+Mesh::Mesh(QOpenGLExtraFunctions *f) : gl_funcs(f) {}
 
-    add(p1,normal);
-    add(p2,normal);
-    add(p3,normal);
-}
+void Mesh::synchronize() const {
 
-
-void Mesh::quad(QVector3D p1, QVector3D p2, QVector3D p3, QVector3D p4)
-{
-    QVector3D u = p4 - p1;
-    QVector3D v = p2 - p1;
-    QVector3D normal = QVector3D::crossProduct(u, v).normalized();
-
-    add(p1, normal);
-    add(p3, normal);
-    add(p2, normal);
-
-    add(p1, normal);
-    add(p4, normal);
-    add(p3, normal);
-
-}
-
-void Mesh::generateCube()
-{
-    m_data.resize(2500 * 6);
-
-    QVector3D p1(0.0f, 0.0f, 0.0f);
-    QVector3D p2(1.0f, 0.0f, 0.0f);
-    QVector3D p3(1.0f, 1.0f, 0.0f);
-    QVector3D p4(0.0f, 1.0f, 0.0f);
-
-    QVector3D p5(0.0f, 0.0f, 1.0f);
-    QVector3D p6(1.0f, 0.0f, 1.0f);
-    QVector3D p7(1.0f, 1.0f, 1.0f);
-    QVector3D p8(0.0f, 1.0f, 1.0f);
-
-    // Front
-    quad(p1, p2, p3, p4);
-    // Back
-    quad(p6, p5, p8, p7);
-    // Left
-    quad(p5, p1, p4, p8);
-    // Right
-    quad(p2, p6, p7, p3);
-    // Top face
-    quad(p4, p3, p7, p8);
-    // Bottom
-    quad(p5, p6, p2, p1);
-}
-
-void Mesh::extrude(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
-{
-    QVector3D n = QVector3D::normal(QVector3D(0.0f, 0.0f, -0.1f), QVector3D(x2 - x1, y2 - y1, 0.0f));
-
-    add(QVector3D(x1, y1, +0.05f), n);
-    add(QVector3D(x1, y1, -0.05f), n);
-    add(QVector3D(x2, y2, +0.05f), n);
-
-    add(QVector3D(x2, y2, -0.05f), n);
-    add(QVector3D(x2, y2, +0.05f), n);
-    add(QVector3D(x1, y1, -0.05f), n);
-}
-
-// FIXME : Does not work with ressource relative paths
-// NOt corrected yet cuz we dont gaf about loading meshes
-void Mesh::load_mesh_off(QString filename) {
-    std::cout << "Loading mesh" << std::endl;
-    std::string filename_s = filename.toStdString();
-    std::cout << "filename : " << filename_s << std::endl;
-    std::ifstream in (filename_s.c_str());
-
-    if (!in){
-        std::cout << "ERROR [.OFF LOADER]: can't find or open the file (" << filename_s << ")" << std::endl;
-        return;
+    if (_synchronized){ // maybe we just want to resync
+        unsynchronize();
     }
 
-    std::string offString;
-    unsigned int sizeV, sizeT, tmp;
-    in >> offString >> sizeV >> sizeT >> tmp;
+    // TODO : Figure out the VertexArray problems
+    gl_funcs->glGenVertexArrays(1, &_VAO);
+    gl_funcs->glBindVertexArray(_VAO);
 
-    m_data.resize(sizeV * sizeT * 3);
+    gl_funcs->glGenBuffers(1, &_VBO);
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _VBO);
 
-    QVector3D vertices_buffer[sizeV];
-    for (unsigned int i = 0; i < sizeV; i++) {
-        in >> vertices_buffer[i][0];
-        in >> vertices_buffer[i][1];
-        in >> vertices_buffer[i][2];
+
+    gl_funcs->glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(QVector3D), &vertices[0], GL_STATIC_DRAW);
+
+    // Generate a buffer for the indices as well
+
+    gl_funcs->glGenBuffers(1, &_EBO);
+    gl_funcs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
+    gl_funcs->glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangles.size() * sizeof(Triangle), &triangles[0] , GL_STATIC_DRAW);
+
+
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+
+    gl_funcs->glGenBuffers(1, &_UV);
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _UV);
+    gl_funcs->glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(QVector2D), &uvs[0] , GL_STATIC_DRAW);
+
+    gl_funcs->glGenBuffers(1, &_NORMALS);
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _NORMALS);
+    gl_funcs->glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(QVector3D), &normals[0] , GL_STATIC_DRAW);
+
+    gl_funcs->glGenBuffers(1, &_TANGENT);
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _TANGENT);
+    gl_funcs->glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(QVector3D), &tangents[0] , GL_STATIC_DRAW);
+
+    gl_funcs->glGenBuffers(1, &_BITANGENT);
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _BITANGENT);
+    gl_funcs->glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(QVector3D), &bitangents[0] , GL_STATIC_DRAW);
+
+
+    gl_funcs->glEnableVertexAttribArray(0);
+
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+
+    // Positions attribute buffer
+
+    gl_funcs->glVertexAttribPointer(
+        0,                  // attribute
+        3,    // size
+        GL_FLOAT,           // type
+        GL_FALSE,           // normalized?
+        0,  // stride
+        (void*)0            // array buffer offset
+        );
+
+
+    // Uvs attribute buffer
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _UV);
+    gl_funcs->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+    gl_funcs->glEnableVertexAttribArray(1);
+
+
+    // normals
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _NORMALS);
+    gl_funcs->glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+    gl_funcs->glEnableVertexAttribArray(2);
+
+    // tangents
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _TANGENT);
+    gl_funcs->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+    gl_funcs->glEnableVertexAttribArray(3);
+
+
+    // bitangents
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _BITANGENT);
+    gl_funcs->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+    gl_funcs->glEnableVertexAttribArray(4);
+
+
+
+    // Index buffer
+    gl_funcs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
+
+    gl_funcs->glBindVertexArray(0);
+
+    // textures
+
+    // TODO synchronize texture here aswell but not now since texture still can't "unsychronize"
+
+    /*
+    glUseProgram(shaderPID);
+
+    for (auto t: textures){
+        glUniform1i(
+            glGetUniformLocation(shaderPID, t.second.c_str()),
+            t.first.getTextureId()
+        );
+    }*/
+
+    _synchronized = true;
+}
+
+void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatrix4x4 & outside_transform) const{
+
+    if (vertices.empty()) return;
+    if (!_synchronized){ // FIXME branch prediction may bottleneck a little here? idk
+        synchronize();
     }
 
-    int s;
-    QVector3D triangles[3];
-    for (unsigned int i = 0; i < sizeT; i++) {
-        in >> s;
-        for (unsigned int j = 0; j < 3; j++) {
-            in >> s;
-            triangles[j] = vertices_buffer[s];
+    gl_funcs->glBindVertexArray(_VAO);
+    gl_funcs->glUseProgram(shaderPID);
+
+
+    int i = 0;
+    for (auto & t: textures){
+
+        t.first.bind(i);
+
+        gl_funcs->glUniform1i(
+            gl_funcs->glGetUniformLocation(shaderPID, t.second.toStdString().c_str()),
+            i
+            );
+        ++i;
+    }
+
+    // todo just tranfer a struct to the gpu with all interesting data
+    GLuint mvpUniformLocation = gl_funcs->glGetUniformLocation(shaderPID, "MVP");
+    GLuint camForardLocation = gl_funcs->glGetUniformLocation(shaderPID, "view");
+    GLuint modelLocation = gl_funcs->glGetUniformLocation(shaderPID, "Model");
+
+    QMatrix4x4 MVP = vpMatrix * outside_transform * transform; // transform the VP into MVP
+
+
+
+    // gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &MVP[0][0]);
+    gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &MVP.row(0)[0]);
+
+    gl_funcs->glUniform3fv(camForardLocation, 1, &fv[0]);
+
+    gl_funcs->glUniformMatrix4fv(modelLocation, 1, GL_FALSE,  &transform.row(0)[0]);
+
+
+
+
+    gl_funcs->glDrawElements(
+        GL_TRIANGLES,      // mode
+        triangles.size()*3,    // count
+        TRI_GL_TYPE,   // type
+        (void*)0           // element array buffer offset
+        );
+
+    gl_funcs->glUseProgram(0);
+    gl_funcs->glBindVertexArray(0);
+}
+
+
+void Mesh::renderDeferred(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatrix4x4 & outside_transform, GLuint gShader) const{
+
+    if (vertices.empty()) return;
+    if (!_synchronized){ // FIXME branch prediction may bottleneck a little here? idk
+        synchronize();
+    }
+
+    gl_funcs->glBindVertexArray(_VAO);
+
+    QMatrix4x4 MODEL = outside_transform * transform;
+
+    QMatrix4x4 MVP = vpMatrix * MODEL; // transform the VP into MVP
+
+    // todo just tranfer a struct to the gpu with all interesting data
+    GLuint mvpUniformLocation = gl_funcs->glGetUniformLocation(gShader, "MVP");
+    GLuint modelUniformLocation = gl_funcs->glGetUniformLocation(gShader, "MODEL");
+
+    gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &MVP.row(0)[0]);
+    gl_funcs->glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, &MODEL.row(0)[0]);
+
+    // material->bind(gShader);
+
+
+    gl_funcs->glDrawElements(
+        GL_TRIANGLES,      // mode
+        triangles.size()*3,    // count
+        TRI_GL_TYPE,   // type
+        (void*)0           // element array buffer offset
+        );
+
+    gl_funcs->glBindVertexArray(0);
+}
+
+void Mesh::unsynchronize() const {
+    gl_funcs->glDeleteBuffers(1, &_VBO);
+    gl_funcs->glDeleteBuffers(1, &_EBO);
+    gl_funcs->glDeleteBuffers(1, &_UV);
+    gl_funcs->glDeleteBuffers(1, &_NORMALS);
+    gl_funcs->glDeleteProgram(shaderPID);
+    gl_funcs->glDeleteVertexArrays(1, &_VAO);
+
+    _synchronized = false;
+
+}
+
+void Mesh::setShader(QString vertex_shader, QString fragment_shader){
+    shaderPID = loadShadersFromFileGLSL(gl_funcs, vertex_shader.toStdString().c_str(), fragment_shader.toStdString().c_str());
+}
+
+void Mesh::setShaderPid(GLuint pid){
+    shaderPID = pid;
+}
+
+void Mesh::recomputeNormals () {
+    normals.resize(vertices.size());
+    for (unsigned int i = 0; i < vertices.size (); i++)
+        normals[i] = QVector3D(0.0, 0.0, 0.0);
+    for (unsigned int i = 0; i < triangles.size (); i++) {
+        QVector3D e01 = vertices[triangles[i].v[1]] -  vertices[triangles[i].v[0]];
+        QVector3D e02 = vertices[triangles[i].v[2]] -  vertices[triangles[i].v[0]];
+        QVector3D n = QVector3D::crossProduct(e01, e02);
+        n.normalize();
+        for (unsigned int j = 0; j < 3; j++)
+            normals[triangles[i].v[j]] += n;
+    }
+    for (unsigned int i = 0; i < vertices.size (); i++)
+        normals[i].normalize();
+
+    recomputeTangents();
+}
+
+void Mesh::recomputeTangents(){
+    computeTangentBasis(vertices, uvs, normals, tangents, bitangents);
+}
+
+Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
+    Mesh o_mesh;
+
+    for (int u = 0; u<nX; ++u){
+        for (int v = 0; v<nY; ++v){
+
+            float px = 1. / float(nX) * u;
+            float py = 1. / float(nY) * v;
+
+            o_mesh.vertices.push_back(
+                QVector3D(
+                    (px -0.5) * sX,
+                    (py -0.5) * sY,
+                    0
+                    )
+                );
+            o_mesh.uvs.push_back(
+                QVector2D(
+                    px,
+                    py
+                    )
+                );
+
         }
-        triangle(triangles[0], triangles[1], triangles[2]);
     }
+    for (int i = 0; i<nY-1; ++i){
+        for (int j = 0; j<nX-1; ++j){
 
-    in.close();
+            o_mesh.triangles.push_back(
+                Triangle(
+                    nX * j + i,
+                    nX*(j+1) +i,
+                    nX*(j+1) +i+1
+                    )
+                );
+            o_mesh.triangles.push_back(
+                Triangle(
+                    nX * j + i,
+                    nX*(j+1) +i+1,
+                    nX*(j) +i+1
+                    )
+                );
+
+
+        }
+    }
+    o_mesh.recomputeNormals();
+    return o_mesh;
 }
 

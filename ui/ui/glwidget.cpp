@@ -53,7 +53,6 @@
 #include <QOpenGLShaderProgram>
 #include <QCoreApplication>
 #include <math.h>
-#include <iostream>
 
 bool GLWidget::m_transparent = false;
 
@@ -101,10 +100,11 @@ static void qNormalizeAngle(int &angle)
 }
 
 void GLWidget::loadMeshFromFile(QString filename){
-    m_mesh.load_mesh_off(filename);
-    std::cout << m_mesh.vertexCount() << std::endl;
-    m_meshVbo.bind();
-    m_meshVbo.allocate(m_mesh.constData(), m_mesh.count() * sizeof(GLfloat));
+    m_mesh = Mesh(this);
+    m_mesh.gen_tesselatedSquare(10,10,10,10);
+    // std::cout << m_mesh.vertexCount() << std::endl;
+    // m_meshVbo.bind();
+    // m_meshVbo.allocate(m_mesh.constData(), m_mesh.count() * sizeof(GLfloat));
     update();
 }
 
@@ -202,9 +202,9 @@ void GLWidget::initializeGL()
     //    m_logoVbo.create();
     //    m_logoVbo.bind();
     //    m_logoVbo.allocate(m_logo.constData(), m_logo.count() * sizeof(GLfloat));
-    m_meshVbo.create();
-    m_meshVbo.bind();
-    m_meshVbo.allocate(m_mesh.constData(), m_mesh.count() * sizeof(GLfloat));
+    // m_meshVbo.create();
+    // m_meshVbo.bind();
+    // m_meshVbo.allocate(m_mesh.constData(), m_mesh.count() * sizeof(GLfloat));
 
 
 
@@ -257,7 +257,7 @@ void GLWidget::paintGL()
     m_program->setUniformValue(m_normal_matrix_loc, normal_matrix);
 
     //    glDrawArrays(GL_TRIANGLES, 0, m_logo.vertexCount());
-    glDrawArrays(GL_TRIANGLES, 0, m_mesh.vertexCount());
+    glDrawArrays(GL_TRIANGLES, 0, m_mesh.vertices.count());
 
 
     m_program->release();

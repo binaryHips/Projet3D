@@ -53,6 +53,7 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
@@ -61,7 +62,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
-class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class GLWidget : public QOpenGLWidget, public QOpenGLExtraFunctions
 {
     Q_OBJECT
 
