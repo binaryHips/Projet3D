@@ -13,14 +13,11 @@
 #include <QString>
 #include <QDataStream>
 
+#include <string>
+
 #include "texture.h"
-// #include "glwidget.h"
 
-// #include <common/shader.hpp>
 
-// #include "engine/render/texture/texture.h"
-// #include "engine/render/material/material.h"
-// #include "engine/core/resource/resource.h"
 
 using TRI_IDX_TYPE = unsigned int; // change both if needed!
 extern GLuint TRI_GL_TYPE; // defined in mesh.cpp
@@ -86,15 +83,18 @@ public:
     QVector< QPair<Texture, QString> > textures; // TODO : Finx Texture definition
 
     static Mesh gen_tesselatedSquare(int nX, int nY, float sX = 1, float sY = 1);
+    static Mesh load_mesh_off(std::string filename);
 
     // Mesh() = default;
-    Mesh(QOpenGLExtraFunctions *f = nullptr);
+    Mesh();
     ~Mesh()
     {
         if (_synchronized){
             unsynchronize();
         }
     }
+
+    void setGlFunctions(QOpenGLExtraFunctions *f);
 
     void recomputeNormals();
     void recomputeTangents();
@@ -113,7 +113,6 @@ public:
     void addTexture(Texture tex, QString name_in_shader){
         textures.push_back( QPair(tex, name_in_shader));
     }
-
 
     // friend std::ostream& operator<< (std::ostream& stream, const Mesh& mesh) {
     //     stream << "Mesh(" << mesh.vertices.size() <<" verts, " << mesh.triangles.size() <<" tris)";

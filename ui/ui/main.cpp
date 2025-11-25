@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "mapitem.h"
 #include "ui_mainwindow.h"
+#include "glwidget.h"
 
 #include <QApplication>
 #include <QVBoxLayout>
@@ -15,30 +16,13 @@ int main(int argc, char *argv[])
     MapItem * item = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
     QObject::connect(item->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
 
-    MapItem * item_2 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(item_2->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
-
-    MapItem * item_3 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(item_3->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
-
-    MapItem * item_4 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(item_4->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
-
-    MapItem * item_5 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    QObject::connect(item_5->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
-
     w.ui->maps_layout->addWidget(item);
-    w.ui->maps_layout->addWidget(item_2);
-    w.ui->maps_layout->addWidget(item_3);
-    w.ui->maps_layout->addWidget(item_4);
-    w.ui->maps_layout->addWidget(item_5);
 
-    // w.ui->maps_layout->addLayout(&item->layout);
-    // w.ui->maps_layout->addLayout(&item_2->layout);
-    // w.ui->maps_layout->addLayout(&item_3->layout);
-    // w.ui->maps_layout->addLayout(&item_4->layout);
-    // w.ui->maps_layout->addLayout(&item_5->layout);
 
+    Mesh *plane= new Mesh();
+    // *plane = Mesh::load_mesh_off("/home/drew/Desktop/3DProject/Projet3D/ui/ui/ressources/suzanne.off");
+    *plane = Mesh::gen_tesselatedSquare(10,10,1,1);
+    w.ui->widget->addMesh(plane);
 
     QObject::connect(w.ui->test_btn , SIGNAL(clicked()), &w , SLOT(returnClicked()));
 

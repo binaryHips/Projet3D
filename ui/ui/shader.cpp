@@ -53,6 +53,13 @@ GLuint loadShaders(QOpenGLExtraFunctions *context ,std::string VertexShaderCode,
     GLuint ProgramID = context->glCreateProgram();
     context->glAttachShader(ProgramID, VertexShaderID);
     context->glAttachShader(ProgramID, FragmentShaderID);
+    // Bind attribute locations to match the VAO setup in Mesh::synchronize()
+    // position -> 0, uv -> 1, normal -> 2, tangent -> 3, bitangent -> 4
+    context->glBindAttribLocation(ProgramID, 0, "vertex");
+    context->glBindAttribLocation(ProgramID, 1, "uv");
+    context->glBindAttribLocation(ProgramID, 2, "normal");
+    context->glBindAttribLocation(ProgramID, 3, "tangent");
+    context->glBindAttribLocation(ProgramID, 4, "bitangent");
     context->glLinkProgram(ProgramID);
 
     // Check the program

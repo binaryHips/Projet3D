@@ -58,6 +58,7 @@ else()
             tangentspace.h tangentspace.cpp
             texture.h texture.cpp
             shader.h shader.cpp
+            cameracontroller.h cameracontroller.cpp
 
         )
         target_include_directories(ui PRIVATE

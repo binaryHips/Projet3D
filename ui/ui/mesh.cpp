@@ -3,25 +3,6 @@
 // Include standard headers
 #include <stdlib.h>
 
-// // Include GLEW
-// #include <GL/glew.h>
-
-// // Include GLFW
-// #include <GLFW/glfw3.h>
-
-// Include GLM
-// #include <glm/glm.hpp>
-// #include <glm/gtc/matrix_transform.hpp>
-
-// #include <common/shader.hpp>
-// #include <common/objloader.hpp>
-// #include <common/vboindexer.hpp>
-
-// #include "engine/core/resourceLoader/resourceLoader.h"
-// #include "engine/utils/utils.h"
-
-// #include "engine/external/common/tangentspace.hpp"
-
 // Qt class includes
 
 #include <QOpenGLFunctions>
@@ -33,13 +14,20 @@
 #include <QString>
 #include <QDataStream>
 
+#include <string>
+#include <fstream>
+
 #include "tangentspace.h"
 #include "shader.h"
 
 
 GLuint TRI_GL_TYPE = GL_UNSIGNED_INT; // change with TRI_IDX_TYPE in mesh.h!
 
-Mesh::Mesh(QOpenGLExtraFunctions *f) : gl_funcs(f) {}
+Mesh::Mesh(){}
+
+void Mesh::setGlFunctions(QOpenGLExtraFunctions *f){
+    gl_funcs = f;
+}
 
 void Mesh::synchronize() const {
 
@@ -66,22 +54,26 @@ void Mesh::synchronize() const {
 
     gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _VBO);
 
-    gl_funcs->glGenBuffers(1, &_UV);
-    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _UV);
-    gl_funcs->glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(QVector2D), &uvs[0] , GL_STATIC_DRAW);
-
+    if (uvs.size() > 0){
+        gl_funcs->glGenBuffers(1, &_UV);
+        gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _UV);
+        gl_funcs->glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(QVector2D), &uvs[0] , GL_STATIC_DRAW);
+    }
     gl_funcs->glGenBuffers(1, &_NORMALS);
     gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _NORMALS);
     gl_funcs->glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(QVector3D), &normals[0] , GL_STATIC_DRAW);
 
-    gl_funcs->glGenBuffers(1, &_TANGENT);
-    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _TANGENT);
-    gl_funcs->glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(QVector3D), &tangents[0] , GL_STATIC_DRAW);
+    if (tangents.size() > 0){
+        gl_funcs->glGenBuffers(1, &_TANGENT);
+        gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _TANGENT);
+        gl_funcs->glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(QVector3D), &tangents[0] , GL_STATIC_DRAW);
+    }
 
-    gl_funcs->glGenBuffers(1, &_BITANGENT);
-    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _BITANGENT);
-    gl_funcs->glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(QVector3D), &bitangents[0] , GL_STATIC_DRAW);
-
+    if (bitangents.size() > 0){
+        gl_funcs->glGenBuffers(1, &_BITANGENT);
+        gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _BITANGENT);
+        gl_funcs->glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(QVector3D), &bitangents[0] , GL_STATIC_DRAW);
+    }
 
     gl_funcs->glEnableVertexAttribArray(0);
 
@@ -178,11 +170,19 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
 
 
     // gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &MVP[0][0]);
-    gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &MVP.row(0)[0]);
+    gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, MVP.constData());
 
     gl_funcs->glUniform3fv(camForardLocation, 1, &fv[0]);
 
-    gl_funcs->glUniformMatrix4fv(modelLocation, 1, GL_FALSE,  &transform.row(0)[0]);
+    gl_funcs->glUniformMatrix4fv(modelLocation, 1, GL_FALSE,  transform.constData());
+
+    // Provide a default light position to the shader if it expects one
+    GLint lightLoc = gl_funcs->glGetUniformLocation(shaderPID, "light_position");
+    if (lightLoc != -1) {
+        // Simple directional/positional light placed in world space
+        QVector3D lightPos(10.0f, 10.0f, 10.0f);
+        gl_funcs->glUniform3fv(lightLoc, 1, &lightPos[0]);
+    }
 
 
 
@@ -216,8 +216,8 @@ void Mesh::renderDeferred(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatr
     GLuint mvpUniformLocation = gl_funcs->glGetUniformLocation(gShader, "MVP");
     GLuint modelUniformLocation = gl_funcs->glGetUniformLocation(gShader, "MODEL");
 
-    gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &MVP.row(0)[0]);
-    gl_funcs->glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, &MODEL.row(0)[0]);
+    gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, MVP.constData());
+    gl_funcs->glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, MODEL.constData());
 
     // material->bind(gShader);
 
@@ -323,4 +323,36 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
     o_mesh.recomputeNormals();
     return o_mesh;
 }
+
+Mesh Mesh::load_mesh_off(std::string filename) {
+    Mesh res;
+
+    std::ifstream in (filename.c_str ());
+    if (!in){
+        std::cout << "ERROR [.OFF LOADER]: can't find or open the file (" << filename << ")" << std::endl;
+        return res;
+    }
+    std::string offString;
+    unsigned int sizeV, sizeT, tmp;
+    in >> offString >> sizeV >> sizeT >> tmp;
+    res.vertices.resize (sizeV);
+    res.triangles.resize (sizeT);
+
+    for (unsigned int i = 0; i < sizeV; i++){
+        in >> res.vertices[i][0];
+        in >> res.vertices[i][1];
+        in >> res.vertices[i][2];
+    }
+
+    int s;
+    for (unsigned int i = 0; i < sizeT; i++) {
+        in >> s;
+        for (unsigned int j = 0; j < 3; j++)
+            in >> res.triangles[i].v[j];
+    }
+    in.close();
+    res.recomputeNormals();
+    return res;
+}
+
 
