@@ -8,12 +8,16 @@
 
 class GeoContextCPU : public GeoContextBase__ {
 public:
-
-    std::vector<MapCPU> featureMaps;
+    using Process = void(*)(const GeoContextCPU&, float);
+    std::vector<MapCPU> featureMaps; // maps that drive the processes
 
     ParticleSystemCPU particleSystem;
 
-    std::vector<MapCPU> maps;
+    std::vector<MapCPU> maps; // base heightmaps that will be used for terrain generation
+
+    std::vector<MapCPU> attribute_maps; // maps used for internal working of physical processes. (ex : sediment map for hydro erosion)
+
+    std::vector<Process> processes; // functions that will update the maps
 
     void addMap(MapCPU &&map){
         for (u32 i = 0; i < maps.size(); ++i){
@@ -44,4 +48,12 @@ public:
         }
         return height;
     }
+
+    void update(float delta){
+        for (Process p : processes){
+            
+        }
+    }
+
+    static GeoContextCPU createGeoContext();
 };
