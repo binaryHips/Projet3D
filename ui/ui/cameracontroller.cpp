@@ -34,7 +34,7 @@ QVector3D CameraController::getUp(){
 }
 
 void CameraController::updateCamera(float dt){
-    float speed = 50.0f * dt;
+    float speed = 3.0f * dt;
 
     QVector3D right = QVector3D::crossProduct(forward, up);
 
