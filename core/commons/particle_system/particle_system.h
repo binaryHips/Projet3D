@@ -20,5 +20,4 @@ protected:
 
     void spawn(u32 n);
 
-
 };
