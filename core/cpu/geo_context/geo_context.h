@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <memory>
+#include <map>
 
 #include "commons/geo_context/geo_context.h"
 #include "cpu/map/map.h"
