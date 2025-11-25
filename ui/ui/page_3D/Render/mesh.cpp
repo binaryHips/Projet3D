@@ -324,8 +324,6 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
     return o_mesh;
 }
 
-Mesh Mesh::load_heightmap(){}
-
 Mesh Mesh::load_mesh_off(std::string filename) {
     Mesh res;
 

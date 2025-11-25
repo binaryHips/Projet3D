@@ -9,8 +9,8 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 
-#include "mesh.h"
-#include "cameracontroller.h"
+#include "../Render/mesh.h"
+#include "../Camera/cameracontroller.h"
 
 class GLWidget : public QOpenGLWidget, public QOpenGLExtraFunctions
 {
@@ -38,7 +38,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-    QVector<Mesh*> planes;
     QVector<Mesh*> meshes;
 
     // camera
