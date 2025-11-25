@@ -15,7 +15,7 @@ public:
     void updateCamera(float dt);
     void onKeyPressed(int key);
     void onKeyUnpressed(int key);
-    void onMouseMove(QMouseEvent *e);
+    void onMouseMove(QMouseEvent *e, Qt::MouseButton button);
 
     QVector3D getPos();
     QVector3D getForward();
@@ -29,6 +29,7 @@ private:
     float pitch = 0.0f;
 
     bool keyDown[1024] = {};
+    Qt::MouseButton button;
 
     // input
     QPoint lastMouse;

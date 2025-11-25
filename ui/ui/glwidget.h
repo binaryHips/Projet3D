@@ -22,6 +22,9 @@ public:
 
     Mesh *addMesh(Mesh *m);
 
+signals :
+    void mouseButtonClicked(Qt::MouseButton button);
+
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -29,7 +32,10 @@ protected:
 
     void keyPressEvent(QKeyEvent *e) override;
     void keyReleaseEvent(QKeyEvent *e) override;
+
     void mouseMoveEvent(QMouseEvent *e) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
     QVector<Mesh*> meshes;
@@ -39,6 +45,7 @@ private:
     QMatrix4x4 projection;
 
     // input
+    Qt::MouseButton button;
     QPoint lastMouse;
     bool firstMouse = true;
 

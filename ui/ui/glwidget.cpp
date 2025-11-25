@@ -31,7 +31,6 @@ void GLWidget::initializeGL()
         m->setGlFunctions(this);
         m->setShader("/home/drew/Desktop/3DProject/Projet3D/ui/ui/vshader.glsl" , "/home/drew/Desktop/3DProject/Projet3D/ui/ui/fshader.glsl");
         glDisable(GL_CULL_FACE);
-        qDebug() << "Shader vertexes : " << m->vertices.count();
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -47,8 +46,7 @@ void GLWidget::paintGL()
 {
     float dt = 0.016f;
     cam.updateCamera(dt);
-    qDebug() << "Camera pos:" << cam.getPos() << "forward:" << cam.getForward();
-    // qDebug() << "Cam pos:" << cam.getPos();
+    // qDebug() << "Camera pos:" << cam.getPos() << "forward:" << cam.getForward();
 
 
     glClearColor(0.1, 0.1, 0.15, 1.0);
@@ -63,6 +61,7 @@ void GLWidget::paintGL()
         m->renderForward(VP, cam.getForward(), QMatrix4x4());
 }
 
+
 void GLWidget::keyPressEvent(QKeyEvent *e)
 {
     cam.onKeyPressed(e->key());
@@ -74,9 +73,16 @@ void GLWidget::keyReleaseEvent(QKeyEvent *e)
     cam.onKeyUnpressed(e->key());
 }
 
+void GLWidget::mousePressEvent(QMouseEvent *event){
+    button = event->button();
+}
+void GLWidget::mouseReleaseEvent(QMouseEvent *event){
+    button = Qt::NoButton;
+}
+
 void GLWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    cam.onMouseMove(e);
+    cam.onMouseMove(e,button);
     update();
 }
 

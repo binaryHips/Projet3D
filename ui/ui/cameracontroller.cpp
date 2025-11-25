@@ -19,6 +19,8 @@ CameraController::CameraController(){
     forward = QVector3D(0.0f, 0.0f, -1.0f);
     up = QVector3D(0.0f, 1.0f, 0.0f);
 
+    button = Qt::NoButton;
+
 }
 
 QVector3D CameraController::getPos(){
@@ -65,33 +67,38 @@ void CameraController::onKeyUnpressed(int key){
 
 }
 
-void CameraController::onMouseMove(QMouseEvent *e){
-    if (firstMouse) {
+void CameraController::onMouseMove(QMouseEvent *e, Qt::MouseButton button){
+
+    if (button == Qt::RightButton){
+
+        qDebug() << "maus";
+
+        if (firstMouse) {
+            lastMouse = e->pos();
+            firstMouse = false;
+        }
+
+        float dx = e->x() - lastMouse.x();
+        float dy = lastMouse.y() - e->y();
         lastMouse = e->pos();
-        firstMouse = false;
+
+        float sensitivity = 0.1f;
+        dx *= sensitivity;
+        dy *= sensitivity;
+
+        yaw   += dx;
+        pitch += dy;
+
+        pitch = qBound(-89.0f, pitch, 89.0f);
+
+        float cy = qCos(qDegreesToRadians(yaw));
+        float sy = qSin(qDegreesToRadians(yaw));
+        float cp = qCos(qDegreesToRadians(pitch));
+        float sp = qSin(qDegreesToRadians(pitch));
+
+        forward = QVector3D(cy * cp, sp, sy * cp).normalized();
+        QVector3D worldUp(0.0f, 1.0f, 0.0f);
+        QVector3D right = QVector3D::crossProduct(forward, worldUp).normalized();
+        up = QVector3D::crossProduct(right, forward).normalized();
     }
-
-    float dx = e->x() - lastMouse.x();
-    float dy = lastMouse.y() - e->y();
-    lastMouse = e->pos();
-
-    float sensitivity = 0.1f;
-    dx *= sensitivity;
-    dy *= sensitivity;
-
-    yaw   += dx;
-    pitch += dy;
-
-    pitch = qBound(-89.0f, pitch, 89.0f);
-
-    float cy = qCos(qDegreesToRadians(yaw));
-    float sy = qSin(qDegreesToRadians(yaw));
-    float cp = qCos(qDegreesToRadians(pitch));
-    float sp = qSin(qDegreesToRadians(pitch));
-
-    forward = QVector3D(cy * cp, sp, sy * cp).normalized();
-    QVector3D worldUp(0.0f, 1.0f, 0.0f);
-    QVector3D right = QVector3D::crossProduct(forward, worldUp).normalized();
-    up = QVector3D::crossProduct(right, forward).normalized();
-
 }
