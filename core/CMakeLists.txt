@@ -17,8 +17,6 @@ add_library(core STATIC
     commons/particle_system/particle_system.h
     commons/geo_context/geo_context.h
 
-
-
     cpu/geo_context/geo_context.h
 
     cpu/particle_system/particle_system.h
