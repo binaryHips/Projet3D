@@ -16,10 +16,11 @@ public:
 
     std::vector<MapCPU> maps; // base heightmaps that will be used for terrain generation
 
-    std::vector<MapCPU> attribute_maps; // maps used for internal working of physical processes. (ex : sediment map for hydro erosion)
+    std::vector<MapCPU> attributeMaps; // maps used for internal working of physical processes. (ex : sediment map for hydro erosion)
 
     std::vector<Process> processes; // functions that will update the maps
 
+    GeoContextCPU() = default;
     void addMap(MapCPU &&map){
         for (u32 i = 0; i < maps.size(); ++i){
             if (maps[i].yIndex > map.yIndex){

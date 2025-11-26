@@ -5,6 +5,10 @@ class MapCPU : public MapBase__{
 
     std::vector<Pixel, AlignmentAllocator<Pixel, 512 / sizeof(Pixel)> > data;
 
+
+    MapCPU(){
+        data = std::vector<Pixel, AlignmentAllocator<Pixel, 512 / sizeof(Pixel)> >(IMGSIZE * IMGSIZE, 0);
+    }
 public:
 #if FMDEBUG
     Pixel operator() (const u32 x, const u32 y) const {
