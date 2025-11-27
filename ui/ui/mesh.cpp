@@ -167,8 +167,6 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
 
     QMatrix4x4 MVP = vpMatrix * outside_transform * transform; // transform the VP into MVP
 
-
-
     // gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &MVP[0][0]);
     gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, MVP.constData());
 
@@ -184,9 +182,6 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
         gl_funcs->glUniform3fv(lightLoc, 1, &lightPos[0]);
     }
 
-
-
-
     gl_funcs->glDrawElements(
         GL_TRIANGLES,      // mode
         triangles.size()*3,    // count
@@ -195,40 +190,6 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
         );
 
     gl_funcs->glUseProgram(0);
-    gl_funcs->glBindVertexArray(0);
-}
-
-
-void Mesh::renderDeferred(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatrix4x4 & outside_transform, GLuint gShader) const{
-
-    if (vertices.empty()) return;
-    if (!_synchronized){ // FIXME branch prediction may bottleneck a little here? idk
-        synchronize();
-    }
-
-    gl_funcs->glBindVertexArray(_VAO);
-
-    QMatrix4x4 MODEL = outside_transform * transform;
-
-    QMatrix4x4 MVP = vpMatrix * MODEL; // transform the VP into MVP
-
-    // todo just tranfer a struct to the gpu with all interesting data
-    GLuint mvpUniformLocation = gl_funcs->glGetUniformLocation(gShader, "MVP");
-    GLuint modelUniformLocation = gl_funcs->glGetUniformLocation(gShader, "MODEL");
-
-    gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, MVP.constData());
-    gl_funcs->glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, MODEL.constData());
-
-    // material->bind(gShader);
-
-
-    gl_funcs->glDrawElements(
-        GL_TRIANGLES,      // mode
-        triangles.size()*3,    // count
-        TRI_GL_TYPE,   // type
-        (void*)0           // element array buffer offset
-        );
-
     gl_funcs->glBindVertexArray(0);
 }
 

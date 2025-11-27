@@ -1,7 +1,8 @@
-#version 150
+#version 430
 
-in vec4 vertex;
-in vec3 normal;
+layout(location = 0) in vec4 vertex;
+layout(location = 1) in vec2 coords; // uv
+layout(location = 2) in vec3 normal;
 
 out vec3 v_position;
 out vec3 v_normal;
@@ -10,9 +11,14 @@ out vec3 v_normal;
 uniform mat4 MVP;
 uniform mat4 Model;
 
+// Heightmap
+uniform sampler2D heightmap;
+
 void main() {
     // Transform position with the model matrix and pass it to the fragment shader
-    v_position = (Model * vertex).xyz;
+    vec4 height = texture(heightmap, coords);
+    v_position = (Model * vertex).xyz + height.y;
+
 
     // Compute normal matrix on the GPU (transpose(inverse(mat3(Model))))
     mat3 normal_matrix = transpose(inverse(mat3(Model)));
