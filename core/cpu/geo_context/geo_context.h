@@ -12,7 +12,7 @@ class GeoContextCPU : public GeoContextBase__ {
 private:
     GeoContextCPU() = default;
 public:
-    using Process = void(*)(const GeoContextCPU&, float);
+    using Process = void(*)(GeoContextCPU&, float);
     std::vector<MapCPU> featureMaps; // maps that drive the processes
 
     ParticleSystemCPU particleSystem;
@@ -68,12 +68,6 @@ public:
             }
         }
         return height;
-    }
-
-    void update(float delta){
-        for (Process p : processes){
-            
-        }
     }
 
     static GeoContextCPU createGeoContext();
