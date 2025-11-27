@@ -1,20 +1,16 @@
 #include "geo_context.h"
 
 
-// gives variables i, j, currentPixel (ref, val on current map at (i, j)) and currentHeight (total height at (i, j))
-
-#define FOREACH(context, map) for (u32 i = 0; i < IMGSIZE; ++i) for (u32 j = 0, Pixel &currentPixel = map(i, j), float currentHeight = context.totalHeight(uvec2(i, j)); j < IMGSIZE; ++j, Pixel &currentPixel = map(i, j), float currentHeight = context.totalHeight(uvec2(i, j)))
-
 // The different processes are defined here, for now it's defined as is, but we should turn it into some kind of factory.
 
-enum class FEATURE_LAYERS = {
+enum class FEATURE_LAYERS {
     DESIRED_HEIGHT,
     DESIRED_WATER,
     DESIRED_VERDURE,
     MAX_
 };
 
-enum class MAP_LAYERS = {
+enum class MAP_LAYERS {
     BEDROCK,
     STONE,
     SAND,
@@ -22,31 +18,34 @@ enum class MAP_LAYERS = {
     MAX_
 };
 
-enum class ATTRIBUTE_LAYERS = {
+enum class ATTRIBUTE_LAYERS {
     SEDIMENT,
     MAX_
 };
 
 void processSandGravity(GeoContextCPU &context){
-    FOREACH(context, context.maps[MAP_LAYERS.SAND]){
+
+    for (u32 i = 0; i < IMGSIZE; ++i) for (u32 j = 0; j < IMGSIZE; ++j){
+        Pixel &currentPixel = context.maps[to_underlying(MAP_LAYERS::SAND)](i, j);
+        float currentHeight = context.totalHeight(uvec2(i, j));
 
     }
 }
 
 
 
-GeoContextCPU GeoContextCPU::create_geo_context(){
+GeoContextCPU GeoContextCPU::createGeoContext(){
 
-    GeoContextCPU context;
+    GeoContextCPU context = GeoContextCPU();
 
-    context.maps.resize(MAP_LAYERS.MAX_);
-    context.featureMaps.resize(FEATURE_LAYERS.MAX_);
-    context.attributeMaps.resize(ATTRIBUTE_LAYERS.MAX_);
+    context.maps.resize(to_underlying(MAP_LAYERS::MAX_));
+    context.featureMaps.resize(to_underlying(FEATURE_LAYERS::MAX_));
+    context.attributeMaps.resize(to_underlying(ATTRIBUTE_LAYERS::MAX_));
 
-    context.maps[MAP_LAYERS.BEDROCK] = 0;
-    context.maps[MAP_LAYERS.STONE] = 1;
-    context.maps[MAP_LAYERS.SAND] = 2;
-    context.maps[MAP_LAYERS.WATER] = 2;
+    context.maps[to_underlying(MAP_LAYERS::BEDROCK)].yIndex = 0;
+    context.maps[to_underlying(MAP_LAYERS::STONE)].yIndex = 1;
+    context.maps[to_underlying(MAP_LAYERS::SAND)].yIndex = 2;
+    context.maps[to_underlying(MAP_LAYERS::WATER)].yIndex = 2;
 
 
 

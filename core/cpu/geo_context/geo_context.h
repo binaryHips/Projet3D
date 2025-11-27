@@ -8,6 +8,9 @@
 #include "cpu/particle_system/particle_system.h"
 
 class GeoContextCPU : public GeoContextBase__ {
+
+private:
+    GeoContextCPU() = default;
 public:
     using Process = void(*)(const GeoContextCPU&, float);
     std::vector<MapCPU> featureMaps; // maps that drive the processes
@@ -20,7 +23,6 @@ public:
 
     std::vector<Process> processes; // functions that will update the maps
 
-    GeoContextCPU() = default;
     void addMap(MapCPU &&map){
         for (u32 i = 0; i < maps.size(); ++i){
             if (maps[i].yIndex > map.yIndex){
@@ -30,7 +32,14 @@ public:
         }
     }
 
-    float totalHeight(uvec2 pos){
+    float totalHeight(float x, float y){
+
+        // TODO unneceessary conversion
+        uvec2 pxVec = uvec2(x * IMGSIZE, y * IMGSIZE);
+        return totalHeight(pxVec);
+    }
+
+    inline float totalHeight(uvec2 pos){
 
         float height = 0;
         float currentYIndexHeight = 0;
