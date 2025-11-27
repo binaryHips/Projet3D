@@ -69,22 +69,20 @@ void CameraController::onKeyUnpressed(int key){
 
 void CameraController::onMouseMove(QMouseEvent *e, Qt::MouseButton button){
 
-    if (button == Qt::RightButton){
-
-        qDebug() << "maus";
-
-        if (firstMouse) {
-            lastMouse = e->pos();
-            firstMouse = false;
-        }
-
-        float dx = e->x() - lastMouse.x();
-        float dy = lastMouse.y() - e->y();
+    if (firstMouse) {
         lastMouse = e->pos();
+        firstMouse = false;
+    }
 
-        float sensitivity = 0.1f;
-        dx *= sensitivity;
-        dy *= sensitivity;
+    float dx = e->x() - lastMouse.x();
+    float dy = lastMouse.y() - e->y();
+    lastMouse = e->pos();
+
+    float sensitivity = 0.1f;
+    dx *= sensitivity;
+    dy *= sensitivity;
+
+    if (button == Qt::RightButton){
 
         yaw   += dx;
         pitch += dy;
