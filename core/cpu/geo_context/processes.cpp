@@ -28,7 +28,7 @@ void processSandGravity(GeoContextCPU &context){
     for (u32 i = 0; i < IMGSIZE; ++i) for (u32 j = 0; j < IMGSIZE; ++j){
         Pixel &currentPixel = context.maps[to_underlying(MAP_LAYERS::SAND)](i, j);
         float currentHeight = context.totalHeight(uvec2(i, j));
-
+        currentPixel += 0.1 * delta;
     }
 }
 
@@ -47,6 +47,7 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.maps[to_underlying(MAP_LAYERS::SAND)].yIndex = 2;
     context.maps[to_underlying(MAP_LAYERS::WATER)].yIndex = 2;
 
+    context.addProcess(processSandGravity);
 
-
+    return context;
 }

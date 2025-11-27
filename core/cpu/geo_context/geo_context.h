@@ -23,6 +23,16 @@ public:
 
     std::vector<Process> processes; // functions that will update the maps
 
+    void update(float delta){
+        for (Process process: processes){
+            process(*this, delta);
+        }
+    }
+
+    void addProcess(Process process){
+        processes.push_back(process);
+    }
+
     void addMap(MapCPU &&map){
         for (u32 i = 0; i < maps.size(); ++i){
             if (maps[i].yIndex > map.yIndex){
@@ -32,14 +42,14 @@ public:
         }   
     }
 
-    float totalHeight(float x, float y){
+    float totalHeight(float x, float y) const {
 
         // TODO unneceessary conversion
         uvec2 pxVec = uvec2(x * IMGSIZE, y * IMGSIZE);
         return totalHeight(pxVec);
     }
 
-    inline float totalHeight(uvec2 pos){
+    inline float totalHeight(uvec2 pos) const {
 
         float height = 0;
         float currentYIndexHeight = 0;
