@@ -324,7 +324,26 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
     return o_mesh;
 }
 
-Mesh Mesh::load_heightmap(){}
+// void Mesh::loadHeightmap(const GeoContextCPU &context)
+// {
+
+//     float data[IMGSIZE][IMGSIZE];
+
+//     for (int i = 0 ; i < IMGSIZE ; i++)
+//     {
+//         for (int j = 0 ; j < IMGSIZE ; j++)
+
+//             uvec2 pixel(i,j);
+//             float height = context.totalHeight(pixel); // Assume this exists
+//             data[i][j] = height;
+//     }
+
+//     unsigned int mapTexture;
+//     glGenTextures(1 , &mapTexture);
+//     glBindTexture(GL_TEXTURE_2D , mapTexture);
+//     glTexImage2D(GL_TEXTURE_2D , 0 , GL_RED, IMGSIZE, IMGSIZE , GL_RED , GL_FLOAT , data);
+//     gl_funcs->glGenerateMipmap(GL_TEXTURE_2D);
+// }
 
 Mesh Mesh::load_mesh_off(std::string filename) {
     Mesh res;

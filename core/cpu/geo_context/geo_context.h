@@ -22,7 +22,7 @@ public:
                 maps.insert(maps.begin() + i, std::move(map));
                 return;
             }
-        }
+        }   
     }
 
     float totalHeight(uvec2 pos){

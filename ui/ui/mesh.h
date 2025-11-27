@@ -15,6 +15,7 @@
 
 #include <string>
 
+#include "includes_all_cpu.h"
 #include "texture.h"
 
 
@@ -105,7 +106,7 @@ public:
     void renderForward(const QMatrix4x4 & vpMatrix, QVector3D vp, const QMatrix4x4 & outside_transform) const;
     void renderDeferred(const QMatrix4x4 & vpMatrix, QVector3D vp, const QMatrix4x4 & outside_transform, GLuint gShader) const;
 
-    void loadHeightmap();
+    void loadHeightmap(const GeoContextCPU &context);
 
     void rotate(float v, QVector3D axis){
         transform.rotate(v, axis);
