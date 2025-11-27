@@ -22,9 +22,8 @@ int main(int argc, char *argv[])
     Mesh *plane= new Mesh();
     // *plane = Mesh::load_mesh_off("/home/drew/Desktop/3DProject/Projet3D/ui/ui/ressources/suzanne.off");
 
-    GeoContextCPU context = GeoContextCPU::createGeoContext();
-
     *plane = Mesh::gen_tesselatedSquare(100,100,1,1);
+
     w.ui->widget->addMesh(plane);
 
     QObject::connect(w.ui->test_btn , SIGNAL(clicked()), &w , SLOT(returnClicked()));

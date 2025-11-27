@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QElapsedTimer>
 
 #include "mesh.h"
 #include "cameracontroller.h"
@@ -47,10 +48,12 @@ private:
 
     // input
     Qt::MouseButton button;
-    QPoint lastMouse;
-    bool firstMouse = true;
 
+    // time
+    size_t lastTime;
     QTimer timer;
+
+    QElapsedTimer fps_timer;
     void updateCamera(float dt);
 };
 

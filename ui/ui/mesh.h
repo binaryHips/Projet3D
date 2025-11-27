@@ -77,11 +77,11 @@ public:
     QVector< Triangle > triangles;
     QVector< QVector3D > colors;
 
+    mutable GLuint mapTexture;
+
     //tangent / bitangent
     QVector<QVector3D> tangents;
     QVector<QVector3D> bitangents;
-
-    QVector< QPair<Texture, QString> > textures; // TODO : Finx Texture definition
 
     static Mesh gen_tesselatedSquare(int nX, int nY, float sX = 1, float sY = 1);
     static Mesh load_mesh_off(std::string filename);
@@ -111,16 +111,6 @@ public:
     void rotate(float v, QVector3D axis){
         transform.rotate(v, axis);
     }
-
-    // TODO : Figure out where texture is defined
-    void addTexture(Texture tex, QString name_in_shader){
-        textures.push_back( QPair(tex, name_in_shader));
-    }
-
-    // friend std::ostream& operator<< (std::ostream& stream, const Mesh& mesh) {
-    //     stream << "Mesh(" << mesh.vertices.size() <<" verts, " << mesh.triangles.size() <<" tris)";
-    //     return stream;
-    // }
 
     friend QDataStream& operator<< (QDataStream& stream, const Mesh& mesh) {
         stream << "Mesh(" << mesh.vertices.size() <<" verts, " << mesh.triangles.size() <<" tris)";

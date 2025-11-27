@@ -19,6 +19,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
 
     GLWidget *openGLWidget;
+    GeoContextCPU context = GeoContextCPU::createGeoContext();
 
     ~MainWindow();
 

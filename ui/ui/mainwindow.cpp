@@ -7,7 +7,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     // addStretch() to make them hug top
     ui->gl_settings_layout->addStretch();
 }

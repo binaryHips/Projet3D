@@ -2,6 +2,20 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QtMath>
+#include <QTimer>
+#include "mainwindow.h"
+#include <chrono>
+
+inline size_t currentTime()
+{
+    std::chrono::time_point<std::chrono::system_clock> timestamp =
+        std::chrono::system_clock::now();
+
+    const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>
+                    (timestamp.time_since_epoch()).count();
+
+    return ns; // Convert to seconds
+}
 
 GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
@@ -10,7 +24,9 @@ GLWidget::GLWidget(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
 
     connect(&timer, &QTimer::timeout, this, QOverload<>::of(&GLWidget::update));
-    timer.start(16);
+    timer.start(0);
+
+    lastTime = currentTime();
 }
 
 GLWidget::~GLWidget()
@@ -43,8 +59,15 @@ void GLWidget::resizeGL(int w, int h)
 }
 
 void GLWidget::paintGL()
-{
-    float dt = 0.016f;
+{   
+    size_t ct = currentTime();
+    float dt = (ct - lastTime) * 0.000000001;
+    lastTime = ct;
+    GeoContextCPU &context = static_cast<MainWindow*>(parentWidget())->context;
+    context.update(dt);
+
+    // meshes[0]->loadHeightmap(context);
+
     cam.updateCamera(dt);
     // qDebug() << "Camera pos:" << cam.getPos() << "forward:" << cam.getForward();
 
@@ -58,7 +81,9 @@ void GLWidget::paintGL()
     QMatrix4x4 VP = projection * view;
 
     for (Mesh *m : meshes)
+    {
         m->renderForward(VP, cam.getForward(), QMatrix4x4());
+    }
 }
 
 

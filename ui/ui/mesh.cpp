@@ -35,6 +35,8 @@ void Mesh::synchronize() const {
         unsynchronize();
     }
 
+    gl_funcs->glGenTextures(1 , &mapTexture);
+
     // TODO : Figure out the VertexArray problems
     gl_funcs->glGenVertexArrays(1, &_VAO);
     gl_funcs->glBindVertexArray(_VAO);
@@ -148,17 +150,12 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
     gl_funcs->glUseProgram(shaderPID);
 
 
-    int i = 0;
-    for (auto & t: textures){
+    gl_funcs->glBindTexture(GL_TEXTURE_2D , mapTexture);
 
-        t.first.bind(i);
-
-        gl_funcs->glUniform1i(
-            gl_funcs->glGetUniformLocation(shaderPID, t.second.toStdString().c_str()),
-            i
-            );
-        ++i;
-    }
+    gl_funcs->glUniform1i(
+        gl_funcs->glGetUniformLocation(shaderPID, "heightmap"),
+        0
+    );
 
     // todo just tranfer a struct to the gpu with all interesting data
     GLuint mvpUniformLocation = gl_funcs->glGetUniformLocation(shaderPID, "MVP");
@@ -290,21 +287,18 @@ void Mesh::loadHeightmap(GeoContextCPU context)
 
     float data[IMGSIZE][IMGSIZE];
 
-    for (int i = 0 ; i < IMGSIZE ; i++)
+    for (u32 i = 0 ; i < IMGSIZE ; i++)
     {
-        for (int j = 0 ; j < IMGSIZE ; j++)
+        for (u32 j = 0 ; j < IMGSIZE ; j++)
         {
             uvec2 pixel(i,j);
-            float height = context.totalHeight(pixel); // Assume this exists
+            const float height = context.totalHeight(pixel);
             data[i][j] = height;
         }
     }
 
-    unsigned int mapTexture;
-    gl_funcs->glGenTextures(1 , &mapTexture);
     gl_funcs->glBindTexture(GL_TEXTURE_2D , mapTexture);
     gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 , GL_RED, IMGSIZE, IMGSIZE, 0 , GL_RED , GL_FLOAT , data);
-    gl_funcs->glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 Mesh Mesh::load_mesh_off(std::string filename) {
