@@ -8,13 +8,20 @@
 #include "cpu/particle_system/particle_system.h"
 
 class GeoContextCPU : public GeoContextBase__ {
-public:
 
-    std::vector<MapCPU> featureMaps;
+private:
+    GeoContextCPU() = default;
+public:
+    using Process = void(*)(const GeoContextCPU&, float);
+    std::vector<MapCPU> featureMaps; // maps that drive the processes
 
     ParticleSystemCPU particleSystem;
 
-    std::vector<MapCPU> maps;
+    std::vector<MapCPU> maps; // base heightmaps that will be used for terrain generation
+
+    std::vector<MapCPU> attributeMaps; // maps used for internal working of physical processes. (ex : sediment map for hydro erosion)
+
+    std::vector<Process> processes; // functions that will update the maps
 
     void addMap(MapCPU &&map){
         for (u32 i = 0; i < maps.size(); ++i){
@@ -25,7 +32,14 @@ public:
         }   
     }
 
-    float totalHeight(uvec2 pos){
+    float totalHeight(float x, float y){
+
+        // TODO unneceessary conversion
+        uvec2 pxVec = uvec2(x * IMGSIZE, y * IMGSIZE);
+        return totalHeight(pxVec);
+    }
+
+    inline float totalHeight(uvec2 pos){
 
         float height = 0;
         float currentYIndexHeight = 0;
@@ -45,4 +59,12 @@ public:
         }
         return height;
     }
+
+    void update(float delta){
+        for (Process p : processes){
+            
+        }
+    }
+
+    static GeoContextCPU createGeoContext();
 };

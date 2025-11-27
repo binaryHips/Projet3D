@@ -21,13 +21,15 @@ public:
 };
 
 class ParticleSystemCPU : public ParticleSystemBase__{
-
+public:
     std::vector<ParticlePageCPU> pages;
     const GeoContextCPU *context;
 
     ParticleSystemCPU(const GeoContextCPU *context)
         : context(context)
         {}
+    
+    ParticleSystemCPU() = default;
 
     void update(float deltaTime){
         for (ParticlePageCPU& page: pages){
