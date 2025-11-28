@@ -6,8 +6,6 @@
 
 class MapBase__ {
 public:
-    u32 sX, sY;
-
     // The "height" of the layer represented by the map. With the following behavior :
     // - we're always over the layers with an inferior yIndex
     // - if another layer has the same yIndex, the highest one wins.
