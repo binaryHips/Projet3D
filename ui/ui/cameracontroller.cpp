@@ -51,7 +51,6 @@ void CameraController::updateCamera(float dt){
 
 void CameraController::onKeyPressed(int key){
 
-    std::cout << key << std::endl;
     if (key <= 256){
         keyDown[key] = 1;
     }
@@ -60,7 +59,6 @@ void CameraController::onKeyPressed(int key){
 
 void CameraController::onKeyUnpressed(int key){
 
-    std::cout << key << std::endl;
     if (key <= 256){
         keyDown[key] = 0;
     }

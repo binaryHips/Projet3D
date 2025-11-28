@@ -36,6 +36,12 @@ void Mesh::synchronize() const {
     }
 
     gl_funcs->glGenTextures(1 , &mapTexture);
+    gl_funcs->glActiveTexture(GL_TEXTURE0 + 0);
+    gl_funcs->glBindTexture(GL_TEXTURE_2D, mapTexture);
+    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // TODO : Figure out the VertexArray problems
     gl_funcs->glGenVertexArrays(1, &_VAO);
@@ -122,20 +128,6 @@ void Mesh::synchronize() const {
 
     gl_funcs->glBindVertexArray(0);
 
-    // textures
-
-    // TODO synchronize texture here aswell but not now since texture still can't "unsychronize"
-
-    /*
-    glUseProgram(shaderPID);
-
-    for (auto t: textures){
-        glUniform1i(
-            glGetUniformLocation(shaderPID, t.second.c_str()),
-            t.first.getTextureId()
-        );
-    }*/
-
     _synchronized = true;
 }
 
@@ -149,8 +141,9 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
     gl_funcs->glBindVertexArray(_VAO);
     gl_funcs->glUseProgram(shaderPID);
 
-
+    gl_funcs->glActiveTexture(GL_TEXTURE0 + 0);
     gl_funcs->glBindTexture(GL_TEXTURE_2D , mapTexture);
+
 
     gl_funcs->glUniform1i(
         gl_funcs->glGetUniformLocation(shaderPID, "heightmap"),
@@ -170,14 +163,6 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
     gl_funcs->glUniform3fv(camForardLocation, 1, &fv[0]);
 
     gl_funcs->glUniformMatrix4fv(modelLocation, 1, GL_FALSE,  transform.constData());
-
-    // Provide a default light position to the shader if it expects one
-    GLint lightLoc = gl_funcs->glGetUniformLocation(shaderPID, "light_position");
-    if (lightLoc != -1) {
-        // Simple directional/positional light placed in world space
-        QVector3D lightPos(10.0f, 10.0f, 10.0f);
-        gl_funcs->glUniform3fv(lightLoc, 1, &lightPos[0]);
-    }
 
     gl_funcs->glDrawElements(
         GL_TRIANGLES,      // mode
@@ -243,9 +228,10 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
 
             o_mesh.vertices.push_back(
                 QVector3D(
-                    (px -0.5) * sX,
-                    (py -0.5) * sY,
-                    0
+                    (px) * sX,
+                            0.0,
+                    (py) * sY
+
                     )
                 );
             o_mesh.uvs.push_back(
@@ -294,11 +280,12 @@ void Mesh::updatePlaneHeightmap(GeoContextCPU &context)
             uvec2 pixel(i,j);
             const float height = context.totalHeight(pixel);
             data[i][j] = height;
+
         }
     }
 
     gl_funcs->glBindTexture(GL_TEXTURE_2D , mapTexture);
-    gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 , GL_RED, IMGSIZE, IMGSIZE, 0 , GL_RED , GL_FLOAT , data);
+    gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 , GL_R32F, IMGSIZE, IMGSIZE, 0 , GL_RED , GL_FLOAT , (void*)data);
 }
 
 Mesh Mesh::load_mesh_off(std::string filename) {
