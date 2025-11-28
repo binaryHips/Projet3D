@@ -27,7 +27,6 @@ public:
     inline Pixel operator() (const uvec2 v) const{
         u32 clamped_x = std::clamp(v[0], 0u, IMGSIZE);
         u32 clamped_y = std::clamp(v[1], 0u, IMGSIZE);
-        std::cout << "YOLO " << &data << std::endl;
         return data[clamped_x + clamped_y * IMGSIZE];
     }
     inline Pixel& operator() (const uvec2 v) {
