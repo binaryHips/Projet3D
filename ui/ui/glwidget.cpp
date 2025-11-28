@@ -45,7 +45,8 @@ void GLWidget::initializeGL()
 
     for(Mesh *m:meshes){
         m->setGlFunctions(this);
-        m->setShader("/home/drew/Desktop/3DProject/Projet3D/ui/ui/vshader.glsl" , "/home/drew/Desktop/3DProject/Projet3D/ui/ui/fshader.glsl");
+        // Use Qt resource paths so the app is portable across machines
+        m->setShader(":/vshader.glsl" , ":/fshader.glsl");
         glDisable(GL_CULL_FACE);
     }
 

@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <QFile>
 
 #include <QOpenGLShader>
 #include <QOpenGLExtraFunctions>
@@ -90,25 +91,47 @@ GLuint loadShadersFromFileGLSL(QOpenGLExtraFunctions *context, const char * vert
 
     // Read the Vertex Shader code from the file
     std::string VertexShaderCode;
-    std::ifstream VertexShaderStream(vertex_file_path, std::ios::in);
-    if(VertexShaderStream.is_open()){
-        std::stringstream sstr;
-        sstr << VertexShaderStream.rdbuf();
-        VertexShaderCode = sstr.str();
-        VertexShaderStream.close();
-    }else{
-        printf("Could not open shader %s.\n", vertex_file_path);
-        getchar();
-        return 0;
+    QString vpath = QString::fromUtf8(vertex_file_path);
+    if (vpath.startsWith(":/")) {
+        QFile vf(vpath);
+        if (!vf.open(QIODevice::ReadOnly)){
+            printf("Could not open shader %s.\n", vertex_file_path);
+            return 0;
+        }
+        QByteArray data = vf.readAll();
+        VertexShaderCode = std::string(data.constData(), data.size());
+        vf.close();
+    } else {
+        std::ifstream VertexShaderStream(vertex_file_path, std::ios::in);
+        if(VertexShaderStream.is_open()){
+            std::stringstream sstr;
+            sstr << VertexShaderStream.rdbuf();
+            VertexShaderCode = sstr.str();
+            VertexShaderStream.close();
+        }else{
+            printf("Could not open shader %s.\n", vertex_file_path);
+            getchar();
+            return 0;
+        }
     }
     // Read the Fragment Shader code from the file
     std::string FragmentShaderCode;
-    std::ifstream FragmentShaderStream(fragment_file_path, std::ios::in);
-    if(FragmentShaderStream.is_open()){
-        std::stringstream sstr;
-        sstr << FragmentShaderStream.rdbuf();
-        FragmentShaderCode = sstr.str();
-        FragmentShaderStream.close();
+    QString fpath = QString::fromUtf8(fragment_file_path);
+    if (fpath.startsWith(":/")){
+        QFile ff(fpath);
+        if (ff.open(QIODevice::ReadOnly)){
+            QByteArray data = ff.readAll();
+            FragmentShaderCode = std::string(data.constData(), data.size());
+            ff.close();
+        }
+    } else {
+        std::ifstream FragmentShaderStream(fragment_file_path, std::ios::in);
+        if(FragmentShaderStream.is_open()){
+            std::stringstream sstr;
+            sstr << FragmentShaderStream.rdbuf();
+            FragmentShaderCode = sstr.str();
+            FragmentShaderStream.close();
+        }
     }
 
     return loadShaders(context, VertexShaderCode, FragmentShaderCode);
