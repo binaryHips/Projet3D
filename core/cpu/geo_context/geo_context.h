@@ -25,11 +25,9 @@ public:
 
     void update(float delta){
 
-        // for(int i = 0 ; i < process.size())
-
-        // for (Process process: processes){
-        //     process(*this, delta);
-        // }
+        for (Process process: processes){
+            process(*this, delta);
+        }
     }
 
     void addProcess(Process process){
@@ -54,8 +52,8 @@ public:
 
     inline float totalHeight(uvec2 pos) const {
 
-        float height = 0;
-        float currentYIndexHeight = 0;
+        float height = 0.0;
+        float currentYIndexHeight = 0.0;
         u32 currentYIndex = 0;
 
         for (auto &map : maps){
@@ -70,7 +68,7 @@ public:
                 currentYIndexHeight = h;
             }
         }
-        return height;
+        return height + currentYIndexHeight; // add the last one
     }
 
     static GeoContextCPU createGeoContext();
