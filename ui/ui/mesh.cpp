@@ -284,8 +284,6 @@ void Mesh::updatePlaneHeightmap(GeoContextCPU &context)
         }
     }
 
-    qDebug() << data[51][10];
-
     gl_funcs->glBindTexture(GL_TEXTURE_2D , mapTexture);
     gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 , GL_R32F, IMGSIZE, IMGSIZE, 0 , GL_RED , GL_FLOAT , (void*)data);
 }
