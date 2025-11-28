@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "glwidget.h"
+#include "includes_all_cpu.h"
 
 
 QT_BEGIN_NAMESPACE

@@ -282,7 +282,7 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
     return o_mesh;
 }
 
-void Mesh::loadHeightmap(GeoContextCPU context)
+void Mesh::updatePlaneHeightmap(GeoContextCPU &context)
 {
 
     float data[IMGSIZE][IMGSIZE];

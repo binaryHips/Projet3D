@@ -1,9 +1,20 @@
 #ifndef BACKEND_H
 #define BACKEND_H
 
-// #include "includes_all_cpu.h"
+#include <QString>
+#include "includes_all_cpu.h"
 
-// GeoContextCPU context = GeoContextCPU::createGeoContext();
 
+struct Backend
+{
+    Backend();
+
+    GeoContextCPU context = GeoContextCPU::createGeoContext();
+
+    MapCPU loadHeightmap(QString filename);
+
+
+
+};
 
 #endif // BACKEND_H

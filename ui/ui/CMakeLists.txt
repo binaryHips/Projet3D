@@ -54,11 +54,13 @@ else()
             mesh.h mesh.cpp
             clickablelabel.h clickablelabel.cpp
             ressources.qrc
-            contexthandle.cpp
+
             tangentspace.h tangentspace.cpp
             texture.h texture.cpp
             shader.h shader.cpp
             cameracontroller.h cameracontroller.cpp
+            backend.h backend.cpp
+            backend.cpp
 
         )
         target_include_directories(ui PRIVATE

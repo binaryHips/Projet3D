@@ -66,7 +66,7 @@ void GLWidget::paintGL()
     GeoContextCPU &context = static_cast<MainWindow*>(parentWidget())->context;
     context.update(dt);
 
-    // meshes[0]->loadHeightmap(context);
+    meshes[0]->updatePlaneHeightmap(context);
 
     cam.updateCamera(dt);
     // qDebug() << "Camera pos:" << cam.getPos() << "forward:" << cam.getForward();

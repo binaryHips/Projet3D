@@ -24,9 +24,12 @@ public:
     std::vector<Process> processes; // functions that will update the maps
 
     void update(float delta){
-        for (Process process: processes){
-            process(*this, delta);
-        }
+
+        // for(int i = 0 ; i < process.size())
+
+        // for (Process process: processes){
+        //     process(*this, delta);
+        // }
     }
 
     void addProcess(Process process){
@@ -39,7 +42,7 @@ public:
                 maps.insert(maps.begin() + i, std::move(map));
                 return;
             }
-        }   
+        }
     }
 
     float totalHeight(float x, float y) const {
