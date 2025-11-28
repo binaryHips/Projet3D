@@ -9,11 +9,9 @@ struct Backend
 {
     Backend();
 
-    GeoContextCPU context = GeoContextCPU::createGeoContext();
+//    GeoContextCPU context = GeoContextCPU::createGeoContext();
 
-    MapCPU loadHeightmap(QString filename);
-
-
+    static MapCPU loadHeightmap(QString filename, float scale = 1.0f);
 
 };
 

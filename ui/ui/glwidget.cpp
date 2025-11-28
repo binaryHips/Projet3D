@@ -11,11 +11,12 @@ inline size_t currentTime()
     std::chrono::time_point<std::chrono::system_clock> timestamp =
         std::chrono::system_clock::now();
 
-    const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>
+    const auto ms = std::chrono::duration_cast<std::chrono::microseconds>
                     (timestamp.time_since_epoch()).count();
 
-    return ns; // Convert to seconds
+    return ms; // Convert to seconds
 }
+
 
 GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
@@ -45,7 +46,6 @@ void GLWidget::initializeGL()
 
     for(Mesh *m:meshes){
         m->setGlFunctions(this);
-        // Use Qt resource paths so the app is portable across machines
         m->setShader(":/vshader.glsl" , ":/fshader.glsl");
         glDisable(GL_CULL_FACE);
     }
@@ -62,10 +62,14 @@ void GLWidget::resizeGL(int w, int h)
 void GLWidget::paintGL()
 {   
     size_t ct = currentTime();
-    float dt = (ct - lastTime) * 0.000000001;
+    float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
-    GeoContextCPU &context = static_cast<MainWindow*>(parentWidget())->context;
+//    qDebug() << dt;
+
+    GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
+
     context.update(dt);
+//    std::cout << context.totalHeight(uvec2(10, 10)) << std::endl;
 
     meshes[0]->updatePlaneHeightmap(context);
 
