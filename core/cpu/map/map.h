@@ -10,7 +10,6 @@ public:
 
     MapCPU(){
         data = std::vector<Pixel>(IMGSIZE * IMGSIZE, 0.0f);
-        std::cout << &data << std::endl;
     }
 
     inline Pixel operator() (const u32 x, const u32 y) const {
