@@ -24,11 +24,29 @@ class  Kernel {
 
                 for (int u = -kernel.extent; u <= kernel.extent, map.sX; ++u){
                     for (int v = -kernel.extent; v <= kernel.extent, map.sY; ++v){
-                        
-                        int k = std::clamp(i+u, 0, map.sX);
-                        int l = std::clamp(j+v, 0, map.sY);
 
                         val += map(k, l)*kernel(u, v);
+                    }
+                }
+                result(i, j) = val;
+            }
+        }
+        return result;
+    }
+
+static void convolveToHeight(const Kernel &kernel, const GeoContextCPU & context, u32 targetMap){
+        
+        // TODO if this does not get giorgized by the compiler, then giorgize it
+
+        for (u32 i = 0; i < map.sX; ++i){
+            for (u32 j = 0; j < map.sY; ++j){
+
+                vec3 val;
+
+                for (int u = -kernel.extent; u <= kernel.extent, map.sX; ++u){
+                    for (int v = -kernel.extent; v <= kernel.extent, map.sY; ++v){
+
+                        val += context.heightTo(uvec2(k, l), targetMap)*kernel(u, v);
                     }
                 }
                 result(i, j) = val;

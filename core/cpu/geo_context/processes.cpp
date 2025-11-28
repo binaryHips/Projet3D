@@ -1,38 +1,17 @@
 #include "geo_context.h"
 
 
-// The different processes are defined here, for now it's defined as is, but we should turn it into some kind of factory.
-
-enum class FEATURE_LAYERS {
-    DESIRED_HEIGHT,
-    DESIRED_WATER,
-    DESIRED_VERDURE,
-    MAX_
-};
-
-enum class MAP_LAYERS {
-    BEDROCK,
-    STONE,
-    SAND,
-    WATER,
-    MAX_
-};
-
-enum class ATTRIBUTE_LAYERS {
-    SEDIMENT,
-    MAX_
-};
 
 void processSandGravity(GeoContextCPU &context, float delta){
 
     for (u32 i = 0; i < IMGSIZE; ++i) for (u32 j = 0; j < IMGSIZE; ++j){
         Pixel &currentPixel = context.maps[to_underlying(MAP_LAYERS::SAND)](i, j);
-        // float currentHeight = context.totalHeight(uvec2(i, j));
-        currentPixel += 0.1 * delta;
+        float currentHeight = context.totalHeight(uvec2(i, j));
+        
+        float new_val; // TODO use kernel to get total height then faaaaall
+
     }
 }
-
-
 
 GeoContextCPU GeoContextCPU::createGeoContext(){
 
