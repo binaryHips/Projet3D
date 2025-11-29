@@ -28,6 +28,7 @@ public:
 public slots:
     void mapClicked();
     void returnClicked();
+    void openFileSearch();
 
 private:
 };

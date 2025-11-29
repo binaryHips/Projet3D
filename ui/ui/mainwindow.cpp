@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "backend.h"
+#include <QFileDialog>
+#include <QDir>
 #include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -25,6 +27,23 @@ void MainWindow::returnClicked()
 {
     std::cout << "help" << std::endl;
     ui->stackedWidget->setCurrentWidget(ui->page);
+}
+
+
+void MainWindow::openFileSearch()
+{
+    qDebug() << "Called " ;
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    "Open Image",
+                                                    QDir::homePath(),
+                                                    "Image Files (*.png *.jpg *.jpeg *.bmp *.tga);;All Files (*)");
+    qDebug() << "Opened" ;
+
+    if (!fileName.isEmpty())
+    {
+        qDebug() << "found" ;
+        Backend::loadHeightmap(fileName);
+    }
 }
 
 

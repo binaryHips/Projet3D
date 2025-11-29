@@ -7,6 +7,12 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 
+enum controlTypes
+{
+    ORBITAL,
+    FPS
+};
+
 class CameraController
 {
 public:
@@ -21,12 +27,17 @@ public:
     QVector3D getForward();
     QVector3D getUp();
 
+    controlTypes camControlType; 
+
+public slots:
+    void setControlType(controlTypes type);
+
 private:
-    QVector3D pos = {0, 0, 3};
-    QVector3D forward = {0, 0, -1};
-    QVector3D up = {0, 1, 0};
-    float yaw = -90.0f;
-    float pitch = 0.0f;
+    QVector3D pos ;
+    QVector3D forward;
+    QVector3D up;
+    float yaw;
+    float pitch;
 
     bool keyDown[1024] = {};
     Qt::MouseButton button;
@@ -34,6 +45,10 @@ private:
     // input
     QPoint lastMouse;
     bool firstMouse = true;
+
+    // rotate hlepers 
+    void orbitalRotate();
+    void fpsRotate();
 };
 
 #endif // CAMERACONTROLLER_H
