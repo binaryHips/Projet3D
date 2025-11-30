@@ -18,17 +18,20 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-
-    GeoContextCPU context = GeoContextCPU::createGeoContext();
-
     ~MainWindow();
 
     Ui::MainWindow *ui;
+
+    // Context that will handle all the backend, maybe switch to use Backend.h
+    GeoContextCPU context = GeoContextCPU::createGeoContext();
 
 public slots:
     void mapClicked();
     void returnClicked();
     void openFileSearch();
+
+private slots:
+    void on_subdiv_slider_valueChanged(int value);
 
 private:
 };

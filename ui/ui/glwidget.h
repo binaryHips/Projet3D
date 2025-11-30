@@ -22,6 +22,7 @@ public:
     ~GLWidget();
 
     Mesh *addMesh(Mesh *m);
+    void setMesh(Mesh *m, int index=0);
 
 signals :
     void mouseButtonClicked(Qt::MouseButton button);

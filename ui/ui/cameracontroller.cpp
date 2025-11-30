@@ -71,8 +71,6 @@ QVector3D CameraController::getUp(){
 }
 
 void CameraController::updateCamera(float dt){
-
-    // TODO : Create view type.
     
     if(camControlType == FPS)
     {

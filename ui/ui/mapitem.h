@@ -14,11 +14,14 @@ public:
     explicit MapItem(QString image_path, QWidget *parent = nullptr);
     ~MapItem();
 
-    virtual void resizeEvent(QResizeEvent* event) override;
+    void updateMap(QPixmap im);
 
     QVBoxLayout *layout;
     QPixmap map;
     ClickableLabel *map_image;
+
+protected :
+    virtual void resizeEvent(QResizeEvent* event) override;
 
 signals:
 

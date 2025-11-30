@@ -13,8 +13,18 @@ MainWindow::MainWindow(QWidget *parent)
     context.addMap(std::move(heightmap));
 
     ui->setupUi(this);
+
     // addStretch() to make them hug top
     ui->gl_settings_layout->addStretch();
+
+    // Load our plane
+    int nbDiv = 100;
+    Mesh *plane= new Mesh();
+    *plane = Mesh::gen_tesselatedSquare(nbDiv,nbDiv,1,1);
+    ui->widget->addMesh(plane);
+
+    // connect load mesh -> TODO figure out how to do it from editor
+    QObject::connect(ui->actionLoad_Heightmap , &QAction::triggered , this , &MainWindow::openFileSearch);
 }
 
 void MainWindow::mapClicked()
@@ -33,10 +43,22 @@ void MainWindow::returnClicked()
 void MainWindow::openFileSearch()
 {
     qDebug() << "Called " ;
-    QString fileName = QFileDialog::getOpenFileName(this,
-                                                    "Open Image",
-                                                    QDir::homePath(),
-                                                    "Image Files (*.png *.jpg *.jpeg *.bmp *.tga);;All Files (*)");
+    // QString fileName = QFileDialog::getOpenFileName(this,
+    //                                                 "Open Image",
+    //                                                 QDir::homePath(),
+    //                                                 "Image Files (*.png *.jpg *.jpeg *.bmp *.tga);;All Files (*)");
+    
+    QString fileName;
+    
+    QFileDialog dlg(this,"Open Image", QDir::homePath());
+    dlg.setNameFilter("Image Files (*.png *.jpg *.jpeg);;All Files()");
+    dlg.setOption(QFileDialog::DontUseNativeDialog);
+    if(dlg.exec() == QDialog::Accepted)
+    {
+        qDebug() << "huh";
+        fileName = dlg.selectedFiles().first();
+    }
+
     qDebug() << "Opened" ;
 
     if (!fileName.isEmpty())
@@ -46,8 +68,16 @@ void MainWindow::openFileSearch()
     }
 }
 
-
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::on_subdiv_slider_valueChanged(int value)
+{
+    qDebug() << "hello" ;
+    Mesh *plane= new Mesh();
+    *plane = Mesh::gen_tesselatedSquare(value,value,1,1);
+    ui->widget->setMesh(plane,0);
+}
+
