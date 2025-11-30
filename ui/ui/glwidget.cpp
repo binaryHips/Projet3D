@@ -30,6 +30,11 @@ GLWidget::GLWidget(QWidget *parent)
     lastTime = currentTime();
 }
 
+void GLWidget::setControlType(controlTypes type)
+{
+    cam.setControlType(type);
+}
+
 GLWidget::~GLWidget()
 {
 }

@@ -72,6 +72,8 @@ QVector3D CameraController::getUp(){
 
 void CameraController::updateCamera(float dt){
     
+
+
     if(camControlType == FPS)
     {
 
@@ -86,7 +88,6 @@ void CameraController::updateCamera(float dt){
         if (keyDown[Qt::Key_E]) pos += up * speed;
         if (keyDown[Qt::Key_A]) pos -= up * speed;
 
-        qDebug() << pos ;
     }
 }
 
