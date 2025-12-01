@@ -40,7 +40,7 @@ public:
             page.update(deltaTime, *context);
         }
     }
-    void spawn(u32 n,){
+    void spawn(u32 n){
         while (n > 0){
             ParticlePageCPU& lastPage = pages.back();
             const u32 remainingInLastPage = ParticlePageCPU::PAGE_SIZE - lastPage.nbParticles;
