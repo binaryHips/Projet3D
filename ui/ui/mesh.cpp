@@ -35,7 +35,7 @@ void Mesh::synchronize() const {
         unsynchronize();
     }
 
-    qDebug() << "Vertices : " << vertices.size() << "normals : " << normals.size() ;
+    // qDebug() << "Vertices : " << vertices.size() << "normals : " << normals.size() ;
 
     gl_funcs->glGenTextures(1 , &mapTexture);
     gl_funcs->glActiveTexture(GL_TEXTURE0 + 0);

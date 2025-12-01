@@ -88,17 +88,14 @@ void GLWidget::paintGL()
     size_t ct = currentTime();
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
-//    qDebug() << dt;
 
     GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
 
     context.update(dt);
-//    std::cout << context.totalHeight(uvec2(10, 10)) << std::endl;
 
     meshes[0]->updatePlaneHeightmap(context);
 
     cam.updateCamera(dt);
-    // qDebug() << "Camera pos:" << cam.getPos() << "forward:" << cam.getForward();
 
 
     glClearColor(0.1, 0.1, 0.15, 1.0);

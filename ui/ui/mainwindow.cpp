@@ -2,6 +2,8 @@
 #include "./ui_mainwindow.h"
 #include "backend.h"
 #include "cameracontroller.h"
+#include "mapitem.h"
+#include "clickablelabel.h"
 #include <QFileDialog>
 #include <QDir>
 #include <iostream>
@@ -9,9 +11,10 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , context(backend.context)
 {
-    MapCPU heightmap = Backend::loadHeightmap(":/test.png");
-    context.addMap(std::move(heightmap));
+    // MapCPU heightmap = backend.loadHeightmap(":/test.png");
+    // context.addMap(std::move(heightmap));
 
     ui->setupUi(this);
 
@@ -31,6 +34,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // connect load mesh -> TODO figure out how to do it from editor
     QObject::connect(ui->actionLoad_Heightmap , &QAction::triggered , this , &MainWindow::openFileSearch);
+
+    // connect backend signals (new-style connection forwards the QString filename)
+    QObject::connect(&backend, &Backend::loadMapSignal, this, &MainWindow::setHeightMap);
 }
 
 void MainWindow::mapClicked()
@@ -48,7 +54,6 @@ void MainWindow::returnClicked()
 
 void MainWindow::openFileSearch()
 {
-    qDebug() << "Called " ;
     // QString fileName = QFileDialog::getOpenFileName(this,
     //                                                 "Open Image",
     //                                                 QDir::homePath(),
@@ -61,16 +66,14 @@ void MainWindow::openFileSearch()
     dlg.setOption(QFileDialog::DontUseNativeDialog);
     if(dlg.exec() == QDialog::Accepted)
     {
-        qDebug() << "huh";
         fileName = dlg.selectedFiles().first();
     }
 
-    qDebug() << "Opened" ;
 
     if (!fileName.isEmpty())
     {
-        qDebug() << "found" ;
-        Backend::loadHeightmap(fileName);
+        qDebug() << "File found";
+    backend.loadHeightmap(fileName);
     }
 }
 
@@ -87,3 +90,12 @@ void MainWindow::on_subdiv_slider_valueChanged(int value)
     ui->widget->setMesh(plane,0);
 }
 
+void MainWindow::setHeightMap(QString filename)
+{
+    MapItem *item = new MapItem(filename, this);
+    QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
+
+    // make it hug left prolly
+    ui->maps_layout->addWidget(item);
+    ui->widget->update();
+}

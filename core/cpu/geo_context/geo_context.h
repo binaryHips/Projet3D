@@ -37,12 +37,14 @@ public:
     }
 
     void addMap(MapCPU &&map){
+        // Insert map keeping ordering by yIndex. If no insertion happened, append at the end.
         for (u32 i = 0; i < maps.size(); ++i){
             if (maps[i].yIndex > map.yIndex){
                 maps.insert(maps.begin() + i, std::move(map));
                 return;
             }
         }
+        maps.push_back(std::move(map));
     }
 
     float totalHeight(float x, float y) const {

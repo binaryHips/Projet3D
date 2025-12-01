@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "backend.h"
 #include "glwidget.h"
 #include "includes_all_cpu.h"
 
@@ -23,10 +24,12 @@ public:
     Ui::MainWindow *ui;
 
     // Context that will handle all the backend, maybe switch to use Backend.h
-    GeoContextCPU context = GeoContextCPU::createGeoContext();
+    Backend backend;
+    GeoContextCPU &context;
 
 public slots:
     void mapClicked();
+    void setHeightMap(QString filename);
     void returnClicked();
     void openFileSearch();
 

@@ -4,12 +4,14 @@
 #include <QImage>
 #include <QDebug>
 
+Backend::Backend() = default;
+
+Backend::~Backend() = default;
+
 MapCPU Backend::loadHeightmap(QString filename, float scale)
 {
     QImage hmap = QImage();
     MapCPU res = MapCPU();
-
-    qDebug() << "huh";
 
     if (!hmap.load(filename)) {
         qDebug() << "Heightmap " + filename << " was not found !";
@@ -17,7 +19,6 @@ MapCPU Backend::loadHeightmap(QString filename, float scale)
     }
 
     hmap = hmap.scaled(IMGSIZE , IMGSIZE);
-    qDebug() << "whuh" << hmap.height();
 
     for (int y = 0; y < hmap.height(); y++) {
         for (int x = 0; x < hmap.width(); x++) {
@@ -36,6 +37,8 @@ MapCPU Backend::loadHeightmap(QString filename, float scale)
         }
     }
 
+    emit loadMapSignal(filename);
+    context.addMap(std::move(res));
     return res;
 
 }

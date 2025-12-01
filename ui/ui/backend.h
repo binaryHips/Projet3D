@@ -2,16 +2,23 @@
 #define BACKEND_H
 
 #include <QString>
+#include <QWidget>
 #include "includes_all_cpu.h"
 
 
-struct Backend
+class Backend : public QWidget
 {
+    Q_OBJECT
+public :
     Backend();
+    ~Backend();
+    GeoContextCPU context = GeoContextCPU::createGeoContext();
+    MapCPU loadHeightmap(QString filename, float scale = 1.0f);
 
-//    GeoContextCPU context = GeoContextCPU::createGeoContext();
+signals :
+        void loadMapSignal(QString filename);
 
-    static MapCPU loadHeightmap(QString filename, float scale = 1.0f);
+
 
 };
 
