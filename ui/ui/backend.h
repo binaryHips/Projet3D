@@ -10,10 +10,11 @@ class Backend : public QWidget
 {
     Q_OBJECT
 public :
-    Backend();
+    Backend(QWidget *parent);
     ~Backend();
     GeoContextCPU context = GeoContextCPU::createGeoContext();
     MapCPU loadHeightmap(QString filename, float scale = 1.0f);
+    bool simulating;
 
 signals :
         void loadMapSignal(QString filename);

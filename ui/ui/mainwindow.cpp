@@ -11,10 +11,11 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , context(backend.context)
 {
     // MapCPU heightmap = backend.loadHeightmap(":/test.png");
     // context.addMap(std::move(heightmap));
+
+    backend = new Backend(this);
 
     ui->setupUi(this);
 
@@ -36,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->actionLoad_Heightmap , &QAction::triggered , this , &MainWindow::openFileSearch);
 
     // connect backend signals (new-style connection forwards the QString filename)
-    QObject::connect(&backend, &Backend::loadMapSignal, this, &MainWindow::setHeightMap);
+    QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::setHeightMap);
 }
 
 void MainWindow::mapClicked()
@@ -73,7 +74,7 @@ void MainWindow::openFileSearch()
     if (!fileName.isEmpty())
     {
         qDebug() << "File found";
-    backend.loadHeightmap(fileName);
+    backend->loadHeightmap(fileName);
     }
 }
 
@@ -88,6 +89,7 @@ void MainWindow::on_subdiv_slider_valueChanged(int value)
     Mesh *plane= new Mesh();
     *plane = Mesh::gen_tesselatedSquare(value,value,1,1);
     ui->widget->setMesh(plane,0);
+    ui->subdivval_label->setText(QString::number(value));
 }
 
 void MainWindow::setHeightMap(QString filename)
@@ -99,3 +101,27 @@ void MainWindow::setHeightMap(QString filename)
     ui->maps_layout->addWidget(item);
     ui->widget->update();
 }
+
+void MainWindow::on_simulateBtn_clicked()
+{
+    backend->simulating = !backend->simulating;
+
+    if(backend->simulating)
+    {
+        ui->simulateBtn->setText("Pause simulation");
+    }
+    else
+    {
+        ui->simulateBtn->setText("Launch simulation");
+    }
+
+}
+
+
+void MainWindow::on_simspeedslider_valueChanged(int value)
+{
+    float val = value / 100.0f;
+    ui->simspeedval_label->setText(QString::number(val , 'f' , 2));
+    ui->widget->simSpeed = val;
+}
+

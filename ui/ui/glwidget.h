@@ -12,6 +12,7 @@
 
 #include "mesh.h"
 #include "cameracontroller.h"
+#include "backend.h"
 
 class GLWidget : public QOpenGLWidget, public QOpenGLExtraFunctions
 {
@@ -23,6 +24,7 @@ public:
 
     Mesh *addMesh(Mesh *m);
     void setMesh(Mesh *m, int index=0);
+    float simSpeed;
 
 public slots:
     void setControlType(controlTypes type);
@@ -59,6 +61,8 @@ private:
 
     QElapsedTimer fps_timer;
     void updateCamera(float dt);
+
+    Backend *backend;
 };
 
 

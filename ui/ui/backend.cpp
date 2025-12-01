@@ -4,7 +4,11 @@
 #include <QImage>
 #include <QDebug>
 
-Backend::Backend() = default;
+Backend::Backend(QWidget *parent)
+    :QWidget(parent)
+{
+    simulating = false;
+}
 
 Backend::~Backend() = default;
 
