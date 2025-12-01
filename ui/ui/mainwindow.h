@@ -24,8 +24,7 @@ public:
     Ui::MainWindow *ui;
 
     // Context that will handle all the backend, maybe switch to use Backend.h
-    Backend backend;
-    GeoContextCPU &context;
+    Backend *backend;
 
 public slots:
     void mapClicked();

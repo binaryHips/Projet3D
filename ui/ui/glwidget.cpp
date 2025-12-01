@@ -45,10 +45,24 @@ Mesh* GLWidget::addMesh(Mesh *m)
     return m;
 }
 
+void GLWidget::initializeGL()
+{
+    initializeOpenGLFunctions();
+
+    backend = static_cast<MainWindow*>(window())->backend;
+
+    for(Mesh *m:meshes){
+        m->setGlFunctions(this);
+        m->setShader(":/vshader.glsl" , ":/fshader.glsl");
+        glDisable(GL_CULL_FACE);
+    }
+
+    glEnable(GL_DEPTH_TEST);
+}
+
 void GLWidget::setMesh(Mesh *m, int index)
 {
 
-    GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
 
     Mesh *old = meshes[index];
     if (old) {
@@ -59,23 +73,10 @@ void GLWidget::setMesh(Mesh *m, int index)
 
     m->setGlFunctions(this);
     m->setShader(":/vshader.glsl" , ":/fshader.glsl");
-    m->updatePlaneHeightmap(context);
+    m->updatePlaneHeightmap(backend->context);
 
 }
 
-
-void GLWidget::initializeGL()
-{
-    initializeOpenGLFunctions();
-
-    for(Mesh *m:meshes){
-        m->setGlFunctions(this);
-        m->setShader(":/vshader.glsl" , ":/fshader.glsl");
-        glDisable(GL_CULL_FACE);
-    }
-
-    glEnable(GL_DEPTH_TEST);
-}
 
 void GLWidget::resizeGL(int w, int h)
 {
@@ -89,11 +90,8 @@ void GLWidget::paintGL()
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
 
-    GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
-
-    context.update(dt);
-
-    meshes[0]->updatePlaneHeightmap(context);
+    backend->context.update(dt);
+    meshes[0]->updatePlaneHeightmap(backend->context);
 
     cam.updateCamera(dt);
 

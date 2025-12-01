@@ -11,10 +11,11 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , context(backend.context)
 {
     // MapCPU heightmap = backend.loadHeightmap(":/test.png");
     // context.addMap(std::move(heightmap));
+
+    backend = new Backend(this);
 
     ui->setupUi(this);
 
@@ -36,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->actionLoad_Heightmap , &QAction::triggered , this , &MainWindow::openFileSearch);
 
     // connect backend signals (new-style connection forwards the QString filename)
-    QObject::connect(&backend, &Backend::loadMapSignal, this, &MainWindow::setHeightMap);
+    QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::setHeightMap);
 }
 
 void MainWindow::mapClicked()
@@ -73,7 +74,7 @@ void MainWindow::openFileSearch()
     if (!fileName.isEmpty())
     {
         qDebug() << "File found";
-    backend.loadHeightmap(fileName);
+    backend->loadHeightmap(fileName);
     }
 }
 
