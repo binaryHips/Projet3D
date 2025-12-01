@@ -2,19 +2,27 @@
 #define BACKEND_H
 
 #include <QString>
+#include <QWidget>
 #include <QOpenGLExtraFunctions>
 
 #include "includes_all_cpu.h"
 
 
-struct Backend
+class Backend : public QWidget
 {
-    Backend();
-
-//    GeoContextCPU context = GeoContextCPU::createGeoContext();
-
-    static MapCPU loadHeightmap(QString filename, float scale = 1.0f);
+    Q_OBJECT
+public :
+    Backend(QWidget *parent);
+    ~Backend();
+    GeoContextCPU context = GeoContextCPU::createGeoContext();
+    MapCPU loadHeightmap(QString filename, MAP_LAYERS layer, float scale = 1.0f);
     static void drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem);
+    bool simulating;
+
+signals :
+        void loadMapSignal(QString filename);
+
+
 
 };
 

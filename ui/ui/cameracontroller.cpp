@@ -7,11 +7,43 @@
 
 #include <iostream>
 
+void CameraController::orbitalRotate()
+{
+    float cy = qCos(qDegreesToRadians(yaw));
+    float sy = qSin(qDegreesToRadians(yaw));
+    float cp = qCos(qDegreesToRadians(pitch));
+    float sp = qSin(qDegreesToRadians(pitch));
 
+    forward = QVector3D(cy * cp, sp, sy * cp).normalized();
+
+    QVector3D target = QVector3D(0.5f, 0.5f, 0.5f);
+
+    float radius = (pos - target).length();
+    if (radius < 0.001f) radius = 3.0f; 
+
+    pos = target - forward * radius;
+
+    QVector3D worldUp(0.0f, 1.0f, 0.0f);
+    QVector3D right = QVector3D::crossProduct(forward, worldUp).normalized();
+    up = QVector3D::crossProduct(right, forward).normalized();
+}
+
+void CameraController::fpsRotate()
+{
+    float cy = qCos(qDegreesToRadians(yaw));
+    float sy = qSin(qDegreesToRadians(yaw));
+    float cp = qCos(qDegreesToRadians(pitch));
+    float sp = qSin(qDegreesToRadians(pitch));
+
+    forward = QVector3D(cy * cp, sp, sy * cp).normalized();
+    QVector3D worldUp(0.0f, 1.0f, 0.0f);
+    QVector3D right = QVector3D::crossProduct(forward, worldUp).normalized();
+    up = QVector3D::crossProduct(right, forward).normalized();
+}
 
 CameraController::CameraController(){
 
-    pos = QVector3D(1.0f, 0.0f, 3.0f);
+    pos = QVector3D(0.5f, 1.0f, 2.5f);
 
     yaw = -90.0f;
     pitch = 0.0f;
@@ -19,7 +51,10 @@ CameraController::CameraController(){
     forward = QVector3D(0.0f, 0.0f, -1.0f);
     up = QVector3D(0.0f, 1.0f, 0.0f);
 
-    button = Qt::NoButton;
+    camControlType = ORBITAL;
+
+    // Lock into the right angle for orbital view.
+    orbitalRotate();
 
 }
 
@@ -36,16 +71,24 @@ QVector3D CameraController::getUp(){
 }
 
 void CameraController::updateCamera(float dt){
-    float speed = 3.0f * dt;
+    
 
-    QVector3D right = QVector3D::crossProduct(forward, up);
 
-    if (keyDown[Qt::Key_Z]) pos += forward * speed;
-    if (keyDown[Qt::Key_S]) pos -= forward * speed;
-    if (keyDown[Qt::Key_Q]) pos -= right * speed;
-    if (keyDown[Qt::Key_D]) pos += right * speed;
-    if (keyDown[Qt::Key_E]) pos += up * speed;
-    if (keyDown[Qt::Key_A]) pos -= up * speed;
+    if(camControlType == FPS)
+    {
+
+        float speed = 3.0f * dt;
+
+        QVector3D right = QVector3D::crossProduct(forward, up);
+
+        if (keyDown[Qt::Key_Z]) pos += forward * speed;
+        if (keyDown[Qt::Key_S]) pos -= forward * speed;
+        if (keyDown[Qt::Key_Q]) pos -= right * speed;
+        if (keyDown[Qt::Key_D]) pos += right * speed;
+        if (keyDown[Qt::Key_E]) pos += up * speed;
+        if (keyDown[Qt::Key_A]) pos -= up * speed;
+
+    }
 }
 
 
@@ -65,6 +108,7 @@ void CameraController::onKeyUnpressed(int key){
 
 }
 
+// TODO : Convert this to orbital cam
 void CameraController::onMouseMove(QMouseEvent *e, Qt::MouseButton button){
 
     if (firstMouse) {
@@ -87,14 +131,25 @@ void CameraController::onMouseMove(QMouseEvent *e, Qt::MouseButton button){
 
         pitch = qBound(-89.0f, pitch, 89.0f);
 
-        float cy = qCos(qDegreesToRadians(yaw));
-        float sy = qSin(qDegreesToRadians(yaw));
-        float cp = qCos(qDegreesToRadians(pitch));
-        float sp = qSin(qDegreesToRadians(pitch));
+        switch (camControlType) {
+        case ORBITAL:
+            orbitalRotate();
+            break;
+        case FPS:
+            fpsRotate();
+            break;
 
-        forward = QVector3D(cy * cp, sp, sy * cp).normalized();
-        QVector3D worldUp(0.0f, 1.0f, 0.0f);
-        QVector3D right = QVector3D::crossProduct(forward, worldUp).normalized();
-        up = QVector3D::crossProduct(right, forward).normalized();
+        default:
+            orbitalRotate();
+            break;
+        }
+
+
     }
+}
+
+
+void CameraController::setControlType(controlTypes type)
+{
+    camControlType = type;
 }

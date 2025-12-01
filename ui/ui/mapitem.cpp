@@ -28,6 +28,13 @@ MapItem::MapItem(QString image_path, QWidget *parent)
 
 }
 
+void MapItem::updateMap(QPixmap im) // Or pixmap or string idk we'll see
+{
+    map = im;
+    int h = map_image->height() ;
+    map_image->setPixmap(map.scaled(h,h,Qt::IgnoreAspectRatio));
+}
+
 void MapItem::resizeEvent(QResizeEvent* event)
 {
     // QWidget::resizeEvent(event);

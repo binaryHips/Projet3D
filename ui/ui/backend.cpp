@@ -5,12 +5,18 @@
 #include <QDebug>
 #include <QOpenGLExtraFunctions>
 
-MapCPU Backend::loadHeightmap(QString filename, float scale)
+Backend::Backend(QWidget *parent)
+    :QWidget(parent)
+{
+    simulating = false;
+}
+
+Backend::~Backend() = default;
+
+MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
 {
     QImage hmap = QImage();
     MapCPU res = MapCPU();
-
-    qDebug() << "huh";
 
     if (!hmap.load(filename)) {
         qDebug() << "Heightmap " + filename << " was not found !";
@@ -18,7 +24,6 @@ MapCPU Backend::loadHeightmap(QString filename, float scale)
     }
 
     hmap = hmap.scaled(IMGSIZE , IMGSIZE);
-    qDebug() << "whuh" << hmap.height();
 
     for (int y = 0; y < hmap.height(); y++) {
         for (int x = 0; x < hmap.width(); x++) {
@@ -36,7 +41,8 @@ MapCPU Backend::loadHeightmap(QString filename, float scale)
             res(x,y) = mean * scale;
         }
     }
-
+    context.maps[to_underlying(layer)] = std::move(res);
+    emit loadMapSignal(filename);
     return res;
 }
 

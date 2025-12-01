@@ -35,6 +35,8 @@ void Mesh::synchronize() const {
         unsynchronize();
     }
 
+    // qDebug() << "Vertices : " << vertices.size() << "normals : " << normals.size() ;
+
     gl_funcs->glGenTextures(1 , &mapTexture);
     gl_funcs->glActiveTexture(GL_TEXTURE0 + 0);
     gl_funcs->glBindTexture(GL_TEXTURE_2D, mapTexture);
@@ -120,8 +122,6 @@ void Mesh::synchronize() const {
     gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, _BITANGENT);
     gl_funcs->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
     gl_funcs->glEnableVertexAttribArray(4);
-
-
 
     // Index buffer
     gl_funcs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);

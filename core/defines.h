@@ -21,8 +21,29 @@ using Pixel = float;
 
 #define IMGSIZE 512u
 
+
 // easifies the use of enum classes
 template <typename E>
 constexpr typename std::underlying_type<E>::type to_underlying(E e) {
     return static_cast<typename std::underlying_type<E>::type>(e);
 }
+
+enum class FEATURE_LAYERS {
+    DESIRED_HEIGHT,
+    DESIRED_WATER,
+    DESIRED_VERDURE,
+    MAX_
+};
+
+enum class MAP_LAYERS {
+    BEDROCK,
+    STONE,
+    SAND,
+    WATER,
+    MAX_
+};
+
+enum class ATTRIBUTE_LAYERS {
+    SEDIMENT,
+    MAX_
+};

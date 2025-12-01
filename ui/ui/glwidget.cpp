@@ -32,7 +32,16 @@ GLWidget::GLWidget(QWidget *parent)
 
     GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
     context.particleSystem.spawn(512);
+}
 
+void GLWidget::setControlType(controlTypes type)
+{
+    cam.setControlType(type);
+}
+
+void GLWidget::setControlType(controlTypes type)
+{
+    cam.setControlType(type);
 }
 
 GLWidget::~GLWidget()
@@ -49,6 +58,8 @@ void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
+    backend = static_cast<MainWindow*>(window())->backend;
+
     for(Mesh *m:meshes){
         m->setGlFunctions(this);
         m->setShader(":/vshader.glsl" , ":/fshader.glsl");
@@ -57,6 +68,24 @@ void GLWidget::initializeGL()
 
     glEnable(GL_DEPTH_TEST);
 }
+
+void GLWidget::setMesh(Mesh *m, int index)
+{
+
+
+    Mesh *old = meshes[index];
+    if (old) {
+        delete old;
+    }
+
+    meshes[index] = m;
+
+    m->setGlFunctions(this);
+    m->setShader(":/vshader.glsl" , ":/fshader.glsl");
+    m->updatePlaneHeightmap(backend->context);
+
+}
+
 
 void GLWidget::resizeGL(int w, int h)
 {
@@ -70,16 +99,13 @@ void GLWidget::paintGL()
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
 
-    GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
+    if(backend->simulating){
 
-    context.update(dt);
+        backend->context.update(dt * simSpeed);
+        meshes[0]->updatePlaneHeightmap(backend->context);
 
-    Backend::drawParticles(this , context.particleSystem);
-
-    meshes[0]->updatePlaneHeightmap(context);
-
-    cam.updateCamera(dt);
-
+        cam.updateCamera(dt);
+    }
 
     glClearColor(0.1, 0.1, 0.15, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -28,45 +28,140 @@
            <widget class="GLWidget" name="widget" native="true"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="gl_settings_layout" stretch="0,0,0,0,0">
+           <layout class="QVBoxLayout" name="gl_settings_layout" stretch="0,0,0,0,0,0,0,0,0,0">
             <property name="sizeConstraint">
-             <enum>QLayout::SetDefaultConstraint</enum>
+             <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
             </property>
             <item>
-             <widget class="QRadioButton" name="radioButton">
+             <widget class="QLabel" name="label">
               <property name="text">
-               <string>RadioButton</string>
+               <string>Camera mode :</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_3">
-              <property name="text">
-               <string>RadioButton</string>
+             <layout class="QHBoxLayout" name="cam_layout">
+              <item>
+               <widget class="QRadioButton" name="radioButton_2">
+                <property name="text">
+                 <string>Orbital</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton">
+                <property name="text">
+                 <string>FPS</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="Line" name="line_2">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_2">
+             <widget class="QLabel" name="subdiv_label">
               <property name="text">
-               <string>RadioButton</string>
+               <string>Plane subdivisions :</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_2">
-              <property name="text">
-               <string>PushButton</string>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QSlider" name="subdiv_slider">
+                <property name="minimum">
+                 <number>10</number>
+                </property>
+                <property name="maximum">
+                 <number>200</number>
+                </property>
+                <property name="sliderPosition">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="subdivval_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>100</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="Line" name="line_3">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton">
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
+             <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>PushButton</string>
+               <string>Simulation speed</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QSlider" name="simspeedslider">
+                <property name="minimum">
+                 <number>20</number>
+                </property>
+                <property name="maximum">
+                 <number>500</number>
+                </property>
+                <property name="value">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="simspeedval_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>1.00</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="simulateBtn">
+              <property name="text">
+               <string>Launch simulation</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_4">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
              </widget>
             </item>
@@ -77,7 +172,7 @@
         <item>
          <widget class="Line" name="line">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
          </widget>
         </item>
@@ -104,7 +199,7 @@
              <x>0</x>
              <y>0</y>
              <width>601</width>
-             <height>174</height>
+             <height>177</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -138,23 +233,28 @@
      <x>0</x>
      <y>0</y>
      <width>639</width>
-     <height>31</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
-   </widget>
-   <widget class="QMenu" name="menuType_shit">
-    <property name="title">
-     <string>Type shit</string>
-    </property>
+    <addaction name="actionLoad_Heightmap"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuType_shit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLoad_Heightmap">
+   <property name="text">
+    <string>Load Heightmap</string>
+   </property>
+  </action>
+  <action name="actionCamera_type">
+   <property name="text">
+    <string>Camera type</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

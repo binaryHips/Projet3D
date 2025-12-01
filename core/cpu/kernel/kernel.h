@@ -13,27 +13,87 @@ class  Kernel {
         return data[(x+extent) + (y+extent) * (2 * extent + 1)];
     }
 
-    static void convolve(const Kernel &kernel, MapCPU &map){
-        
-        // TODO if this does not get giorgized by the compiler, then giorgize it
+    static void convolveToHeight(const Kernel &kernel, const GeoContextCPU & context, u32 targetMap, u32 i, u32 j){
 
-        for (u32 i = 0; i < map.sX; ++i){
-            for (u32 j = 0; j < map.sY; ++j){
+        vec3 val;
 
-                vec3 val;
+        for (int u = -kernel.extent; u <= kernel.extent, map.sX; ++u){
+            for (int v = -kernel.extent; v <= kernel.extent, map.sY; ++v){
 
-                for (int u = -kernel.extent; u <= kernel.extent, map.sX; ++u){
-                    for (int v = -kernel.extent; v <= kernel.extent, map.sY; ++v){
-                        
-                        int k = std::clamp(i+u, 0, map.sX);
-                        int l = std::clamp(j+v, 0, map.sY);
-
-                        val += map(k, l)*kernel(u, v);
-                    }
-                }
-                result(i, j) = val;
+                val += context.heightTo(uvec2(k, l), targetMap)*kernel(u, v);
             }
         }
-        return result;
-    }
+        return val;
+    };
 };
+
+namespace KernelUtilities{
+    const Kernel Base_3(
+        {
+            1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0
+        },
+        1
+    );
+
+    const Kernel Base_7(
+        {
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+        },
+        3
+    );
+
+    const Kernel Norm1_7(
+        {
+             0 ,  0 , 0  , 1.0, 0  , 0  ,  0 ,
+            0  , 0  , 1.0, 1.0, 1.0, 0  , 0  ,
+            0  , 1.0, 1.0, 1.0, 1.0, 1.0, 0  ,
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            0  , 1.0, 1.0, 1.0, 1.0, 1.0, 0  ,
+            0  , 0  , 1.0, 1.0, 1.0, 0  , 0  ,
+             0 ,  0 , 0  , 1.0, 0  , 0  ,  0 
+        },
+        3
+    );
+
+    const Kernel test(
+        {
+             0 ,  1 , 2,
+             3, 4, 5,
+             6, 7, 8
+        },
+        1
+    );
+    const Kernel laplacian_3(
+        {
+            0.0, 1.0, 0.0,
+            1.0, -4.0, 1.0,
+            0.0, 1.0, 0.0
+        },
+        1
+    );
+    const Kernel laplacian_5(
+        {
+            0.0, 0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0,
+            1.0, 0.0, -4.0, 0.0, 1.0,
+            0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0, 0.0
+        },
+        2
+    );
+
+    /*
+    https://www.youtube.com/watch?v=kOkfC5fLfgE
+    at 29:52
+    */
+
+    Kernel gaussian(int extent, double smoothness);
+}

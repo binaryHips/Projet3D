@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "backend.h"
 #include "glwidget.h"
 #include "includes_all_cpu.h"
 
@@ -18,16 +19,25 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-
-    GeoContextCPU context = GeoContextCPU::createGeoContext();
-
     ~MainWindow();
 
     Ui::MainWindow *ui;
 
+    // Context that will handle all the backend, maybe switch to use Backend.h
+    Backend *backend;
+
 public slots:
     void mapClicked();
+    void setHeightMap(QString filename);
     void returnClicked();
+    void openFileSearch();
+
+private slots:
+    void on_subdiv_slider_valueChanged(int value);
+
+    void on_simulateBtn_clicked();
+
+    void on_simspeedslider_valueChanged(int value);
 
 private:
 };
