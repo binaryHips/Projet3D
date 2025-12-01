@@ -27,7 +27,7 @@ public:
 
 
     // The direction is used to define the wind direction,so the way the particle come frm and go toward.
-    vec3 direction(1.0, 0.0, 0.0);
+    vec3 direction = vec3(1.0, 0.0, 0.0);
 
     ParticleSystemCPU(const GeoContextCPU *context)
         : context(context)
