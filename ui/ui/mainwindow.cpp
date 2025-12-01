@@ -89,6 +89,7 @@ void MainWindow::on_subdiv_slider_valueChanged(int value)
     Mesh *plane= new Mesh();
     *plane = Mesh::gen_tesselatedSquare(value,value,1,1);
     ui->widget->setMesh(plane,0);
+    ui->subdivval_label->setText(QString::number(value));
 }
 
 void MainWindow::setHeightMap(QString filename)
@@ -100,3 +101,27 @@ void MainWindow::setHeightMap(QString filename)
     ui->maps_layout->addWidget(item);
     ui->widget->update();
 }
+
+void MainWindow::on_simulateBtn_clicked()
+{
+    backend->simulating = !backend->simulating;
+
+    if(backend->simulating)
+    {
+        ui->simulateBtn->setText("Pause simulation");
+    }
+    else
+    {
+        ui->simulateBtn->setText("Launch simulation");
+    }
+
+}
+
+
+void MainWindow::on_simspeedslider_valueChanged(int value)
+{
+    float val = value / 100.0f;
+    ui->simspeedval_label->setText(QString::number(val , 'f' , 2));
+    ui->widget->simSpeed = val;
+}
+

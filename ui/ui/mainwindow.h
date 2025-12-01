@@ -35,6 +35,10 @@ public slots:
 private slots:
     void on_subdiv_slider_valueChanged(int value);
 
+    void on_simulateBtn_clicked();
+
+    void on_simspeedslider_valueChanged(int value);
+
 private:
 };
 #endif // MAINWINDOW_H

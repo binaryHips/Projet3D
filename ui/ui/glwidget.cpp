@@ -90,11 +90,13 @@ void GLWidget::paintGL()
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
 
-    backend->context.update(dt);
-    meshes[0]->updatePlaneHeightmap(backend->context);
+    if(backend->simulating){
 
-    cam.updateCamera(dt);
+        backend->context.update(dt * simSpeed);
+        meshes[0]->updatePlaneHeightmap(backend->context);
 
+        cam.updateCamera(dt);
+    }
 
     glClearColor(0.1, 0.1, 0.15, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
