@@ -85,8 +85,8 @@ public:
             const MapCPU &map  = maps[i];
             Pixel h =  map(pos);
 
-            if (i >= targetMapIndex){
-                currentYIndexHeight = h;
+            if (i > targetMapIndex){
+                //currentYIndexHeight = h;
                 break;
             }
 

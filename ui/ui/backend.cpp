@@ -12,7 +12,7 @@ Backend::Backend(QWidget *parent)
 
 Backend::~Backend() = default;
 
-MapCPU Backend::loadHeightmap(QString filename, float scale)
+MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
 {
     QImage hmap = QImage();
     MapCPU res = MapCPU();
@@ -40,9 +40,8 @@ MapCPU Backend::loadHeightmap(QString filename, float scale)
             res(x,y) = mean * scale;
         }
     }
-
+    context.maps[to_underlying(layer)] = std::move(res);
     emit loadMapSignal(filename);
-    context.addMap(std::move(res));
     return res;
 
 }

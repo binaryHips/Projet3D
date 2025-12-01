@@ -16,7 +16,7 @@ void processSandGravity(GeoContextCPU &context, float delta){
         // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
         float grad_x = context.heightTo(uvec2(i+1, j), sandLayerIndex) - currentHeight;
         float grad_y = context.heightTo(uvec2(i, j+1), sandLayerIndex) - currentHeight;
-
+        std::cout << std::max(abs(grad_x), abs(grad_y));
         if (abs(grad_x) > max_slope | abs(grad_y) > max_slope){
             if (abs(grad_x) > abs(grad_y)){
                 float displaceToCurrent = maxDisplaceQuantity * grad_x * delta;

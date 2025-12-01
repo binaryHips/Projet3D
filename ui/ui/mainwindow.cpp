@@ -74,7 +74,7 @@ void MainWindow::openFileSearch()
     if (!fileName.isEmpty())
     {
         qDebug() << "File found";
-    backend->loadHeightmap(fileName);
+    backend->loadHeightmap(fileName, MAP_LAYERS::SAND); //FIXME reaaally temporary. Let the user choose in the end
     }
 }
 

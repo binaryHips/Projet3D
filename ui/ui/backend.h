@@ -13,7 +13,7 @@ public :
     Backend(QWidget *parent);
     ~Backend();
     GeoContextCPU context = GeoContextCPU::createGeoContext();
-    MapCPU loadHeightmap(QString filename, float scale = 1.0f);
+    MapCPU loadHeightmap(QString filename, MAP_LAYERS layer, float scale = 1.0f);
     bool simulating;
 
 signals :
