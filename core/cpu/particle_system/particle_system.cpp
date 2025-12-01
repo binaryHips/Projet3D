@@ -69,3 +69,10 @@ void ParticlePageCPU::update(float deltaTime, const GeoContextCPU &context){
     // collide
 
 }
+
+void ParticlePageCPU::addParticle(const vec3 &position, const vec3 &velocity)
+{
+    std::cout << "Nb particles : " << nbParticles << std::endl;
+    this->position[nbParticles] = position;
+    this->velocity[nbParticles] = velocity;
+}

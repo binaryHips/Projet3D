@@ -3,6 +3,7 @@
 #include <QString>
 #include <QImage>
 #include <QDebug>
+#include <QOpenGLExtraFunctions>
 
 MapCPU Backend::loadHeightmap(QString filename, float scale)
 {
@@ -37,5 +38,19 @@ MapCPU Backend::loadHeightmap(QString filename, float scale)
     }
 
     return res;
-
 }
+
+void Backend::drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem)
+{
+    for(auto &page : particleSystem.pages){
+        GLuint buf;
+        gl_funcs->glGenBuffers(1, &buf);
+        gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, buf);
+        gl_funcs->glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * page.nbParticles , page.position ,  GL_STATIC_DRAW);
+        gl_funcs->glDrawArrays(GL_POINTS, 0 , page.nbParticles);
+
+        gl_funcs->glBindBuffer(GL_ARRAY_BUFFER , 0);
+        gl_funcs->glDeleteBuffers(1, &buf);
+    }
+}
+

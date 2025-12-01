@@ -45,7 +45,7 @@ public:
             // fill the page like crazy
             const u32 toFill = std::max(remainingInLastPage, n);
 
-            for (; lastPage.nbParticles < toFill; ++lastPage.nbParticles ){
+            for (; lastPage.nbParticles < toFill; ++lastPage.nbParticles ){ // TODO : wtf
                 lastPage.addParticle(vec3(0.0f), vec3(rand()/float(RAND_MAX), 2.0f, rand()/float(RAND_MAX)));
             }
         }

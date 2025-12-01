@@ -4,6 +4,7 @@
 #include <QtMath>
 #include <QTimer>
 #include "mainwindow.h"
+#include "backend.h"
 #include <chrono>
 
 inline size_t currentTime()
@@ -28,6 +29,10 @@ GLWidget::GLWidget(QWidget *parent)
     timer.start(0);
 
     lastTime = currentTime();
+
+    GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
+    context.particleSystem.spawn(512);
+
 }
 
 GLWidget::~GLWidget()
@@ -64,17 +69,16 @@ void GLWidget::paintGL()
     size_t ct = currentTime();
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
-//    qDebug() << dt;
 
     GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
 
     context.update(dt);
-//    std::cout << context.totalHeight(uvec2(10, 10)) << std::endl;
+
+    Backend::drawParticles(this , context.particleSystem);
 
     meshes[0]->updatePlaneHeightmap(context);
 
     cam.updateCamera(dt);
-    // qDebug() << "Camera pos:" << cam.getPos() << "forward:" << cam.getForward();
 
 
     glClearColor(0.1, 0.1, 0.15, 1.0);
