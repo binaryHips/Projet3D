@@ -25,6 +25,10 @@ public:
     std::vector<ParticlePageCPU> pages;
     const GeoContextCPU *context;
 
+
+    // The direction is used to define the wind direction,so the way the particle come frm and go toward.
+    vec3 direction(1.0, 0.0, 0.0);
+
     ParticleSystemCPU(const GeoContextCPU *context)
         : context(context)
         {}
@@ -36,14 +40,13 @@ public:
             page.update(deltaTime, *context);
         }
     }
-
-    void spawn(u32 n){
+    void spawn(u32 n,){
         while (n > 0){
             ParticlePageCPU& lastPage = pages.back();
             const u32 remainingInLastPage = ParticlePageCPU::PAGE_SIZE - lastPage.nbParticles;
 
             // fill the page like crazy
-            const u32 toFill = std::max(remainingInLastPage, n);
+            const u32 toFill = std::min(remainingInLastPage, n);
 
             for (; lastPage.nbParticles < toFill; ++lastPage.nbParticles ){
                 lastPage.addParticle(vec3(0.0f), vec3(rand()/float(RAND_MAX), 2.0f, rand()/float(RAND_MAX)));

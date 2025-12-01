@@ -10,8 +10,7 @@ void processSandGravity(GeoContextCPU &context, float delta){
         Pixel &currentPixel = context.maps[sandLayerIndex](i, j);
         float currentHeight = context.heightTo(uvec2(i+1, j), sandLayerIndex);
 
-
-        const float max_slope = 0.4;
+        const float max_slope = 0.1;
         const float maxDisplaceQuantity = 1.0; // x times the difference in height.
         
         // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"

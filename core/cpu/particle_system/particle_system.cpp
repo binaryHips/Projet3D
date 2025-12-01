@@ -61,7 +61,7 @@ void ParticlePageCPU::update(float deltaTime, const GeoContextCPU &context){
     }
 
     for (; i < nbParticles; i++){ // end of unroll
-
+        
         position[i] = position[i] + velocity[i] * deltaTime;
         lifetime[i] += deltaTime;
     }
