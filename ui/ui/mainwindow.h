@@ -26,6 +26,8 @@ public:
     // Context that will handle all the backend, maybe switch to use Backend.h
     Backend *backend;
 
+    void updateMaps(QVector<QPixmap> maps); // Todo maybe make slot ?
+
 public slots:
     void mapClicked();
     void setHeightMap(QString filename);

@@ -98,6 +98,10 @@ void GLWidget::paintGL()
         backend->context.update(dt * simSpeed);
         meshes[0]->updatePlaneHeightmap(backend->context);
 
+        // TODO : replace it eventually with the full map function that does it all
+        QPixmap map = backend->saveImageFromMap(MAP_LAYERS::SAND);
+
+
         cam.updateCamera(dt);
     }
 

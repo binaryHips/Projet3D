@@ -52,21 +52,21 @@ void computeTangentBasis(
 
     }
 
-    // See "Going Further"
-    for (unsigned int i=0; i<vertices.size()-1; i+=1 )
-    {
-        QVector3D & n = normals[i];
-        QVector3D & t = tangents[i];
-        QVector3D & b = bitangents[i];
+    // // See "Going Further"
+    // for (unsigned int i=0; i<vertices.size()-1; i+=1 )
+    // {
+    //     QVector3D & n = normals[i];
+    //     QVector3D & t = tangents[i];
+    //     QVector3D & b = bitangents[i];
 
-        // Gram-Schmidt orthogonalize
-        t = t - n * QVector3D::dotProduct(n, t);
-        t.normalize();
+    //     // Gram-Schmidt orthogonalize
+    //     t = t - n * QVector3D::dotProduct(n, t);
+    //     t.normalize();
 
-        // Calculate handedness
-        if (QVector3D::dotProduct(QVector3D::crossProduct(n, t), b) < 0.0f){
-            t = t * -1.0f;
-        }
+    //     // Calculate handedness
+    //     if (QVector3D::dotProduct(QVector3D::crossProduct(n, t), b) < 0.0f){
+    //         t = t * -1.0f;
+    //     }
 
-    }
+    // }
 }

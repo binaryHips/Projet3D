@@ -15,8 +15,11 @@ public :
     Backend(QWidget *parent);
     ~Backend();
     GeoContextCPU context = GeoContextCPU::createGeoContext();
+
     MapCPU loadHeightmap(QString filename, MAP_LAYERS layer, float scale = 1.0f);
     static void drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem);
+
+    QPixmap saveImageFromMap(MAP_LAYERS layer);
     bool simulating;
 
 signals :

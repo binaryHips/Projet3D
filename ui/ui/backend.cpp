@@ -60,3 +60,29 @@ void Backend::drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSyste
     }
 }
 
+// TODO : function to add colors to maps but also like combine the maps to get the final main map type shit
+
+QPixmap Backend::saveImageFromMap(MAP_LAYERS layer)
+{
+    const MapCPU &map = context.maps[to_underlying(layer)];
+
+    QImage image(IMGSIZE, IMGSIZE, QImage::Format_ARGB32);
+    for (int y = 0; y < IMGSIZE; ++y) {
+        for (int x = 0; x < IMGSIZE; ++x) {
+
+            float v = map(x, y);
+            v = qBound(0.0f, v, 1.0f);
+
+            int grey = static_cast<int>(v * 255.0f + 0.5f);
+            image.setPixel(x, y, qRgb(grey, grey, grey));
+        }
+    }
+
+    QPixmap pix = QPixmap::fromImage(image);
+
+    // SAVE MAP FOR DEBUG PURPOSES !!
+    // QString filename = QString("map_test.png");
+    // pix.save(filename);
+
+    return pix;
+}

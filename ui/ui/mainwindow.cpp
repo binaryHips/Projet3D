@@ -75,6 +75,7 @@ void MainWindow::openFileSearch()
     {
         qDebug() << "File found";
     backend->loadHeightmap(fileName, MAP_LAYERS::SAND); //FIXME reaaally temporary. Let the user choose in the end
+    backend->saveImageFromMap(MAP_LAYERS::SAND);
     }
 }
 
@@ -100,6 +101,22 @@ void MainWindow::setHeightMap(QString filename)
     // make it hug left prolly
     ui->maps_layout->addWidget(item);
     ui->widget->update();
+    qDebug() << 'word';
+    // updateMaps();
+}
+
+void MainWindow::updateMaps(QVector<QPixmap> maps)
+{
+    qDebug() << "HELLO" ;
+    for(int i = 0 ; i < ui->maps_layout->count() ; i++)
+    {
+        //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
+        if(MapItem *item = dynamic_cast<MapItem*>(ui->maps_layout->itemAt(i)->widget())) {
+            // old was safely casted to NewType
+            qDebug() << "item";
+        }
+
+    }
 }
 
 void MainWindow::on_simulateBtn_clicked()

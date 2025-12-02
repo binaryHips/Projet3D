@@ -28,6 +28,21 @@ MapItem::MapItem(QString image_path, QWidget *parent)
 
 }
 
+MapItem::MapItem(QPixmap image)
+{
+    map = image;
+
+    layout = new QVBoxLayout(this);
+    map_image->setSizePolicy(QSizePolicy::Minimum,  QSizePolicy::Minimum);
+
+    int h = map_image->height() ;
+
+    map_image->setPixmap(map.scaled(h,h, Qt::IgnoreAspectRatio));
+
+    layout->addWidget(map_image);
+
+}
+
 void MapItem::updateMap(QPixmap im) // Or pixmap or string idk we'll see
 {
     map = im;
