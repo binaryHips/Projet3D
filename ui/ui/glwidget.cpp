@@ -30,13 +30,7 @@ GLWidget::GLWidget(QWidget *parent)
 
     lastTime = currentTime();
 
-    GeoContextCPU &context = static_cast<MainWindow*>(window())->context;
-    context.particleSystem.spawn(512);
-}
-
-void GLWidget::setControlType(controlTypes type)
-{
-    cam.setControlType(type);
+    // backend->context.particleSystem.spawn(512);
 }
 
 void GLWidget::setControlType(controlTypes type)

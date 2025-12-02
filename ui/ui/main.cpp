@@ -20,10 +20,14 @@ int main(int argc, char *argv[])
     // QObject::connect(item->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
 
     // w.ui->maps_layout->addWidget(item);
+    qDebug() << "main";
 
     QObject::connect(w.ui->test_btn , SIGNAL(clicked()), &w , SLOT(returnClicked()));
 
     w.ui->maps_layout->addStretch();
     w.show();
+
+    qDebug() << "run";
+
     return a.exec();
 }
