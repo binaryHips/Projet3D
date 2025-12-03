@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include "backend.h"
+#include "mapdrawwindow.h"
+#include "scribblearea.h"
 #include "glwidget.h"
 #include "includes_all_cpu.h"
 
@@ -41,6 +43,13 @@ private slots:
 
     void on_simspeedslider_valueChanged(int value);
 
+    void on_pensizeSlider_valueChanged(int value);
+
+    void on_resetDrawingBtn_clicked();
+
+    void on_opacityValSLider_valueChanged(int value);
+
 private:
+    // MapDrawWindow *drawPage; TODO add eventually
 };
 #endif // MAINWINDOW_H

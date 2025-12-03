@@ -15,9 +15,12 @@ MainWindow::MainWindow(QWidget *parent)
     // MapCPU heightmap = backend.loadHeightmap(":/test.png");
     // context.addMap(std::move(heightmap));
 
+
     backend = new Backend(this);
 
     ui->setupUi(this);
+
+    // 3D Page (page 1)
 
     // connect camera mode radio buttons to GLWidget
     QObject::connect(ui->radioButton_2, &QRadioButton::toggled, ui->widget, [w = ui->widget](bool checked){ if (checked) w->setControlType(ORBITAL); });
@@ -38,6 +41,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     // connect backend signals (new-style connection forwards the QString filename)
     QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::setHeightMap);
+
+    // Drawing page (page 2)
+
+    ui->draw_settings_layout->addStretch();
 }
 
 void MainWindow::mapClicked()
@@ -105,17 +112,26 @@ void MainWindow::setHeightMap(QString filename)
     // updateMaps();
 }
 
+
+// FIXME je crois que j'ai fait n'importe quoi en vrai de vrai ??
 void MainWindow::updateMaps(QVector<QPixmap> maps)
 {
     qDebug() << "HELLO" ;
+    int map_index = 0;
     for(int i = 0 ; i < ui->maps_layout->count() ; i++)
     {
         //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
         if(MapItem *item = dynamic_cast<MapItem*>(ui->maps_layout->itemAt(i)->widget())) {
             // old was safely casted to NewType
             qDebug() << "item";
+            if(maps.size() < map_index){
+                item->updateMap(maps[map_index]);
+                map_index++;
+            }
+            else{
+                return;
+            }
         }
-
     }
 }
 
@@ -140,5 +156,25 @@ void MainWindow::on_simspeedslider_valueChanged(int value)
     float val = value / 100.0f;
     ui->simspeedval_label->setText(QString::number(val , 'f' , 2));
     ui->widget->simSpeed = val;
+}
+
+
+void MainWindow::on_pensizeSlider_valueChanged(int value)
+{
+    ui->pensize_label->setText(QString::number(value) + " px");
+    ui->widget_2->setPenWidth(value);
+}
+
+
+void MainWindow::on_resetDrawingBtn_clicked()
+{
+    ui->widget_2->clearOverlay();
+}
+
+
+void MainWindow::on_opacityValSLider_valueChanged(int value)
+{
+    ui->opacityValLabel->setText(QString::number(value));
+    ui->widget_2->setPenOpacity(value);
 }
 

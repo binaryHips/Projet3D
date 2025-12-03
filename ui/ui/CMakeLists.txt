@@ -61,6 +61,7 @@ else()
             cameracontroller.h cameracontroller.cpp
             backend.h backend.cpp
             backend.cpp
+            scribblearea.h scribblearea.cpp
 
         )
         target_include_directories(ui PRIVATE
