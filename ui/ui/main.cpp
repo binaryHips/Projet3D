@@ -16,18 +16,14 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
 
-    // MapItem * item = new MapItem(":/test.png");
-    // QObject::connect(item->map_image , SIGNAL(clicked()) , &w , SLOT(mapClicked()));
+    // Style sheet : https://qss-stock.devsecstudio.com/templates.php
+    QFile styleFile( ":/Takezo.qss" );
+    styleFile.open( QFile::ReadOnly );
+    QString style( styleFile.readAll() );
+    a.setStyleSheet( style );
 
-    // w.ui->maps_layout->addWidget(item);
-    qDebug() << "main";
 
-    QObject::connect(w.ui->test_btn , SIGNAL(clicked()), &w , SLOT(returnClicked()));
-
-    w.ui->maps_layout->addStretch();
+    // w.ui->maps_layout->addStretch();
     w.show();
-
-    qDebug() << "run";
-
     return a.exec();
 }

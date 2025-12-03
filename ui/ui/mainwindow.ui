@@ -215,7 +215,7 @@
       <widget class="QWidget" name="page_2">
        <layout class="QVBoxLayout" name="verticalLayout" stretch="5,1">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="2,0">
+         <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="2,1">
           <item>
            <widget class="ScribbleArea" name="widget_2" native="true">
             <property name="minimumSize">
@@ -314,7 +314,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="test_btn">
+           <widget class="QPushButton" name="confirmMapBtn">
             <property name="text">
              <string>Confirm and apply to scene</string>
             </property>

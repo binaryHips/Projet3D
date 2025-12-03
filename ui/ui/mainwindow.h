@@ -33,7 +33,6 @@ public:
 public slots:
     void mapClicked();
     void setHeightMap(QString filename);
-    void returnClicked();
     void openFileSearch();
 
 private slots:
@@ -48,6 +47,8 @@ private slots:
     void on_resetDrawingBtn_clicked();
 
     void on_opacityValSLider_valueChanged(int value);
+
+    void on_confirmMapBtn_clicked();
 
 private:
     // MapDrawWindow *drawPage; TODO add eventually

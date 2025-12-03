@@ -53,13 +53,6 @@ void MainWindow::mapClicked()
     ui->stackedWidget->setCurrentWidget(ui->page_2);
 }
 
-void MainWindow::returnClicked()
-{
-    std::cout << "help" << std::endl;
-    ui->stackedWidget->setCurrentWidget(ui->page);
-}
-
-
 void MainWindow::openFileSearch()
 {
     // QString fileName = QFileDialog::getOpenFileName(this,
@@ -176,5 +169,11 @@ void MainWindow::on_opacityValSLider_valueChanged(int value)
 {
     ui->opacityValLabel->setText(QString::number(value));
     ui->widget_2->setPenOpacity(value);
+}
+
+
+void MainWindow::on_confirmMapBtn_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->page);
 }
 

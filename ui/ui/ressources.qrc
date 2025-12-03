@@ -4,5 +4,6 @@
         <file>vshader.glsl</file>
         <file>fshader.glsl</file>
         <file>test.png</file>
+        <file>Takezo.qss</file>
     </qresource>
 </RCC>
