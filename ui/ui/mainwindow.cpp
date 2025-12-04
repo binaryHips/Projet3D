@@ -179,3 +179,15 @@ void MainWindow::on_confirmMapBtn_clicked()
     backend->setHeightmap(ui->widget_2->getImage() , MAP_LAYERS::SAND);
 }
 
+
+void MainWindow::on_blackButton_clicked()
+{
+    ui->widget_2->setPenColor(QColor(0,0,0));
+}
+
+
+void MainWindow::on_whiteButton_clicked()
+{
+    ui->widget_2->setPenColor(QColor(255,255,255));
+}
+
