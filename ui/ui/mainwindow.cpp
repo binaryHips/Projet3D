@@ -180,14 +180,22 @@ void MainWindow::on_confirmMapBtn_clicked()
 }
 
 
-void MainWindow::on_blackButton_clicked()
+// TODO : Figure out a better way to do this
+// TODO : Remove the checked
+void MainWindow::on_blackButton_clicked(bool checked)
 {
+    qDebug() << "black btn : " << checked;
+    ui->blackButton->setStyleSheet("QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(0,0,0,255);}");
+
+    // lowkey you need to do ts for all of them if we add more colors
+    ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
     ui->widget_2->setPenColor(QColor(0,0,0));
+
 }
 
-
-void MainWindow::on_whiteButton_clicked()
+void MainWindow::on_whiteButton_clicked(bool checked)
 {
+    ui->whiteButton->setStyleSheet("QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(255,255,255,255);}");
+    ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
     ui->widget_2->setPenColor(QColor(255,255,255));
 }
-

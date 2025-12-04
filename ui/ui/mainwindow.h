@@ -51,9 +51,9 @@ private slots:
 
     void on_confirmMapBtn_clicked();
 
-    void on_blackButton_clicked();
+    void on_blackButton_clicked(bool checked);
 
-    void on_whiteButton_clicked();
+    void on_whiteButton_clicked(bool checked);
 
 private:
     // MapDrawWindow *drawPage; TODO add eventually
