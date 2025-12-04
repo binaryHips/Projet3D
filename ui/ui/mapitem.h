@@ -22,7 +22,7 @@ public:
     QVBoxLayout *layout;
     QPixmap map;
     ClickableLabel *map_image;
-    MAP_LAYERS m_layer;
+    MAP_LAYERS m_layer = MAP_LAYERS::SAND; // FIXME : make general map ty shi
 
 protected :
     virtual void resizeEvent(QResizeEvent* event) override;

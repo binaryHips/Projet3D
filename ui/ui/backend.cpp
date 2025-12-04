@@ -48,6 +48,8 @@ MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
 
 MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
 {
+    qDebug() << "setHeightmap called";
+
     QImage hmap = pixmap.toImage();
     MapCPU res = MapCPU();
 
@@ -70,6 +72,7 @@ MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
         }
     }
     context.maps[to_underlying(layer)] = std::move(res); //FIXME temporary i think
+    emit updateMapSignal(pixmap , layer);
     return res;
 }
 

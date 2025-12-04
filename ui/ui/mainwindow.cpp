@@ -45,6 +45,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Drawing page (page 2)
 
     ui->draw_settings_layout->addStretch();
+
+    QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
+
 }
 
 void MainWindow::mapClicked(QPixmap pixmap)
@@ -103,26 +106,21 @@ void MainWindow::setHeightMap(QString filename)
 
     ui->maps_layout->addWidget(item);
     ui->maps_layout->addStretch();
-    ui->widget->update();
-    qDebug() << 'word';
-    // updateMaps();
+    // ui->widget->update();
 }
 
 
 // FIXME je crois que j'ai fait n'importe quoi en vrai de vrai ??
-void MainWindow::updateMaps(QVector<QPixmap> maps)
+void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
 {
     qDebug() << "HELLO" ;
-    int map_index = 0;
     for(int i = 0 ; i < ui->maps_layout->count() ; i++)
     {
         //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
         if(MapItem *item = dynamic_cast<MapItem*>(ui->maps_layout->itemAt(i)->widget())) {
-            // old was safely casted to NewType
-            qDebug() << "item";
-            if(maps.size() < map_index){
-                item->updateMap(maps[map_index]);
-                map_index++;
+            if(item->m_layer == layer){
+                qDebug() << "Found map";
+                item->updateMap(map);
             }
             else{
                 return;

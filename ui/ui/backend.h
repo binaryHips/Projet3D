@@ -20,11 +20,13 @@ public :
     MapCPU setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale = 1.0f);
     static void drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem);
 
+    // for debug mostly
     QPixmap saveImageFromMap(MAP_LAYERS layer);
     bool simulating;
 
 signals :
     void loadMapSignal(QString filename);
+    void updateMapSignal(QPixmap pixmap, MAP_LAYERS layer);
 
 };
 
