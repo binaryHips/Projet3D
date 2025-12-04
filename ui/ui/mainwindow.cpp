@@ -47,9 +47,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->draw_settings_layout->addStretch();
 }
 
-void MainWindow::mapClicked()
+void MainWindow::mapClicked(QPixmap pixmap)
 {
-    std::cout << "help" << std::endl;
+    // TODO : Fix the height things
+
+    pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
+    ui->widget_2->setBackgroundPixmap(pixmap);
     ui->stackedWidget->setCurrentWidget(ui->page_2);
 }
 
@@ -75,7 +78,7 @@ void MainWindow::openFileSearch()
     {
         qDebug() << "File found";
     backend->loadHeightmap(fileName, MAP_LAYERS::SAND); //FIXME reaaally temporary. Let the user choose in the end
-    backend->saveImageFromMap(MAP_LAYERS::SAND);
+    // backend->saveImageFromMap(MAP_LAYERS::SAND);
     }
 }
 
@@ -98,8 +101,8 @@ void MainWindow::setHeightMap(QString filename)
     MapItem *item = new MapItem(filename, this);
     QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
 
-    // make it hug left prolly
     ui->maps_layout->addWidget(item);
+    ui->maps_layout->addStretch();
     ui->widget->update();
     qDebug() << 'word';
     // updateMaps();
@@ -175,5 +178,6 @@ void MainWindow::on_opacityValSLider_valueChanged(int value)
 void MainWindow::on_confirmMapBtn_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page);
+    backend->setHeightmap(ui->widget_2->getImage() , MAP_LAYERS::SAND);
 }
 

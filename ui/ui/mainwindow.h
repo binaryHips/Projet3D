@@ -31,7 +31,7 @@ public:
     void updateMaps(QVector<QPixmap> maps); // Todo maybe make slot ?
 
 public slots:
-    void mapClicked();
+    void mapClicked(QPixmap pixmap);
     void setHeightMap(QString filename);
     void openFileSearch();
 

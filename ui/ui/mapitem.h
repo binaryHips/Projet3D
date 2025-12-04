@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include "clickablelabel.h"
 
+#include "includes_all_cpu.h"
+
 class MapItem : public QWidget
 {
     Q_OBJECT
@@ -20,6 +22,7 @@ public:
     QVBoxLayout *layout;
     QPixmap map;
     ClickableLabel *map_image;
+    MAP_LAYERS m_layer;
 
 protected :
     virtual void resizeEvent(QResizeEvent* event) override;
@@ -27,7 +30,6 @@ protected :
 signals:
 
 public slots:
-    void clickedImage();
 
 };
 

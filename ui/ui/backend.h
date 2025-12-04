@@ -17,15 +17,14 @@ public :
     GeoContextCPU context = GeoContextCPU::createGeoContext();
 
     MapCPU loadHeightmap(QString filename, MAP_LAYERS layer, float scale = 1.0f);
+    MapCPU setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale = 1.0f);
     static void drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem);
 
     QPixmap saveImageFromMap(MAP_LAYERS layer);
     bool simulating;
 
 signals :
-        void loadMapSignal(QString filename);
-
-
+    void loadMapSignal(QString filename);
 
 };
 

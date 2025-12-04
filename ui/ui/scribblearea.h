@@ -20,6 +20,7 @@ public:
     void setPenWidth(int w) { m_penWidth = w; }
     void setPenOpacity(int alpha) { m_opacity = alpha;}
     void clearOverlay();
+    QPixmap getImage();
     bool saveImage(const QString &fileName, const char *fileFormat = "PNG") const;
 
 signals:

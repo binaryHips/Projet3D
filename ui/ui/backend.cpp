@@ -46,6 +46,33 @@ MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
     return res;
 }
 
+MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
+{
+    QImage hmap = pixmap.toImage();
+    MapCPU res = MapCPU();
+
+    hmap = hmap.scaled(IMGSIZE , IMGSIZE);
+
+    for (int y = 0; y < hmap.height(); y++) {
+        for (int x = 0; x < hmap.width(); x++) {
+            QRgb color = hmap.pixel(x,y);
+
+            int r = color >> 0 & 0xFF;
+            int g = color >> 8 & 0xFF;
+            int b = color >> 16 & 0xFF;
+
+
+            float mean = (r + g + b) / (3.0 * 255.0);
+
+            //            qDebug() << "color mean : " << mean;
+
+            res(x,y) = mean * scale;
+        }
+    }
+    context.maps[to_underlying(layer)] = std::move(res); //FIXME temporary i think
+    return res;
+}
+
 void Backend::drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem)
 {
     for(auto &page : particleSystem.pages){

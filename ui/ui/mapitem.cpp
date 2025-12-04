@@ -2,6 +2,9 @@
 #include <iostream>
 #include <QResizeEvent>
 
+#include "backend.h"
+#include "mainwindow.h"
+
 MapItem::MapItem(QWidget *parent)
     : QWidget{parent}
 {
@@ -25,7 +28,6 @@ MapItem::MapItem(QString image_path, QWidget *parent)
     map_image->setPixmap(map.scaled(h,h, Qt::IgnoreAspectRatio));
 
     layout->addWidget(map_image);
-
 }
 
 MapItem::MapItem(QPixmap image)
@@ -59,11 +61,6 @@ void MapItem::resizeEvent(QResizeEvent* event)
 
     QPixmap px = map.scaled(h,h,Qt::IgnoreAspectRatio);
     map_image->setPixmap(px);
-}
-
-void MapItem::clickedImage()
-{
-    std::cout << "hello" << std::endl;
 }
 
 MapItem::~MapItem()

@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QResizeEvent>
+#include <QDebug>
 
 ScribbleArea::ScribbleArea(QWidget *parent)
 	: QWidget(parent)
@@ -16,7 +17,7 @@ ScribbleArea::ScribbleArea(QWidget *parent)
 
 	setAttribute(Qt::WA_StaticContents);
 
-    openImage(":/test.png");
+    // openImage(":/test.png");
 
 }
 
@@ -35,7 +36,10 @@ bool ScribbleArea::openImage(const QString &fileName)
 
 void ScribbleArea::loadImage(const QPixmap &pixmap)
 {
-    // will see
+    qDebug() << "pix size : " << pixmap.size();
+    m_background = pixmap.toImage();
+    update();
+    m_modified = false;
 }
 
 void ScribbleArea::setBackgroundPixmap(const QPixmap &pixmap)
@@ -44,6 +48,7 @@ void ScribbleArea::setBackgroundPixmap(const QPixmap &pixmap)
 		return;
 
 	m_background = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
+    qDebug() << "size : " << m_background.size();
     resizeCanvas(m_background.size());
 	update();
 }
@@ -153,4 +158,18 @@ void ScribbleArea::resizeCanvas(const QSize &newSize)
     }
 
     update();
+}
+
+QPixmap ScribbleArea::getImage()
+{
+	if (m_background.isNull())
+		return QPixmap();
+
+	QImage result = m_background.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+	QPainter painter(&result);
+	if (!m_overlay.isNull())
+		painter.drawImage(0, 0, m_overlay);
+	painter.end();
+
+	return QPixmap::fromImage(result);
 }
