@@ -93,6 +93,8 @@ void GLWidget::paintGL()
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
 
+//    qDebug() << dt * simSpeed;
+
     if(backend->simulating){
 
         backend->context.update(dt * simSpeed);

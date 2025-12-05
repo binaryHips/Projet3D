@@ -8,22 +8,26 @@ void processSandGravity(GeoContextCPU &context, float delta){
         u32 sandLayerIndex = to_underlying(MAP_LAYERS::SAND);
 
         Pixel &currentPixel = context.maps[sandLayerIndex](i, j);
-        float currentHeight = context.heightTo(uvec2(i+1, j), sandLayerIndex);
+        float currentHeight = context.heightTo(uvec2(i, j), sandLayerIndex);
 
-        const float max_slope = 0.1;
-        const float maxDisplaceQuantity = 1.0; // x times the difference in height.
+        const float max_slope = 0.1 * (1.0 / IMGSIZE);
+        const double maxDisplaceQuantity = 0.5 * delta; // x times the difference in height.
         
         // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
-        float grad_x = context.heightTo(uvec2(i+1, j), sandLayerIndex) - currentHeight;
-        float grad_y = context.heightTo(uvec2(i, j+1), sandLayerIndex) - currentHeight;
-        std::cout << std::max(abs(grad_x), abs(grad_y));
-        if (abs(grad_x) > max_slope | abs(grad_y) > max_slope){
-            if (abs(grad_x) > abs(grad_y)){
-                float displaceToCurrent = maxDisplaceQuantity * grad_x * delta;
+        double grad_x = context.heightTo(uvec2(i+1, j), sandLayerIndex) - currentHeight;
+        double grad_y = context.heightTo(uvec2(i, j+1), sandLayerIndex) - currentHeight;
+        // std::cout << (fabs(grad_x)) << "    "<< max_slope << std::endl;
+        // std::cout << (fabs(grad_x) > max_slope )<< "  " << (fabs(grad_y) > max_slope) << std::endl;
+        if (fabs(grad_x) > max_slope || fabs(grad_y) > max_slope){
+            if (fabs(grad_x) > fabs(grad_y)){
+                // std::cout << "delta " << delta << std::endl;
+                float displaceToCurrent = std::clamp(grad_x * delta, -maxDisplaceQuantity, maxDisplaceQuantity);
+                // std::cout << displaceToCurrent << std::endl;
                 currentPixel += displaceToCurrent;
                 context.maps[sandLayerIndex](i+1, j) -= displaceToCurrent;
             } else {
-                float displaceToCurrent = maxDisplaceQuantity * grad_y * delta;
+                float displaceToCurrent = std::clamp(grad_y * delta, -maxDisplaceQuantity, maxDisplaceQuantity);
+                // std::cout << displaceToCurrent << std::endl;
                 currentPixel += displaceToCurrent;
                 context.maps[sandLayerIndex](i, j+1) -= displaceToCurrent;
             }

@@ -24,7 +24,7 @@ public:
 
     Mesh *addMesh(Mesh *m);
     void setMesh(Mesh *m, int index=0);
-    float simSpeed;
+    float simSpeed = 1.0f;
 
 public slots:
     void setControlType(controlTypes type);

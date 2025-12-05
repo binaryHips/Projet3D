@@ -7,6 +7,8 @@
 
 #include <iostream>
 
+// TODO : USE AVG HEIGHTMAP HEIGHT AS TARGET Y OR JUST LET USER CONTROL HEIGHT !
+
 void CameraController::orbitalRotate()
 {
     float cy = qCos(qDegreesToRadians(yaw));
@@ -16,7 +18,7 @@ void CameraController::orbitalRotate()
 
     forward = QVector3D(cy * cp, sp, sy * cp).normalized();
 
-    QVector3D target = QVector3D(0.5f, 0.5f, 0.5f);
+    QVector3D target = QVector3D(0.5f, 0.0f, 0.5f);
 
     float radius = (pos - target).length();
     if (radius < 0.001f) radius = 3.0f; 
@@ -152,7 +154,7 @@ void CameraController::onMouseScroll(QWheelEvent *e)
 {
     if(camControlType == ORBITAL)
     {
-        QVector3D target = QVector3D(0.5f, 0.5f, 0.5f);
+        QVector3D target = QVector3D(0.5f, 0.0f, 0.5f);
 
         if(e->angleDelta().y() > 0)
         {
