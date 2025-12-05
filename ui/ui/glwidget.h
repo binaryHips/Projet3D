@@ -44,6 +44,8 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+    void wheelEvent(QWheelEvent *e) override;
+
 private:
     QVector<Mesh*> planes;
     QVector<Mesh*> meshes;

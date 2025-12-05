@@ -22,6 +22,7 @@ void main() {
     height = texture(heightmap, coords).r;
     v_position = (Model * (vertex + vec4(0, height, 0, 0))).xyz;
 
+    // Merci Killian pour l'idée tye le sang
 
     float eps = 0.01;
     float hx1 = texture(heightmap, coords + vec2(eps, 0.0)).r;

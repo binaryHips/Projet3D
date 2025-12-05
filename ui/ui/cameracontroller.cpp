@@ -148,6 +148,28 @@ void CameraController::onMouseMove(QMouseEvent *e, Qt::MouseButton button){
     }
 }
 
+void CameraController::onMouseScroll(QWheelEvent *e)
+{
+    if(camControlType == ORBITAL)
+    {
+        QVector3D target = QVector3D(0.5f, 0.5f, 0.5f);
+
+        if(e->angleDelta().y() > 0)
+        {
+            pos -= target;
+            pos *= m_zoom;
+            pos += target;
+        }
+        else if(e->angleDelta().y() < 0)
+        {
+            pos -= target;
+            pos /= m_zoom;
+            pos += target;
+        }
+
+    }
+}
+
 
 void CameraController::setControlType(controlTypes type)
 {

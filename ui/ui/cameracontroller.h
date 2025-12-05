@@ -22,6 +22,7 @@ public:
     void onKeyPressed(int key);
     void onKeyUnpressed(int key);
     void onMouseMove(QMouseEvent *e, Qt::MouseButton button);
+    void onMouseScroll(QWheelEvent *e);
 
     QVector3D getPos();
     QVector3D getForward();
@@ -38,6 +39,7 @@ private:
     QVector3D up;
     float yaw;
     float pitch;
+    float m_zoom = 0.5;
 
     bool keyDown[1024] = {};
     Qt::MouseButton button;

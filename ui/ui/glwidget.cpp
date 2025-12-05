@@ -144,3 +144,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *e)
     update();
 }
 
+void GLWidget::wheelEvent(QWheelEvent *e)
+{
+    cam.onMouseScroll(e);
+    update();
+}
