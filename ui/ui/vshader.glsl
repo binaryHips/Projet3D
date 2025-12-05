@@ -22,6 +22,18 @@ void main() {
     height = texture(heightmap, coords).r;
     v_position = (Model * (vertex + vec4(0, height, 0, 0))).xyz;
 
+
+    float eps = 0.01;
+    float hx1 = texture(heightmap, coords + vec2(eps, 0.0)).r;
+    float hy1 = texture(heightmap, coords + vec2(0.0, eps)).r;
+    float hx2 = texture(heightmap, coords - vec2(eps, 0.0)).r;
+    float hy2 = texture(heightmap, coords - vec2(0.0, eps)).r;
+
+    vec3 dx = vec3(2.0*eps, hx1 - hx2, 0.0);
+    vec3 dy = vec3(0.0, hy1 - hy2, 2.0*eps);
+
+    v_normal = normalize(cross(dy , dx));
+
     // Final clip-space position
     gl_Position = MVP * vec4(v_position, 1.0);
 }
