@@ -38,12 +38,20 @@ void Mesh::synchronize() const {
     // qDebug() << "Vertices : " << vertices.size() << "normals : " << normals.size() ;
 
     gl_funcs->glGenTextures(1 , &mapTexture);
-    gl_funcs->glActiveTexture(GL_TEXTURE0 + 0);
     gl_funcs->glBindTexture(GL_TEXTURE_2D, mapTexture);
     gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // index textures
+    gl_funcs->glGenTextures(1 , &materialIndexTexture);
+    gl_funcs->glBindTexture(GL_TEXTURE_2D, materialIndexTexture);
+    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 
     // TODO : Figure out the VertexArray problems
     gl_funcs->glGenVertexArrays(1, &_VAO);
@@ -150,6 +158,15 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
         0
     );
 
+    gl_funcs->glActiveTexture(GL_TEXTURE0 + 1);
+    gl_funcs->glBindTexture(GL_TEXTURE_2D , materialIndexTexture);
+
+    gl_funcs->glUniform1i(
+        gl_funcs->glGetUniformLocation(shaderPID, "materialIndexTexture"),
+        1
+    );
+
+
     // todo just tranfer a struct to the gpu with all interesting data
     GLuint mvpUniformLocation = gl_funcs->glGetUniformLocation(shaderPID, "MVP");
     GLuint camForardLocation = gl_funcs->glGetUniformLocation(shaderPID, "view");
@@ -157,7 +174,6 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
 
     QMatrix4x4 MVP = vpMatrix * outside_transform * transform; // transform the VP into MVP
 
-    // gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, &MVP[0][0]);
     gl_funcs->glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, MVP.constData());
 
     gl_funcs->glUniform3fv(camForardLocation, 1, &fv[0]);
@@ -182,6 +198,7 @@ void Mesh::unsynchronize() const {
     gl_funcs->glDeleteBuffers(1, &_NORMALS);
     gl_funcs->glDeleteProgram(shaderPID);
     gl_funcs->glDeleteVertexArrays(1, &_VAO);
+    gl_funcs->glDeleteTextures(2, &mapTexture); // map texture and material index texture
 
     _synchronized = false;
 
@@ -260,8 +277,6 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
                     nX*(j) +i+1
                     )
                 );
-
-
         }
     }
     o_mesh.recomputeNormals();
@@ -273,19 +288,23 @@ void Mesh::updatePlaneHeightmap(GeoContextCPU &context)
 
     float data[IMGSIZE][IMGSIZE];
 
+    u8 materialIndex[IMGSIZE][IMGSIZE];
+
     for (u32 i = 0 ; i < IMGSIZE ; i++)
     {
         for (u32 j = 0 ; j < IMGSIZE ; j++)
         {
             uvec2 pixel(i,j);
-            const float height = context.totalHeight(pixel);
-            data[i][j] = height;
-
+            data[i][j] = context.totalHeight(pixel, &(materialIndex[i][j]));
         }
     }
 
+    gl_funcs->glActiveTexture(GL_TEXTURE0 + 0);
     gl_funcs->glBindTexture(GL_TEXTURE_2D , mapTexture);
     gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 , GL_R32F, IMGSIZE, IMGSIZE, 0 , GL_RED , GL_FLOAT , (void*)data);
+    gl_funcs->glActiveTexture(GL_TEXTURE0 + 1);
+    gl_funcs->glBindTexture(GL_TEXTURE_2D , materialIndexTexture);
+    gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 ,  GL_R8, IMGSIZE, IMGSIZE, 0 , GL_RED ,  GL_UNSIGNED_BYTE , (void*)materialIndex);
 }
 
 Mesh Mesh::load_mesh_off(std::string filename) {
