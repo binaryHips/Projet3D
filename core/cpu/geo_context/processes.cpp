@@ -2,35 +2,56 @@
 
 
 
-void processSandGravity(GeoContextCPU &context, float delta){
+void thermalErode(GeoContextCPU &context, float delta){
 
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
-        u32 sandLayerIndex = to_underlying(MAP_LAYERS::SAND);
+        u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
 
-        Pixel &currentPixel = context.maps[sandLayerIndex](i, j);
-        float currentHeight = context.heightTo(uvec2(i, j), sandLayerIndex);
+        Pixel &currentPixel = context.maps[layerIndex](i, j);
+        double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
 
         const float max_slope = 0.1 * (1.0 / IMGSIZE);
         const double maxDisplaceQuantity = 0.5 * delta; // x times the difference in height.
         
         // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
-        double grad_x = context.heightTo(uvec2(i+1, j), sandLayerIndex) - currentHeight;
-        double grad_y = context.heightTo(uvec2(i, j+1), sandLayerIndex) - currentHeight;
-        // std::cout << (fabs(grad_x)) << "    "<< max_slope << std::endl;
-        // std::cout << (fabs(grad_x) > max_slope )<< "  " << (fabs(grad_y) > max_slope) << std::endl;
-        if (fabs(grad_x) > max_slope || fabs(grad_y) > max_slope){
-            if (fabs(grad_x) > fabs(grad_y)){
-                // std::cout << "delta " << delta << std::endl;
-                float displaceToCurrent = std::clamp(grad_x * delta, -maxDisplaceQuantity, maxDisplaceQuantity);
-                // std::cout << displaceToCurrent << std::endl;
-                currentPixel += displaceToCurrent;
-                context.maps[sandLayerIndex](i+1, j) -= displaceToCurrent;
-            } else {
-                float displaceToCurrent = std::clamp(grad_y * delta, -maxDisplaceQuantity, maxDisplaceQuantity);
-                // std::cout << displaceToCurrent << std::endl;
-                currentPixel += displaceToCurrent;
-                context.maps[sandLayerIndex](i, j+1) -= displaceToCurrent;
-            }
+
+        // modified von neuman neighbourhood
+        double grad_xy      = currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex);
+        double grad_mxmy    = currentHeight - context.heightTo(uvec2(i-1, j-1), layerIndex);
+        double grad_xmy     = currentHeight - context.heightTo(uvec2(i+1, j-1), layerIndex);
+        double grad_mxy     = currentHeight - context.heightTo(uvec2(i-1, j+1), layerIndex);
+
+        double maxGrad = 0.0;
+        double maxGrad_ = 0.0; // used for small speedup
+        uvec2 maxgradDir;
+        uvec2 maxgradDir_;
+
+
+        // find max dir 
+        if (grad_xy > grad_mxmy){
+            maxGrad = grad_xy;
+            maxgradDir = uvec2(i+1, j+1);
+        } else {
+            maxGrad = grad_mxmy;
+            maxgradDir = uvec2(i-1, j-1);
+        }
+        if (grad_xmy > grad_mxy){
+            maxGrad_ = grad_xy;
+            maxgradDir_ = uvec2(i+1, j-1);
+        } else {
+            maxGrad = grad_xy;
+            maxgradDir = uvec2(i-1, j+1);
+        }
+
+        if (maxGrad_ > maxGrad){
+            maxGrad = maxGrad_;
+            maxgradDir = maxgradDir_;
+        }
+
+        if (maxGrad > 0.0){
+            float displaceToCurrent = std::clamp(maxGrad * delta, -maxDisplaceQuantity, maxDisplaceQuantity);
+            currentPixel += displaceToCurrent;
+            context.maps[layerIndex](maxgradDir[0], maxgradDir[1]) -= displaceToCurrent;
         } 
     }
 }
@@ -48,7 +69,7 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.maps[to_underlying(MAP_LAYERS::SAND)].yIndex = 2;
     context.maps[to_underlying(MAP_LAYERS::WATER)].yIndex = 2;
 
-    context.addProcess(processSandGravity);
+    context.addProcess(thermalErode);
 
     return context;
 }
