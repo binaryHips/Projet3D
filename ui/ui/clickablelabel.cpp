@@ -9,6 +9,5 @@ ClickableLabel::ClickableLabel(QWidget* parent, Qt::WindowFlags f)
 ClickableLabel::~ClickableLabel() {}
 
 void ClickableLabel::mousePressEvent(QMouseEvent* event) {
-    emit clicked(this->pixmap(Qt::ReturnByValueConstant()));
+    emit clicked(*this->pixmap());
 }
-
