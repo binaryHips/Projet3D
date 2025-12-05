@@ -39,9 +39,11 @@ private:
     QVector3D up;
     float yaw;
     float pitch;
+    QVector3D target = QVector3D(0.5,0.0,0.5);
     float m_zoom = 0.9;
 
-    bool keyDown[1024] = {};
+    bool controlPressed = false;
+    bool keyDown[256] = {};
     Qt::MouseButton button;
 
     // input

@@ -6,7 +6,7 @@ in vec3 v_normal;
 in float height;
 
 
-vec3 light_position = vec3(0,0,1);
+vec3 light_position = vec3(0,2,2);
 
 out vec4 fragColor;
 

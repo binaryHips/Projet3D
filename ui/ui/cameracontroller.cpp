@@ -18,8 +18,6 @@ void CameraController::orbitalRotate()
 
     forward = QVector3D(cy * cp, sp, sy * cp).normalized();
 
-    QVector3D target = QVector3D(0.5f, 0.0f, 0.5f);
-
     float radius = (pos - target).length();
     if (radius < 0.001f) radius = 3.0f; 
 
@@ -82,7 +80,6 @@ void CameraController::updateCamera(float dt){
         float speed = 3.0f * dt;
 
         QVector3D right = QVector3D::crossProduct(forward, up);
-
         if (keyDown[Qt::Key_Z]) pos += forward * speed;
         if (keyDown[Qt::Key_S]) pos -= forward * speed;
         if (keyDown[Qt::Key_Q]) pos -= right * speed;
@@ -96,8 +93,15 @@ void CameraController::updateCamera(float dt){
 
 void CameraController::onKeyPressed(int key){
 
+
+
     if (key <= 256){
         keyDown[key] = 1;
+    }
+
+    else if(key == Qt::Key_Control)
+    {
+        controlPressed = true;
     }
 
 }
@@ -106,6 +110,10 @@ void CameraController::onKeyUnpressed(int key){
 
     if (key <= 256){
         keyDown[key] = 0;
+    }
+    else if(key == Qt::Key_Control)
+    {
+        controlPressed = false;
     }
 
 }
@@ -154,20 +162,38 @@ void CameraController::onMouseScroll(QWheelEvent *e)
 {
     if(camControlType == ORBITAL)
     {
-        QVector3D target = QVector3D(0.5f, 0.0f, 0.5f);
 
         if(e->angleDelta().y() > 0)
         {
-            pos -= target;
-            pos *= m_zoom;
-            pos += target;
+            if(controlPressed)
+            {
+                target.setY(target.y() + 0.05);
+                pos.setY(pos.y() + 0.05);
+            }
+            else
+            {
+                pos -= target;
+                pos *= m_zoom;
+                pos += target;
+            }
+
         }
         else if(e->angleDelta().y() < 0)
         {
-            pos -= target;
-            pos /= m_zoom;
-            pos += target;
+            if(controlPressed)
+            {
+                target.setY(target.y() - 0.05);
+                pos.setY(pos.y() - 0.05);
+            }
+            else
+            {
+                pos -= target;
+                pos /= m_zoom;
+                pos += target;
+            }
         }
+
+
 
     }
 }
