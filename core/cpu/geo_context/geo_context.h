@@ -54,19 +54,29 @@ public:
         return totalHeight(pxVec);
     }
 
-    inline float totalHeight(uvec2 pos) const {
+    inline float totalHeight(uvec2 pos, u8* topLayer = nullptr) const { // can be a u8
 
         float height = 0.0;
         float currentYIndexHeight = 0.0;
-        u32 currentYIndex = 0;
+        u8 currentYIndex = 0;
 
         for (auto &map : maps){
 
             Pixel h =  map(pos);
 
+            // TODO dirty. Too many ifs, bad code !
+
             if (currentYIndex == map.yIndex){
-                currentYIndexHeight = std::max(currentYIndexHeight, h);
+                if (currentYIndexHeight < h && h > 0.0){
+                    currentYIndexHeight = h;
+                    if (topLayer){
+                        *topLayer = map.materialIndex;
+                    }
+                }
             } else {
+                if (h > 0.0){
+                    *topLayer = map.materialIndex;
+                }
                 height += currentYIndexHeight;
                 currentYIndex++;
                 currentYIndexHeight = h;
