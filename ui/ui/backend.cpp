@@ -15,6 +15,7 @@ Backend::~Backend() = default;
 
 MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
 {
+    qDebug() << "Loading heightmap";
     QImage hmap = QImage();
     MapCPU res = MapCPU();
 
@@ -41,7 +42,7 @@ MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
             res(x,y) = mean * scale;
         }
     }
-    context.maps[to_underlying(layer)] = std::move(res); //FIXME temporary i think
+    context.maps[to_underlying(layer)] = std::move(res); 
     emit loadMapSignal(filename , layer);
     return res;
 }
@@ -71,7 +72,8 @@ MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
             res(x,y) = mean * scale;
         }
     }
-    context.maps[to_underlying(layer)] = std::move(res); //FIXME temporary i think
+    context.maps[to_underlying(layer)] = std::move(res);
+    qDebug() << "Update map signal sent";
     emit updateMapSignal(pixmap , layer);
     return res;
 }
@@ -89,8 +91,6 @@ void Backend::drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSyste
         gl_funcs->glDeleteBuffers(1, &buf);
     }
 }
-
-// TODO : function to add colors to maps but also like combine the maps to get the final main map type shit
 
 QPixmap Backend::saveImageFromMap(MAP_LAYERS layer)
 {

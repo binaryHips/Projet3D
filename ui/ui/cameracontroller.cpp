@@ -7,8 +7,6 @@
 
 #include <iostream>
 
-// TODO : USE AVG HEIGHTMAP HEIGHT AS TARGET Y OR JUST LET USER CONTROL HEIGHT !
-
 void CameraController::orbitalRotate()
 {
     float cy = qCos(qDegreesToRadians(yaw));
@@ -118,7 +116,6 @@ void CameraController::onKeyUnpressed(int key){
 
 }
 
-// TODO : Convert this to orbital cam
 void CameraController::onMouseMove(QMouseEvent *e, Qt::MouseButton button){
 
     if (firstMouse) {

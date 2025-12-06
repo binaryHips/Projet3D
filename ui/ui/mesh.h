@@ -70,7 +70,7 @@ public:
     // Handle<MaterialPBR> material;
 
     GLuint shaderPID; // public for now.
-    QMatrix4x4 transform = QMatrix4x4();    // TODO : FILL THIS WITH 1s    Wait what NO DON'T ?? (-tom)
+    QMatrix4x4 transform = QMatrix4x4(); 
     QVector< QVector3D > vertices;
     QVector< QVector2D > uvs;
     QVector< QVector3D > normals;

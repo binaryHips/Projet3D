@@ -110,8 +110,7 @@ void GLWidget::paintGL()
 
         // TODO : replace it eventually with the full map function that does it all
         // QPixmap map = backend->saveImageFromMap(MAP_LAYERS::SAND);
-
-
+        
         cam.updateCamera(dt);
     }
 

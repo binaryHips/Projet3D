@@ -1,23 +1,17 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "backend.h"
-#include "cameracontroller.h"
 #include "mapitem.h"
 #include "clickablelabel.h"
 #include <QFileDialog>
 #include <QDir>
-#include <iostream>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , backend(new Backend(this))
 {
-    // MapCPU heightmap = backend.loadHeightmap(":/test.png");
-    // context.addMap(std::move(heightmap));
-
-
-    backend = new Backend(this);
-
     ui->setupUi(this);
 
     // prepare per-layer overlay storage
@@ -30,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->radioButton, &QRadioButton::toggled, ui->widget, [w = ui->widget](bool checked){ if (checked) w->setControlType(FPS); });
     ui->radioButton_2->setChecked(true);
 
-    // addStretch() to make them hug top
     ui->gl_settings_layout->addStretch();
 
     // Load our plane
@@ -39,40 +32,44 @@ MainWindow::MainWindow(QWidget *parent)
     *plane = Mesh::gen_tesselatedSquare(nbDiv,nbDiv,1,1);
     ui->widget->addMesh(plane);
 
-    // connect load mesh -> TODO figure out how to do it from editor
-    //QObject::connect(ui->actionLoad_Heightmap , &QAction::triggered , this , &MainWindow::openFileSearch);
+    // connect load mesh
     QObject::connect(ui->actionBedrock_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::BEDROCK);});
     QObject::connect(ui->actionStone_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::STONE);});
     QObject::connect(ui->actionSand_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::SAND);});
     QObject::connect(ui->actionWater_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::WATER);});
 
-    QObject::connect(this , &MainWindow::updateGLSignal , ui->widget , &GLWidget::updateGLSlot);
+    // QObject::connect(this , &MainWindow::updateGLSignal , ui->widget , &GLWidget::updateGLSlot);
 
-    // connect backend signals (new-style connection forwards the QString filename)
-    QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::updateMap);
-
-    // TODO :  create a default map for each one of the layers, when mapp is added, replace it.
     loadDefaultMaps();
 
     // Drawing page (page 2)
 
     ui->draw_settings_layout->addStretch();
 
+    // TODO : See if making these the same signal is smart
+    QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::updateMap);
     QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
 
 }
 
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
 void MainWindow::loadDefaultMaps()
 {
-    QVector maps = {MAP_LAYERS::BEDROCK , MAP_LAYERS::STONE , MAP_LAYERS::SAND , MAP_LAYERS::WATER};
+    QVector<MAP_LAYERS> maps = {MAP_LAYERS::BEDROCK , MAP_LAYERS::STONE , MAP_LAYERS::SAND , MAP_LAYERS::WATER};
 
     for(MAP_LAYERS layer : maps)
     {
         QPixmap map = backend->saveImageFromMap(layer);
         MapItem *item = new MapItem(map, this);
         item->m_layer = layer;
-        if (item->map_image) item->map_image->layer = layer;
-        QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
+        if (item->map_image) {
+            item->map_image->layer = layer;
+            QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
+        }
         ui->maps_layout->addWidget(item);
 
     }
@@ -81,10 +78,27 @@ void MainWindow::loadDefaultMaps()
 
 }
 
+void MainWindow::openFileSearchHeightmap(MAP_LAYERS layer)
+{
+    QString fileName;
+
+    QFileDialog dlg(this,"Open Image", QDir::homePath());
+    dlg.setNameFilter("Image Files (*.png *.jpg *.jpeg);;All Files()");
+    dlg.setOption(QFileDialog::DontUseNativeDialog);
+    if(dlg.exec() == QDialog::Accepted)
+    {
+        fileName = dlg.selectedFiles().first();
+    }
+
+    if (!fileName.isEmpty())
+    {
+        backend->loadHeightmap(fileName, layer);
+        backend->saveImageFromMap(layer);
+    }
+}
+
 void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
 {
-    // TODO : Fix the height things
-
     // save current overlay for current layer before switching
     MAP_LAYERS current = ui->widget_2->layer;
     QPixmap currentOverlay = ui->widget_2->getOverlayPixmap();
@@ -105,35 +119,16 @@ void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
     ui->stackedWidget->setCurrentWidget(ui->page_2);
 }
 
-void MainWindow::openFileSearchHeightmap(MAP_LAYERS layer)
+void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
 {
-    // QString fileName = QFileDialog::getOpenFileName(this,
-    //                                                 "Open Image",
-    //                                                 QDir::homePath(),
-    //                                                 "Image Files (*.png *.jpg *.jpeg *.bmp *.tga);;All Files (*)");
-    
-    QString fileName;
-    
-    QFileDialog dlg(this,"Open Image", QDir::homePath());
-    dlg.setNameFilter("Image Files (*.png *.jpg *.jpeg);;All Files()");
-    dlg.setOption(QFileDialog::DontUseNativeDialog);
-    if(dlg.exec() == QDialog::Accepted)
+    qDebug() << "Update maps" ;
+    for(int i = 0 ; i < ui->maps_layout->count() ; i++)
     {
-        fileName = dlg.selectedFiles().first();
+        //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
+        if(MapItem *item = dynamic_cast<MapItem*>(ui->maps_layout->itemAt(i)->widget())) {
+            if(item->m_layer == layer) item->updateMap(map);
+        }
     }
-
-
-    if (!fileName.isEmpty())
-    {
-        qDebug() << "File found";
-        backend->loadHeightmap(fileName, layer);
-        backend->saveImageFromMap(layer);
-    }
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void MainWindow::on_subdiv_slider_valueChanged(int value)
@@ -145,35 +140,11 @@ void MainWindow::on_subdiv_slider_valueChanged(int value)
     ui->subdivval_label->setText(QString::number(value));
 }
 
-// TODO : See if still useful and remove it if not 
-void MainWindow::setHeightMap(QString filename , MAP_LAYERS layer)
+void MainWindow::on_simspeedslider_valueChanged(int value)
 {
-    qDebug() << "hello?";
-    MapItem *item = new MapItem(filename, this);
-    item->m_layer = layer;
-    if (item->map_image) item->map_image->layer = layer;
-    QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
-
-    ui->maps_layout->addWidget(item);
-    ui->maps_layout->addStretch();
-
-    // emit updateGLSignal();
-
-}
-
-// FIXME je crois que j'ai fait n'importe quoi en vrai de vrai ??
-void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
-{
-    qDebug() << "Update maps" ;
-    for(int i = 0 ; i < ui->maps_layout->count() ; i++)
-    {
-        //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
-        if(MapItem *item = dynamic_cast<MapItem*>(ui->maps_layout->itemAt(i)->widget())) {
-            if(item->m_layer == layer){
-                item->updateMap(map);
-            }
-        }
-    }
+    float val = value / 100.0f;
+    ui->simspeedval_label->setText(QString::number(val , 'f' , 2));
+    ui->widget->simSpeed = val;
 }
 
 void MainWindow::on_simulateBtn_clicked()
@@ -191,27 +162,11 @@ void MainWindow::on_simulateBtn_clicked()
 
 }
 
-
-void MainWindow::on_simspeedslider_valueChanged(int value)
-{
-    float val = value / 100.0f;
-    ui->simspeedval_label->setText(QString::number(val , 'f' , 2));
-    ui->widget->simSpeed = val;
-}
-
-
 void MainWindow::on_pensizeSlider_valueChanged(int value)
 {
     ui->pensize_label->setText(QString::number(value) + " px");
     ui->widget_2->setPenWidth(value);
 }
-
-
-void MainWindow::on_resetDrawingBtn_clicked()
-{
-    ui->widget_2->clearOverlay();
-}
-
 
 void MainWindow::on_opacityValSLider_valueChanged(int value)
 {
@@ -219,27 +174,8 @@ void MainWindow::on_opacityValSLider_valueChanged(int value)
     ui->widget_2->setPenOpacity(value);
 }
 
-
-void MainWindow::on_confirmMapBtn_clicked()
+void MainWindow::on_blackButton_clicked()
 {
-    ui->stackedWidget->setCurrentWidget(ui->page);
-    // persist overlay for this layer
-    MAP_LAYERS layer = ui->widget_2->layer;
-    QPixmap overlay = ui->widget_2->getOverlayPixmap();
-    if (!overlay.isNull()) layerOverlays[to_underlying(layer)] = overlay;
-
-    backend->setHeightmap(ui->widget_2->getImage() , layer); // GET ACTUAL MAP
-    // request GL widget to update its heightmap from backend context
-    emit updateGLSignal(); // TODO : eventually make this only in backend.
-
-}
-
-
-// TODO : Figure out a better way to do this
-// TODO : Remove the checked
-void MainWindow::on_blackButton_clicked(bool checked)
-{
-    qDebug() << "black btn : " << checked;
     ui->blackButton->setStyleSheet("QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(0,0,0,255);}");
 
     // lowkey you need to do ts for all of them if we add more colors
@@ -248,9 +184,25 @@ void MainWindow::on_blackButton_clicked(bool checked)
 
 }
 
-void MainWindow::on_whiteButton_clicked(bool checked)
+void MainWindow::on_whiteButton_clicked()
 {
     ui->whiteButton->setStyleSheet("QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(255,255,255,255);}");
     ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
     ui->widget_2->setPenColor(QColor(255,255,255));
+}
+
+void MainWindow::on_resetDrawingBtn_clicked()
+{
+    ui->widget_2->clearOverlay();
+}
+// FIXME : Either fix saved resolution, or don't save overlay, or call only original image idk.
+void MainWindow::on_confirmMapBtn_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->page);
+    MAP_LAYERS layer = ui->widget_2->layer;
+    QPixmap overlay = ui->widget_2->getOverlayPixmap();
+    if (!overlay.isNull()) layerOverlays[to_underlying(layer)] = overlay;
+    backend->setHeightmap(ui->widget_2->getImage() , layer);
+    // ui->widget->updateGLSlot();
+
 }

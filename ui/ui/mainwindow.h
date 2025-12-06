@@ -37,19 +37,14 @@ signals:
 
 public slots:
     void mapClicked(QPixmap pixmap , MAP_LAYERS layer);
-    void setHeightMap(QString filename , MAP_LAYERS layer);
     void openFileSearchHeightmap(MAP_LAYERS layer);
 
 private slots:
 
     void updateMap(QPixmap map , MAP_LAYERS layer);
-
     void on_subdiv_slider_valueChanged(int value);
-
     void on_simulateBtn_clicked();
-
     void on_simspeedslider_valueChanged(int value);
-
     void on_pensizeSlider_valueChanged(int value);
 
     void on_resetDrawingBtn_clicked();
@@ -58,12 +53,11 @@ private slots:
 
     void on_confirmMapBtn_clicked();
 
-    void on_blackButton_clicked(bool checked);
+    void on_blackButton_clicked();
 
-    void on_whiteButton_clicked(bool checked);
+    void on_whiteButton_clicked();
 
 private:
-    // MapDrawWindow *drawPage; TODO add eventually
     void loadDefaultMaps();
 };
 #endif // MAINWINDOW_H
