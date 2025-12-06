@@ -8,6 +8,7 @@
 MapItem::MapItem(QWidget *parent)
     : QWidget{parent}
 {
+    map_image = new ClickableLabel(this);
     map_image->setSizePolicy(QSizePolicy::Minimum,  QSizePolicy::Minimum);
 }
 
@@ -24,8 +25,8 @@ MapItem::MapItem(QString image_path, QWidget *parent)
     // map_image->setText("HELLO");
     // resize(256,256);
     int h = map_image->height() ;
-
     map_image->setPixmap(map.scaled(h,h, Qt::IgnoreAspectRatio));
+    map_image->layer = m_layer;
 
     layout->addWidget(map_image);
 }
@@ -65,5 +66,4 @@ void MapItem::resizeEvent(QResizeEvent* event)
 
 MapItem::~MapItem()
 {
-    delete map_image;
 }

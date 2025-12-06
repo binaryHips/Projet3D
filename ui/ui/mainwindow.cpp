@@ -20,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
 
+    // prepare per-layer overlay storage
+    layerOverlays.resize(to_underlying(MAP_LAYERS::MAX_));
+
     // 3D Page (page 1)
 
     // connect camera mode radio buttons to GLWidget
@@ -37,7 +40,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->widget->addMesh(plane);
 
     // connect load mesh -> TODO figure out how to do it from editor
-    QObject::connect(ui->actionLoad_Heightmap , &QAction::triggered , this , &MainWindow::openFileSearch);
+    //QObject::connect(ui->actionLoad_Heightmap , &QAction::triggered , this , &MainWindow::openFileSearch);
+    QObject::connect(ui->actionBedrock_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::BEDROCK);});
+    QObject::connect(ui->actionStone_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::STONE);});
+    QObject::connect(ui->actionSand_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::SAND);});
+    QObject::connect(ui->actionWater_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::WATER);});
+
+    QObject::connect(this , &MainWindow::updateGLSignal , ui->widget , &GLWidget::updateGLSlot);
 
     // connect backend signals (new-style connection forwards the QString filename)
     QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::setHeightMap);
@@ -50,16 +59,31 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 
-void MainWindow::mapClicked(QPixmap pixmap)
+void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
 {
     // TODO : Fix the height things
 
+    // save current overlay for current layer before switching
+    MAP_LAYERS current = ui->widget_2->layer;
+    QPixmap currentOverlay = ui->widget_2->getOverlayPixmap();
+    if (!currentOverlay.isNull()) {
+        layerOverlays[to_underlying(current)] = currentOverlay;
+    }
+
+    // set new background and layer
     pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
     ui->widget_2->setBackgroundPixmap(pixmap);
+    ui->widget_2->layer = layer;
+
+    // restore overlay for this layer if we have one, otherwise clear
+    QPixmap saved = layerOverlays[to_underlying(layer)];
+    if (!saved.isNull()) ui->widget_2->setOverlayPixmap(saved);
+    else ui->widget_2->clearOverlay();
+
     ui->stackedWidget->setCurrentWidget(ui->page_2);
 }
 
-void MainWindow::openFileSearch()
+void MainWindow::openFileSearchHeightmap(MAP_LAYERS layer)
 {
     // QString fileName = QFileDialog::getOpenFileName(this,
     //                                                 "Open Image",
@@ -80,8 +104,8 @@ void MainWindow::openFileSearch()
     if (!fileName.isEmpty())
     {
         qDebug() << "File found";
-    backend->loadHeightmap(fileName, MAP_LAYERS::SAND); //FIXME reaaally temporary. Let the user choose in the end
-    // backend->saveImageFromMap(MAP_LAYERS::SAND);
+    backend->loadHeightmap(fileName, layer); //FIXME reaaally temporary. Let the user choose in the end
+    backend->saveImageFromMap(layer);
     }
 }
 
@@ -99,14 +123,18 @@ void MainWindow::on_subdiv_slider_valueChanged(int value)
     ui->subdivval_label->setText(QString::number(value));
 }
 
-void MainWindow::setHeightMap(QString filename)
+void MainWindow::setHeightMap(QString filename , MAP_LAYERS layer)
 {
     MapItem *item = new MapItem(filename, this);
+    item->m_layer = layer;
+    if (item->map_image) item->map_image->layer = layer;
     QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
 
     ui->maps_layout->addWidget(item);
     ui->maps_layout->addStretch();
-    // ui->widget->update();
+
+    emit updateGLSignal();
+
 }
 
 
@@ -118,12 +146,10 @@ void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
     {
         //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
         if(MapItem *item = dynamic_cast<MapItem*>(ui->maps_layout->itemAt(i)->widget())) {
+            qDebug() << "ok we have items";
             if(item->m_layer == layer){
                 qDebug() << "Found map";
                 item->updateMap(map);
-            }
-            else{
-                return;
             }
         }
     }
@@ -176,7 +202,15 @@ void MainWindow::on_opacityValSLider_valueChanged(int value)
 void MainWindow::on_confirmMapBtn_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page);
-    backend->setHeightmap(ui->widget_2->getImage() , MAP_LAYERS::SAND);
+    // persist overlay for this layer
+    MAP_LAYERS layer = ui->widget_2->layer;
+    QPixmap overlay = ui->widget_2->getOverlayPixmap();
+    if (!overlay.isNull()) layerOverlays[to_underlying(layer)] = overlay;
+
+    backend->setHeightmap(ui->widget_2->getImage() , layer); // GET ACTUAL MAP
+    // request GL widget to update its heightmap from backend context
+    emit updateGLSignal(); // TODO : eventually make this only in backend.
+
 }
 
 

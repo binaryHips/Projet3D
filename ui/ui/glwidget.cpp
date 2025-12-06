@@ -87,6 +87,12 @@ void GLWidget::resizeGL(int w, int h)
     projection.perspective(60.0f, float(w)/float(h), 0.1f, 200.0f);
 }
 
+void GLWidget::updateGLSlot()
+{
+    backend->context.update(0);
+    meshes[0]->updatePlaneHeightmap(backend->context);
+}
+
 void GLWidget::paintGL()
 {   
     size_t ct = currentTime();
@@ -101,7 +107,7 @@ void GLWidget::paintGL()
         meshes[0]->updatePlaneHeightmap(backend->context);
 
         // TODO : replace it eventually with the full map function that does it all
-        QPixmap map = backend->saveImageFromMap(MAP_LAYERS::SAND);
+        // QPixmap map = backend->saveImageFromMap(MAP_LAYERS::SAND);
 
 
         cam.updateCamera(dt);

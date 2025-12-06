@@ -7,6 +7,7 @@
 #include "scribblearea.h"
 #include "glwidget.h"
 #include "includes_all_cpu.h"
+#include <vector>
 
 
 QT_BEGIN_NAMESPACE
@@ -28,10 +29,16 @@ public:
     // Context that will handle all the backend, maybe switch to use Backend.h
     Backend *backend;
 
+    // store per-layer overlay pixmaps so drawings aren't shared between layers
+    std::vector<QPixmap> layerOverlays;
+
+signals:
+    void updateGLSignal();
+
 public slots:
-    void mapClicked(QPixmap pixmap);
-    void setHeightMap(QString filename);
-    void openFileSearch();
+    void mapClicked(QPixmap pixmap , MAP_LAYERS layer);
+    void setHeightMap(QString filename , MAP_LAYERS layer);
+    void openFileSearchHeightmap(MAP_LAYERS layer);
 
 private slots:
 

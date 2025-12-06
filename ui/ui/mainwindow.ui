@@ -30,7 +30,7 @@
           <item>
            <layout class="QVBoxLayout" name="gl_settings_layout" stretch="0,0,0,0,0,0,0,0,0,0">
             <property name="sizeConstraint">
-             <enum>QLayout::SetDefaultConstraint</enum>
+             <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
             </property>
             <item>
              <widget class="QLabel" name="label">
@@ -60,7 +60,7 @@
             <item>
              <widget class="Line" name="line_2">
               <property name="orientation">
-               <enum>Qt::Vertical</enum>
+               <enum>Qt::Orientation::Vertical</enum>
               </property>
              </widget>
             </item>
@@ -85,7 +85,7 @@
                  <number>100</number>
                 </property>
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -107,7 +107,7 @@
             <item>
              <widget class="Line" name="line_3">
               <property name="orientation">
-               <enum>Qt::Vertical</enum>
+               <enum>Qt::Orientation::Vertical</enum>
               </property>
              </widget>
             </item>
@@ -132,7 +132,7 @@
                  <number>100</number>
                 </property>
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -161,7 +161,7 @@
             <item>
              <widget class="Line" name="line_4">
               <property name="orientation">
-               <enum>Qt::Vertical</enum>
+               <enum>Qt::Orientation::Vertical</enum>
               </property>
              </widget>
             </item>
@@ -172,7 +172,7 @@
         <item>
          <widget class="Line" name="line">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
          </widget>
         </item>
@@ -199,7 +199,7 @@
              <x>0</x>
              <y>0</y>
              <width>601</width>
-             <height>174</height>
+             <height>177</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -246,7 +246,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -268,7 +268,7 @@
             <item>
              <widget class="Line" name="line_5">
               <property name="orientation">
-               <enum>Qt::Vertical</enum>
+               <enum>Qt::Orientation::Vertical</enum>
               </property>
              </widget>
             </item>
@@ -293,7 +293,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                </widget>
               </item>
@@ -309,7 +309,7 @@
             <item>
              <widget class="Line" name="line_6">
               <property name="orientation">
-               <enum>Qt::Vertical</enum>
+               <enum>Qt::Orientation::Vertical</enum>
               </property>
              </widget>
             </item>
@@ -402,26 +402,62 @@
      <x>0</x>
      <y>0</y>
      <width>639</width>
-     <height>31</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionLoad_Heightmap"/>
+    <widget class="QMenu" name="menuLoad_Heightmap">
+     <property name="title">
+      <string>Load Heightmap</string>
+     </property>
+     <widget class="QMenu" name="menuHeightmaps">
+      <property name="title">
+       <string>Heightmaps</string>
+      </property>
+      <addaction name="actionBedrock_layer"/>
+      <addaction name="actionStone_layer"/>
+      <addaction name="actionSand_layer"/>
+      <addaction name="actionWater_layer"/>
+     </widget>
+     <addaction name="menuHeightmaps"/>
+     <addaction name="actionFeature_map"/>
+    </widget>
+    <addaction name="menuLoad_Heightmap"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionLoad_Heightmap">
-   <property name="text">
-    <string>Load Heightmap</string>
-   </property>
-  </action>
   <action name="actionCamera_type">
    <property name="text">
     <string>Camera type</string>
+   </property>
+  </action>
+  <action name="actionFeature_map">
+   <property name="text">
+    <string>Feature maps</string>
+   </property>
+  </action>
+  <action name="actionBedrock_layer">
+   <property name="text">
+    <string>Bedrock layer</string>
+   </property>
+  </action>
+  <action name="actionStone_layer">
+   <property name="text">
+    <string>Stone layer</string>
+   </property>
+  </action>
+  <action name="actionSand_layer">
+   <property name="text">
+    <string>Sand layer</string>
+   </property>
+  </action>
+  <action name="actionWater_layer">
+   <property name="text">
+    <string>Water layer</string>
    </property>
   </action>
  </widget>

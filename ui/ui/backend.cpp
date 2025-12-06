@@ -42,7 +42,7 @@ MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
         }
     }
     context.maps[to_underlying(layer)] = std::move(res); //FIXME temporary i think
-    emit loadMapSignal(filename);
+    emit loadMapSignal(filename , layer);
     return res;
 }
 

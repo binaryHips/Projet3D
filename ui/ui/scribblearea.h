@@ -6,6 +6,8 @@
 #include <QPixmap>
 #include <QColor>
 
+#include "includes_all_cpu.h"
+
 class ScribbleArea : public QWidget
 {
     Q_OBJECT
@@ -21,7 +23,11 @@ public:
     void setPenOpacity(int alpha) { m_opacity = alpha;}
     void clearOverlay();
     QPixmap getImage();
+    QPixmap getOverlayPixmap();
+    void setOverlayPixmap(const QPixmap &pixmap);
     bool saveImage(const QString &fileName, const char *fileFormat = "PNG") const;
+
+    MAP_LAYERS layer = MAP_LAYERS::SAND; // default is still sand
 
 signals:
     void modified();

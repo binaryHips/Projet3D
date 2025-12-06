@@ -25,7 +25,7 @@ public :
     bool simulating;
 
 signals :
-    void loadMapSignal(QString filename);
+    void loadMapSignal(QString filename , MAP_LAYERS layer);
     void updateMapSignal(QPixmap pixmap, MAP_LAYERS layer);
 
 };
