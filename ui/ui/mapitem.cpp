@@ -31,10 +31,11 @@ MapItem::MapItem(QString image_path, QWidget *parent)
     layout->addWidget(map_image);
 }
 
-MapItem::MapItem(QPixmap image)
+MapItem::MapItem(QPixmap image, QWidget *parent)
+    : QWidget{parent}
 {
     map = image;
-
+    map_image = new ClickableLabel(this);
     layout = new QVBoxLayout(this);
     map_image->setSizePolicy(QSizePolicy::Minimum,  QSizePolicy::Minimum);
 
@@ -49,8 +50,16 @@ MapItem::MapItem(QPixmap image)
 void MapItem::updateMap(QPixmap im) // Or pixmap or string idk we'll see
 {
     map = im;
-    int h = map_image->height() ;
-    map_image->setPixmap(map.scaled(h,h,Qt::IgnoreAspectRatio));
+    // Protect against map_image having zero height (not yet laid out).
+    int h = map_image->height();
+    const int fallback = 64;
+    if (h <= 0) h = fallback;
+
+    if (!map.isNull()) {
+        map_image->setPixmap(map.scaled(h, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    } else {
+        map_image->clear();
+    }
 }
 
 void MapItem::resizeEvent(QResizeEvent* event)

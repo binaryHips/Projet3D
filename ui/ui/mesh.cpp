@@ -286,6 +286,8 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
 void Mesh::updatePlaneHeightmap(GeoContextCPU &context)
 {
 
+    context.update(0);
+
     float data[IMGSIZE][IMGSIZE];
 
     u8 materialIndex[IMGSIZE][IMGSIZE];

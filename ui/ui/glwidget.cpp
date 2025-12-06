@@ -87,8 +87,10 @@ void GLWidget::resizeGL(int w, int h)
     projection.perspective(60.0f, float(w)/float(h), 0.1f, 200.0f);
 }
 
+// TODO : make this just a public function not a slot
 void GLWidget::updateGLSlot()
 {
+    // FIXME : Unstable blue thing 
     backend->context.update(0);
     meshes[0]->updatePlaneHeightmap(backend->context);
 }

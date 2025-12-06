@@ -49,13 +49,35 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(this , &MainWindow::updateGLSignal , ui->widget , &GLWidget::updateGLSlot);
 
     // connect backend signals (new-style connection forwards the QString filename)
-    QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::setHeightMap);
+    QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::updateMap);
+
+    // TODO :  create a default map for each one of the layers, when mapp is added, replace it.
+    loadDefaultMaps();
 
     // Drawing page (page 2)
 
     ui->draw_settings_layout->addStretch();
 
     QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
+
+}
+
+void MainWindow::loadDefaultMaps()
+{
+    QVector maps = {MAP_LAYERS::BEDROCK , MAP_LAYERS::STONE , MAP_LAYERS::SAND , MAP_LAYERS::WATER};
+
+    for(MAP_LAYERS layer : maps)
+    {
+        QPixmap map = backend->saveImageFromMap(layer);
+        MapItem *item = new MapItem(map, this);
+        item->m_layer = layer;
+        if (item->map_image) item->map_image->layer = layer;
+        QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
+        ui->maps_layout->addWidget(item);
+
+    }
+
+    ui->maps_layout->addStretch();
 
 }
 
@@ -104,8 +126,8 @@ void MainWindow::openFileSearchHeightmap(MAP_LAYERS layer)
     if (!fileName.isEmpty())
     {
         qDebug() << "File found";
-    backend->loadHeightmap(fileName, layer); //FIXME reaaally temporary. Let the user choose in the end
-    backend->saveImageFromMap(layer);
+        backend->loadHeightmap(fileName, layer);
+        backend->saveImageFromMap(layer);
     }
 }
 
@@ -123,8 +145,10 @@ void MainWindow::on_subdiv_slider_valueChanged(int value)
     ui->subdivval_label->setText(QString::number(value));
 }
 
+// TODO : See if still useful and remove it if not 
 void MainWindow::setHeightMap(QString filename , MAP_LAYERS layer)
 {
+    qDebug() << "hello?";
     MapItem *item = new MapItem(filename, this);
     item->m_layer = layer;
     if (item->map_image) item->map_image->layer = layer;
@@ -133,22 +157,19 @@ void MainWindow::setHeightMap(QString filename , MAP_LAYERS layer)
     ui->maps_layout->addWidget(item);
     ui->maps_layout->addStretch();
 
-    emit updateGLSignal();
+    // emit updateGLSignal();
 
 }
-
 
 // FIXME je crois que j'ai fait n'importe quoi en vrai de vrai ??
 void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
 {
-    qDebug() << "HELLO" ;
+    qDebug() << "Update maps" ;
     for(int i = 0 ; i < ui->maps_layout->count() ; i++)
     {
         //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
         if(MapItem *item = dynamic_cast<MapItem*>(ui->maps_layout->itemAt(i)->widget())) {
-            qDebug() << "ok we have items";
             if(item->m_layer == layer){
-                qDebug() << "Found map";
                 item->updateMap(map);
             }
         }

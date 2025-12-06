@@ -64,5 +64,6 @@ private slots:
 
 private:
     // MapDrawWindow *drawPage; TODO add eventually
+    void loadDefaultMaps();
 };
 #endif // MAINWINDOW_H
