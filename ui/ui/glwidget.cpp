@@ -108,8 +108,15 @@ void GLWidget::paintGL()
         backend->context.update(dt * simSpeed);
         meshes[0]->updatePlaneHeightmap(backend->context);
 
-        // TODO : replace it eventually with the full map function that does it all
-        // QPixmap map = backend->saveImageFromMap(MAP_LAYERS::SAND);
+        // TODO : make this less ugly good god
+        QPixmap map = backend->saveImageFromMap(MAP_LAYERS::BEDROCK);
+        backend->setHeightmap(map , MAP_LAYERS::BEDROCK);
+        map = backend->saveImageFromMap(MAP_LAYERS::STONE);
+        backend->setHeightmap(map , MAP_LAYERS::STONE);
+        map = backend->saveImageFromMap(MAP_LAYERS::SAND);
+        backend->setHeightmap(map , MAP_LAYERS::SAND);
+        map = backend->saveImageFromMap(MAP_LAYERS::WATER);
+        backend->setHeightmap(map , MAP_LAYERS::WATER);
         
         cam.updateCamera(dt);
     }
