@@ -13,8 +13,7 @@ class MapItem : public QWidget
     Q_OBJECT
 public:
     explicit MapItem(QWidget *parent = nullptr);
-    explicit MapItem(QString image_path, QWidget *parent = nullptr);
-    explicit MapItem(QPixmap image, QWidget *parent = nullptr);
+    explicit MapItem(QPixmap image, MAP_LAYERS layer, QWidget *parent = nullptr);
     ~MapItem();
 
     void updateMap(QPixmap im);

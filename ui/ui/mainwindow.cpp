@@ -63,13 +63,14 @@ void MainWindow::loadDefaultMaps()
     for(MAP_LAYERS layer : maps)
     {
         QPixmap map = backend->saveImageFromMap(layer);
-        MapItem *item = new MapItem(map, this);
+        MapItem *item = new MapItem(map, layer, this);
         item->m_layer = layer;
         if (item->map_image) {
             item->map_image->layer = layer;
             QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
         }
         ui->maps_layout->addWidget(item);
+        // ui->maps_layout->addLayout(item->layout);
 
     }
 

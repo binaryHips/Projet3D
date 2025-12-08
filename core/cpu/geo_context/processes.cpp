@@ -129,6 +129,11 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.maps[to_underlying(MAP_LAYERS::SAND)].materialIndex = to_underlying(MAP_LAYERS::SAND);
     context.maps[to_underlying(MAP_LAYERS::WATER)].materialIndex = to_underlying(MAP_LAYERS::WATER);
 
+    context.maps[to_underlying(MAP_LAYERS::BEDROCK)].name = "Bedrock";
+    context.maps[to_underlying(MAP_LAYERS::STONE)].name = "Stone";
+    context.maps[to_underlying(MAP_LAYERS::SAND)].name = "Sand";
+    context.maps[to_underlying(MAP_LAYERS::WATER)].name = "Water";
+
 
     context.addProcess(thermalErode);
 
