@@ -15,7 +15,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     // prepare per-layer overlay storage
-    layerOverlays.resize(to_underlying(MAP_LAYERS::MAX_));
 
     // 3D Page (page 1)
 
@@ -99,12 +98,7 @@ void MainWindow::openFileSearchHeightmap(MAP_LAYERS layer)
 
 void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
 {
-    // save current overlay for current layer before switching
-    MAP_LAYERS current = ui->widget_2->layer;
-    QPixmap currentOverlay = ui->widget_2->getOverlayPixmap();
-    if (!currentOverlay.isNull()) {
-        layerOverlays[to_underlying(current)] = currentOverlay;
-    }
+
 
     // set new background and layer
     pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
@@ -112,9 +106,7 @@ void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
     ui->widget_2->layer = layer;
 
     // restore overlay for this layer if we have one, otherwise clear
-    QPixmap saved = layerOverlays[to_underlying(layer)];
-    if (!saved.isNull()) ui->widget_2->setOverlayPixmap(saved);
-    else ui->widget_2->clearOverlay();
+    ui->widget_2->clearOverlay();
 
     ui->stackedWidget->setCurrentWidget(ui->page_2);
 }
@@ -200,8 +192,6 @@ void MainWindow::on_confirmMapBtn_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page);
     MAP_LAYERS layer = ui->widget_2->layer;
-    QPixmap overlay = ui->widget_2->getOverlayPixmap();
-    if (!overlay.isNull()) layerOverlays[to_underlying(layer)] = overlay;
     backend->setHeightmap(ui->widget_2->getImage() , layer);
     // ui->widget->updateGLSlot();
 

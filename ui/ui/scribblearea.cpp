@@ -102,8 +102,8 @@ void ScribbleArea::paintEvent(QPaintEvent * /* event */)
 	// background and overlay are maintained in widget coordinates
 	if (!m_background.isNull())
 		painter.drawImage(0, 0, m_background);
-	if (!m_overlay.isNull())
-		painter.drawImage(0, 0, m_overlay);
+    if (!m_overlay.isNull())
+        painter.drawImage(0, 0, m_overlay);
 }
 
 void ScribbleArea::resizeEvent(QResizeEvent *event)
@@ -172,32 +172,4 @@ QPixmap ScribbleArea::getImage()
 	painter.end();
 
 	return QPixmap::fromImage(result);
-}
-
-QPixmap ScribbleArea::getOverlayPixmap()
-{
-	if (m_overlay.isNull())
-		return QPixmap();
-
-	return QPixmap::fromImage(m_overlay);
-}
-
-void ScribbleArea::setOverlayPixmap(const QPixmap &pixmap)
-{
-	if (pixmap.isNull()) {
-		clearOverlay();
-		return;
-	}
-
-	QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
-	// Scale to widget size so overlay matches background and drawing area
-	QSize target = size();
-	if (img.size() != target) {
-		img = img.scaled(target, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	}
-
-	m_overlay = std::move(img);
-	m_modified = true;
-	update();
 }
