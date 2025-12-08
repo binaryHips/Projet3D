@@ -37,8 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->actionSand_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::SAND);});
     QObject::connect(ui->actionWater_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::WATER);});
 
-    // QObject::connect(this , &MainWindow::updateGLSignal , ui->widget , &GLWidget::updateGLSlot);
-
     loadDefaultMaps();
 
     // Drawing page (page 2)
@@ -122,6 +120,7 @@ void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
             if(item->m_layer == layer) item->updateMap(map);
         }
     }
+    ui->widget->updateGLSlot();
 }
 
 void MainWindow::on_subdiv_slider_valueChanged(int value)
@@ -194,6 +193,6 @@ void MainWindow::on_confirmMapBtn_clicked()
     ui->stackedWidget->setCurrentWidget(ui->page);
     MAP_LAYERS layer = ui->widget_2->layer;
     backend->setHeightmap(ui->widget_2->getImage() , layer);
-    // ui->widget->updateGLSlot();
+    ui->widget->updateGLSlot();
 
 }

@@ -90,9 +90,8 @@ void GLWidget::resizeGL(int w, int h)
 // TODO : make this just a public function not a slot
 void GLWidget::updateGLSlot()
 {
-    // FIXME : Unstable blue thing 
-    backend->context.update(0);
-    meshes[0]->updatePlaneHeightmap(backend->context);
+    pendingHeightmapUpdate = true;
+    update();
 }
 
 void GLWidget::paintGL()
@@ -103,12 +102,18 @@ void GLWidget::paintGL()
 
 //    qDebug() << dt * simSpeed;
 
+    // Handle pending heightmap update request (from updateGLSlot)
+    if (pendingHeightmapUpdate) {
+        pendingHeightmapUpdate = false;
+        backend->context.update(0);
+        meshes[0]->updatePlaneHeightmap(backend->context);
+    }
+
     if(backend->simulating){
 
         backend->context.update(dt * simSpeed);
         meshes[0]->updatePlaneHeightmap(backend->context);
 
-        // TODO : make this less ugly good god
         QPixmap map = backend->saveImageFromMap(MAP_LAYERS::BEDROCK);
         backend->setHeightmap(map , MAP_LAYERS::BEDROCK);
         map = backend->saveImageFromMap(MAP_LAYERS::STONE);
