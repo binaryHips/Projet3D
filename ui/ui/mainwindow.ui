@@ -321,7 +321,7 @@
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="colorsLayout">
+             <layout class="QHBoxLayout" name="colorsLayout" stretch="2,2,1">
               <item>
                <widget class="QPushButton" name="blackButton">
                 <property name="sizePolicy">
@@ -363,6 +363,19 @@
                 </property>
                 <property name="autoExclusive">
                  <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="eraserBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>

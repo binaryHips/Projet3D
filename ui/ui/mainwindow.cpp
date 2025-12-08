@@ -47,6 +47,16 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::updateMap);
     QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
 
+
+    // Eraser button (ugly)
+    QPixmap pixmap("/home/drew/Downloads/eraser.png");
+    pixmap = pixmap.scaled(ui->eraserBtn->height(), ui->eraserBtn->height() , Qt::KeepAspectRatio);
+    QIcon ButtonIcon(pixmap);
+    ui->eraserBtn->setIcon(ButtonIcon);
+    ui->eraserBtn->setIconSize(pixmap.rect().size());
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -166,20 +176,31 @@ void MainWindow::on_opacityValSLider_valueChanged(int value)
 
 void MainWindow::on_blackButton_clicked()
 {
-    ui->blackButton->setStyleSheet("QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(0,0,0,255);}");
+    ui->blackButton->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px; background-color: rgba(0,0,0,255);}");
 
     // lowkey you need to do ts for all of them if we add more colors
     ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
+    ui->eraserBtn->setStyleSheet("QPushButton{border:none;}");
     ui->widget_2->setPenColor(QColor(0,0,0));
 
 }
 
 void MainWindow::on_whiteButton_clicked()
 {
-    ui->whiteButton->setStyleSheet("QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(255,255,255,255);}");
+    ui->whiteButton->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px; background-color: rgba(255,255,255,255);}");
     ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
+    ui->eraserBtn->setStyleSheet("QPushButton{border:none;}");
     ui->widget_2->setPenColor(QColor(255,255,255));
 }
+
+void MainWindow::on_eraserBtn_clicked()
+{
+    ui->eraserBtn->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px;}");
+    ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
+    ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
+    ui->widget_2->setEraser(true);
+}
+
 
 void MainWindow::on_resetDrawingBtn_clicked()
 {
@@ -195,3 +216,4 @@ void MainWindow::on_confirmMapBtn_clicked()
     ui->widget->updateGLSlot();
 
 }
+

@@ -57,6 +57,8 @@ private slots:
 
     void on_whiteButton_clicked();
 
+    void on_eraserBtn_clicked();
+
 private:
     void loadDefaultMaps();
 };

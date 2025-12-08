@@ -117,9 +117,19 @@ void ScribbleArea::drawLineTo(const QPoint &endPoint)
 		return;
 
 	QPainter painter(&m_overlay);
-    m_penColor.setAlpha(m_opacity);
-	QPen pen(m_penColor, m_penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-	painter.setPen(pen);
+	
+	if (m_eraserMode) {
+		// erase
+		painter.setCompositionMode(QPainter::CompositionMode_Clear);
+		QPen pen(Qt::transparent, m_penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+		painter.setPen(pen);
+	} else {
+		// normal pen
+		m_penColor.setAlpha(m_opacity);
+		QPen pen(m_penColor, m_penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+		painter.setPen(pen);
+	}
+	
 	painter.drawLine(m_lastPoint, endPoint);
 
 	int rad = (m_penWidth / 2) + 2;
