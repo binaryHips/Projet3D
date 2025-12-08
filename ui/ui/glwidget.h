@@ -69,6 +69,7 @@ private:
 
     Backend *backend;
     
+    bool pendingSetMeshUpdate = false;
     bool pendingHeightmapUpdate = false;
 };
 

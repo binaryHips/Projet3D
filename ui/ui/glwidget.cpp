@@ -73,11 +73,7 @@ void GLWidget::setMesh(Mesh *m, int index)
     }
 
     meshes[index] = m;
-
-    m->setGlFunctions(this);
-    m->setShader(":/vshader.glsl" , ":/fshader.glsl");
-    m->updatePlaneHeightmap(backend->context);
-
+    pendingSetMeshUpdate = true;
 }
 
 
@@ -91,7 +87,6 @@ void GLWidget::resizeGL(int w, int h)
 void GLWidget::updateGLSlot()
 {
     pendingHeightmapUpdate = true;
-    update();
 }
 
 void GLWidget::paintGL()
@@ -100,7 +95,16 @@ void GLWidget::paintGL()
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
 
-    // Handle pending heightmap update request (from updateGLSlot)
+    // Used when we set the plane by hand
+    if (pendingSetMeshUpdate)
+    {
+        pendingSetMeshUpdate = false;
+        meshes[0]->setGlFunctions(this);
+        meshes[0]->setShader(":/vshader.glsl" , ":/fshader.glsl");
+        meshes[0]->updatePlaneHeightmap(backend->context);
+    }
+
+    // Used when we modify/load one of the maps
     if (pendingHeightmapUpdate) {
         pendingHeightmapUpdate = false;
         backend->context.update(0);
