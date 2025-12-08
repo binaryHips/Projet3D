@@ -112,7 +112,6 @@ void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
 
 void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
 {
-    qDebug() << "Update maps" ;
     for(int i = 0 ; i < ui->maps_layout->count() ; i++)
     {
         //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
@@ -125,7 +124,6 @@ void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
 
 void MainWindow::on_subdiv_slider_valueChanged(int value)
 {
-    qDebug() << "hello" ;
     Mesh *plane= new Mesh();
     *plane = Mesh::gen_tesselatedSquare(value,value,1,1);
     ui->widget->setMesh(plane,0);
@@ -187,6 +185,7 @@ void MainWindow::on_resetDrawingBtn_clicked()
 {
     ui->widget_2->clearOverlay();
 }
+
 // FIXME : Either fix saved resolution, or don't save overlay, or call only original image idk.
 void MainWindow::on_confirmMapBtn_clicked()
 {

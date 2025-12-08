@@ -55,8 +55,6 @@ void MapItem::resizeEvent(QResizeEvent* event)
     // QWidget::resizeEvent(event);
 
     int h = map_image->height() ;
-    std::cout << "height : " << h << std::endl;
-
     QPixmap px = map.scaled(h,h,Qt::IgnoreAspectRatio);
     map_image->setPixmap(px);
 }

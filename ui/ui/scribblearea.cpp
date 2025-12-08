@@ -36,7 +36,6 @@ bool ScribbleArea::openImage(const QString &fileName)
 
 void ScribbleArea::loadImage(const QPixmap &pixmap)
 {
-    qDebug() << "pix size : " << pixmap.size();
     m_background = pixmap.toImage();
     update();
     m_modified = false;
@@ -48,7 +47,6 @@ void ScribbleArea::setBackgroundPixmap(const QPixmap &pixmap)
 		return;
 
 	m_background = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
-    qDebug() << "size : " << m_background.size();
     resizeCanvas(m_background.size());
 	update();
 }

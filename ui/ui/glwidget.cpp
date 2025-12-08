@@ -100,8 +100,6 @@ void GLWidget::paintGL()
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
 
-//    qDebug() << dt * simSpeed;
-
     // Handle pending heightmap update request (from updateGLSlot)
     if (pendingHeightmapUpdate) {
         pendingHeightmapUpdate = false;
