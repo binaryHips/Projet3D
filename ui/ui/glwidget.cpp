@@ -29,8 +29,6 @@ GLWidget::GLWidget(QWidget *parent)
     timer.start(0);
 
     lastTime = currentTime();
-
-    // backend->context.particleSystem.spawn(512);
 }
 
 void GLWidget::setControlType(controlTypes type)
@@ -53,6 +51,9 @@ void GLWidget::initializeGL()
     initializeOpenGLFunctions();
 
     backend = static_cast<MainWindow*>(window())->backend;
+
+    backend->context.particleSystem.spawn(512);
+    backend->drawParticles(this , backend->context.particleSystem);
 
     for(Mesh *m:meshes){
         m->setGlFunctions(this);
