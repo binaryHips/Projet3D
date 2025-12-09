@@ -29,8 +29,6 @@ GLWidget::GLWidget(QWidget *parent)
     timer.start(0);
 
     lastTime = currentTime();
-
-    // backend->context.particleSystem.spawn(512);
 }
 
 void GLWidget::setControlType(controlTypes type)
@@ -54,6 +52,9 @@ void GLWidget::initializeGL()
 
     backend = static_cast<MainWindow*>(window())->backend;
 
+    backend->context.particleSystem.spawn(512);
+    backend->drawParticles(this , backend->context.particleSystem);
+
     for(Mesh *m:meshes){
         m->setGlFunctions(this);
         m->setShader(":/vshader.glsl" , ":/fshader.glsl");
@@ -73,11 +74,7 @@ void GLWidget::setMesh(Mesh *m, int index)
     }
 
     meshes[index] = m;
-
-    m->setGlFunctions(this);
-    m->setShader(":/vshader.glsl" , ":/fshader.glsl");
-    m->updatePlaneHeightmap(backend->context);
-
+    pendingSetMeshUpdate = true;
 }
 
 
@@ -90,9 +87,7 @@ void GLWidget::resizeGL(int w, int h)
 // TODO : make this just a public function not a slot
 void GLWidget::updateGLSlot()
 {
-    // FIXME : Unstable blue thing 
-    backend->context.update(0);
-    meshes[0]->updatePlaneHeightmap(backend->context);
+    pendingHeightmapUpdate = true;
 }
 
 void GLWidget::paintGL()
@@ -101,14 +96,27 @@ void GLWidget::paintGL()
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
 
-//    qDebug() << dt * simSpeed;
+    // Used when we set the plane by hand
+    if (pendingSetMeshUpdate)
+    {
+        pendingSetMeshUpdate = false;
+        meshes[0]->setGlFunctions(this);
+        meshes[0]->setShader(":/vshader.glsl" , ":/fshader.glsl");
+        meshes[0]->updatePlaneHeightmap(backend->context);
+    }
+
+    // Used when we modify/load one of the maps
+    if (pendingHeightmapUpdate) {
+        pendingHeightmapUpdate = false;
+        backend->context.update(0);
+        meshes[0]->updatePlaneHeightmap(backend->context);
+    }
 
     if(backend->simulating){
 
         backend->context.update(dt * simSpeed);
         meshes[0]->updatePlaneHeightmap(backend->context);
 
-        // TODO : make this less ugly good god
         QPixmap map = backend->saveImageFromMap(MAP_LAYERS::BEDROCK);
         backend->setHeightmap(map , MAP_LAYERS::BEDROCK);
         map = backend->saveImageFromMap(MAP_LAYERS::STONE);

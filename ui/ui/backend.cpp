@@ -15,7 +15,6 @@ Backend::~Backend() = default;
 
 MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
 {
-    qDebug() << "Loading heightmap";
     QImage hmap = QImage();
     MapCPU res = MapCPU();
 
@@ -37,8 +36,6 @@ MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
 
             float mean = (r + g + b) / (3.0 * 255.0);
 
-//            qDebug() << "color mean : " << mean;
-
             res(x,y) = mean * scale;
         }
     }
@@ -49,8 +46,6 @@ MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
 
 MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
 {
-    qDebug() << "setHeightmap called";
-
     QImage hmap = pixmap.toImage();
     MapCPU res = MapCPU();
 
@@ -67,13 +62,10 @@ MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
 
             float mean = (r + g + b) / (3.0 * 255.0);
 
-            //            qDebug() << "color mean : " << mean;
-
             res(x,y) = mean * scale;
         }
     }
     context.maps[to_underlying(layer)] = std::move(res);
-    qDebug() << "Update map signal sent";
     emit updateMapSignal(pixmap , layer);
     return res;
 }

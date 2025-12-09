@@ -15,7 +15,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     // prepare per-layer overlay storage
-    layerOverlays.resize(to_underlying(MAP_LAYERS::MAX_));
 
     // 3D Page (page 1)
 
@@ -38,8 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->actionSand_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::SAND);});
     QObject::connect(ui->actionWater_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::WATER);});
 
-    // QObject::connect(this , &MainWindow::updateGLSignal , ui->widget , &GLWidget::updateGLSlot);
-
     loadDefaultMaps();
 
     // Drawing page (page 2)
@@ -49,6 +46,16 @@ MainWindow::MainWindow(QWidget *parent)
     // TODO : See if making these the same signal is smart
     QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::updateMap);
     QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
+
+
+    // Eraser button (ugly)
+    QPixmap pixmap("/home/drew/Downloads/eraser.png");
+    pixmap = pixmap.scaled(ui->eraserBtn->height(), ui->eraserBtn->height() , Qt::KeepAspectRatio);
+    QIcon ButtonIcon(pixmap);
+    ui->eraserBtn->setIcon(ButtonIcon);
+    ui->eraserBtn->setIconSize(pixmap.rect().size());
+
+
 
 }
 
@@ -64,13 +71,14 @@ void MainWindow::loadDefaultMaps()
     for(MAP_LAYERS layer : maps)
     {
         QPixmap map = backend->saveImageFromMap(layer);
-        MapItem *item = new MapItem(map, this);
+        MapItem *item = new MapItem(map, layer, this);
         item->m_layer = layer;
         if (item->map_image) {
             item->map_image->layer = layer;
             QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
         }
         ui->maps_layout->addWidget(item);
+        // ui->maps_layout->addLayout(item->layout);
 
     }
 
@@ -99,12 +107,7 @@ void MainWindow::openFileSearchHeightmap(MAP_LAYERS layer)
 
 void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
 {
-    // save current overlay for current layer before switching
-    MAP_LAYERS current = ui->widget_2->layer;
-    QPixmap currentOverlay = ui->widget_2->getOverlayPixmap();
-    if (!currentOverlay.isNull()) {
-        layerOverlays[to_underlying(current)] = currentOverlay;
-    }
+
 
     // set new background and layer
     pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
@@ -112,16 +115,13 @@ void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
     ui->widget_2->layer = layer;
 
     // restore overlay for this layer if we have one, otherwise clear
-    QPixmap saved = layerOverlays[to_underlying(layer)];
-    if (!saved.isNull()) ui->widget_2->setOverlayPixmap(saved);
-    else ui->widget_2->clearOverlay();
+    ui->widget_2->clearOverlay();
 
     ui->stackedWidget->setCurrentWidget(ui->page_2);
 }
 
 void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
 {
-    qDebug() << "Update maps" ;
     for(int i = 0 ; i < ui->maps_layout->count() ; i++)
     {
         //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
@@ -129,11 +129,11 @@ void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
             if(item->m_layer == layer) item->updateMap(map);
         }
     }
+    ui->widget->updateGLSlot();
 }
 
 void MainWindow::on_subdiv_slider_valueChanged(int value)
 {
-    qDebug() << "hello" ;
     Mesh *plane= new Mesh();
     *plane = Mesh::gen_tesselatedSquare(value,value,1,1);
     ui->widget->setMesh(plane,0);
@@ -176,33 +176,44 @@ void MainWindow::on_opacityValSLider_valueChanged(int value)
 
 void MainWindow::on_blackButton_clicked()
 {
-    ui->blackButton->setStyleSheet("QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(0,0,0,255);}");
+    ui->blackButton->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px; background-color: rgba(0,0,0,255);}");
 
     // lowkey you need to do ts for all of them if we add more colors
     ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
+    ui->eraserBtn->setStyleSheet("QPushButton{border:none;}");
     ui->widget_2->setPenColor(QColor(0,0,0));
 
 }
 
 void MainWindow::on_whiteButton_clicked()
 {
-    ui->whiteButton->setStyleSheet("QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(255,255,255,255);}");
+    ui->whiteButton->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px; background-color: rgba(255,255,255,255);}");
     ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
+    ui->eraserBtn->setStyleSheet("QPushButton{border:none;}");
     ui->widget_2->setPenColor(QColor(255,255,255));
 }
+
+void MainWindow::on_eraserBtn_clicked()
+{
+    ui->eraserBtn->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px;}");
+    ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
+    ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
+    ui->widget_2->setEraser(true);
+}
+
 
 void MainWindow::on_resetDrawingBtn_clicked()
 {
     ui->widget_2->clearOverlay();
 }
+
 // FIXME : Either fix saved resolution, or don't save overlay, or call only original image idk.
 void MainWindow::on_confirmMapBtn_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page);
     MAP_LAYERS layer = ui->widget_2->layer;
-    QPixmap overlay = ui->widget_2->getOverlayPixmap();
-    if (!overlay.isNull()) layerOverlays[to_underlying(layer)] = overlay;
     backend->setHeightmap(ui->widget_2->getImage() , layer);
-    // ui->widget->updateGLSlot();
+    ui->widget->updateGLSlot();
 
 }
+

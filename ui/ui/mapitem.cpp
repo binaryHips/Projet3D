@@ -12,38 +12,26 @@ MapItem::MapItem(QWidget *parent)
     map_image->setSizePolicy(QSizePolicy::Minimum,  QSizePolicy::Minimum);
 }
 
-MapItem::MapItem(QString image_path, QWidget *parent)
-    : QWidget{parent}
-{
-    map_image = new ClickableLabel(this);
-    layout = new QVBoxLayout(this);
-    map_image->setSizePolicy(QSizePolicy::Minimum,  QSizePolicy::Minimum);
-
-    // Add the image
-    map = QPixmap(image_path);
-
-    // map_image->setText("HELLO");
-    // resize(256,256);
-    int h = map_image->height() ;
-    map_image->setPixmap(map.scaled(h,h, Qt::IgnoreAspectRatio));
-    map_image->layer = m_layer;
-
-    layout->addWidget(map_image);
-}
-
-MapItem::MapItem(QPixmap image, QWidget *parent)
+MapItem::MapItem(QPixmap image, MAP_LAYERS layer, QWidget *parent)
     : QWidget{parent}
 {
     map = image;
+    m_layer = layer;
     map_image = new ClickableLabel(this);
     layout = new QVBoxLayout(this);
+
     map_image->setSizePolicy(QSizePolicy::Minimum,  QSizePolicy::Minimum);
 
     int h = map_image->height() ;
 
     map_image->setPixmap(map.scaled(h,h, Qt::IgnoreAspectRatio));
 
+    GeoContextCPU context = static_cast<MainWindow*>(window())->backend->context;
+    QLabel* layerName = new QLabel(QString::fromStdString(context.maps[to_underlying(m_layer)].name));
+
+    layout->addWidget(layerName);
     layout->addWidget(map_image);
+    layout->setStretch(1,5);
 
 }
 
@@ -67,8 +55,6 @@ void MapItem::resizeEvent(QResizeEvent* event)
     // QWidget::resizeEvent(event);
 
     int h = map_image->height() ;
-    std::cout << "height : " << h << std::endl;
-
     QPixmap px = map.scaled(h,h,Qt::IgnoreAspectRatio);
     map_image->setPixmap(px);
 }

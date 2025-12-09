@@ -68,6 +68,9 @@ private:
     void updateCamera(float dt);
 
     Backend *backend;
+    
+    bool pendingSetMeshUpdate = false;
+    bool pendingHeightmapUpdate = false;
 };
 
 

@@ -36,7 +36,6 @@ bool ScribbleArea::openImage(const QString &fileName)
 
 void ScribbleArea::loadImage(const QPixmap &pixmap)
 {
-    qDebug() << "pix size : " << pixmap.size();
     m_background = pixmap.toImage();
     update();
     m_modified = false;
@@ -48,7 +47,6 @@ void ScribbleArea::setBackgroundPixmap(const QPixmap &pixmap)
 		return;
 
 	m_background = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
-    qDebug() << "size : " << m_background.size();
     resizeCanvas(m_background.size());
 	update();
 }
@@ -102,8 +100,8 @@ void ScribbleArea::paintEvent(QPaintEvent * /* event */)
 	// background and overlay are maintained in widget coordinates
 	if (!m_background.isNull())
 		painter.drawImage(0, 0, m_background);
-	if (!m_overlay.isNull())
-		painter.drawImage(0, 0, m_overlay);
+    if (!m_overlay.isNull())
+        painter.drawImage(0, 0, m_overlay);
 }
 
 void ScribbleArea::resizeEvent(QResizeEvent *event)
@@ -119,9 +117,19 @@ void ScribbleArea::drawLineTo(const QPoint &endPoint)
 		return;
 
 	QPainter painter(&m_overlay);
-    m_penColor.setAlpha(m_opacity);
-	QPen pen(m_penColor, m_penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-	painter.setPen(pen);
+	
+	if (m_eraserMode) {
+		// erase
+		painter.setCompositionMode(QPainter::CompositionMode_Clear);
+		QPen pen(Qt::transparent, m_penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+		painter.setPen(pen);
+	} else {
+		// normal pen
+		m_penColor.setAlpha(m_opacity);
+		QPen pen(m_penColor, m_penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+		painter.setPen(pen);
+	}
+	
 	painter.drawLine(m_lastPoint, endPoint);
 
 	int rad = (m_penWidth / 2) + 2;
@@ -172,32 +180,4 @@ QPixmap ScribbleArea::getImage()
 	painter.end();
 
 	return QPixmap::fromImage(result);
-}
-
-QPixmap ScribbleArea::getOverlayPixmap()
-{
-	if (m_overlay.isNull())
-		return QPixmap();
-
-	return QPixmap::fromImage(m_overlay);
-}
-
-void ScribbleArea::setOverlayPixmap(const QPixmap &pixmap)
-{
-	if (pixmap.isNull()) {
-		clearOverlay();
-		return;
-	}
-
-	QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
-	// Scale to widget size so overlay matches background and drawing area
-	QSize target = size();
-	if (img.size() != target) {
-		img = img.scaled(target, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	}
-
-	m_overlay = std::move(img);
-	m_modified = true;
-	update();
 }

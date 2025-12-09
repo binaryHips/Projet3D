@@ -21,6 +21,8 @@ public:
     void setPenColor(const QColor &color) { m_penColor = color; }
     void setPenWidth(int w) { m_penWidth = w; }
     void setPenOpacity(int alpha) { m_opacity = alpha;}
+    void setEraser(bool enabled) { m_eraserMode = enabled; }
+    bool isEraser() const { return m_eraserMode; }
     void clearOverlay();
     QPixmap getImage();
     QPixmap getOverlayPixmap();
@@ -52,6 +54,7 @@ private:
     QColor m_penColor = Qt::black;
     int m_penWidth = 3;
     int m_opacity = 255;
+    bool m_eraserMode = false;
 };
 
 #endif // SCRIBBLEAREA_H

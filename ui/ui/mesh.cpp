@@ -35,8 +35,6 @@ void Mesh::synchronize() const {
         unsynchronize();
     }
 
-    // qDebug() << "Vertices : " << vertices.size() << "normals : " << normals.size() ;
-
     gl_funcs->glGenTextures(4 , &mapTextureBedrock);
     for (int i = 0; i < 4; ++i){ // map textures
         gl_funcs->glBindTexture(GL_TEXTURE_2D, (&mapTextureBedrock)[i]);
@@ -273,7 +271,6 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
 
 void Mesh::updatePlaneHeightmap(GeoContextCPU &context)
 {
-
     context.update(0);
 
     float data[IMGSIZE][IMGSIZE];

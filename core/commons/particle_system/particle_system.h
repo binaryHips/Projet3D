@@ -7,7 +7,7 @@ public:
     enum {
         PAGE_SIZE = 256
     };
-    u32 nbParticles;
+    u32 nbParticles = 0;
 
     void update(float deltaTime);
 };

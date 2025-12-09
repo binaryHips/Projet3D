@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>639</width>
-    <height>630</height>
+    <width>853</width>
+    <height>706</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -198,8 +198,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>601</width>
-             <height>177</height>
+             <width>815</width>
+             <height>202</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -321,7 +321,7 @@
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="colorsLayout">
+             <layout class="QHBoxLayout" name="colorsLayout" stretch="2,2,1">
               <item>
                <widget class="QPushButton" name="blackButton">
                 <property name="sizePolicy">
@@ -366,6 +366,19 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QPushButton" name="eraserBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>
@@ -401,7 +414,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>639</width>
+     <width>853</width>
      <height>23</height>
     </rect>
    </property>

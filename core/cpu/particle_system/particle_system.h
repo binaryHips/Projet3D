@@ -41,16 +41,32 @@ public:
         }
     }
     void spawn(u32 n){
+        std::cout << "HUHHH" << std::endl;
         while (n > 0){
+            std::cout << "n : " << n << std::endl;
+            if (pages.empty()){
+                pages.emplace_back();
+            }
+
+            if(pages.back().nbParticles >= ParticlePageCPU::PAGE_SIZE)
+            {
+                pages.emplace_back();
+            }
+
             ParticlePageCPU& lastPage = pages.back();
             const u32 remainingInLastPage = ParticlePageCPU::PAGE_SIZE - lastPage.nbParticles;
 
             // fill the page like crazy
             const u32 toFill = std::min(remainingInLastPage, n);
 
-            for (; lastPage.nbParticles < toFill; ++lastPage.nbParticles ){ // TODO : wtf
+            for (u32 i = 0; i < toFill; ++i){
                 lastPage.addParticle(vec3(0.0f), vec3(rand()/float(RAND_MAX), 2.0f, rand()/float(RAND_MAX)));
             }
+
+            n -= toFill;
+
+            // n-=1;
+
         }
     }
 };
