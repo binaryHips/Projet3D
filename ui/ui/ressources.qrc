@@ -7,7 +7,7 @@
         <file>ressources/shaders/particle_fshader.glsl</file>
         <file>test.png</file>
         <file>Takezo.qss</file>
-        <file>ressources/icons/white.png</file>
-        <file>ressources/icons/black.png</file>
+        <file>ressources/icons/color.png</file>
+        <file>ressources/icons/eraser.png</file>
     </qresource>
 </RCC>

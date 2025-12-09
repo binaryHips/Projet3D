@@ -251,6 +251,12 @@
             <height>300</height>
            </size>
           </property>
+          <property name="frameShape">
+           <enum>QFrame::Shape::StyledPanel</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -377,14 +383,24 @@
             <item>
              <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>Colors</string>
+               <string>Pen settings (Greyscale)</string>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="colorsLayout" stretch="2,2,1">
+             <layout class="QHBoxLayout" name="colorsLayout" stretch="3,1,1">
               <item>
-               <widget class="QPushButton" name="blackButton">
+               <widget class="QSlider" name="greyscaleSlider">
+                <property name="maximum">
+                 <number>255</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="colorSelectBtn">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -393,28 +409,6 @@
                 </property>
                 <property name="styleSheet">
                  <string notr="true">QPushButton{border: 2px solid #00008b; border-radius: 4px; background-color: rgba(0,0,0,255);}</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="checkable">
-                 <bool>true</bool>
-                </property>
-                <property name="autoExclusive">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="whiteButton">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QPushButton{border:none;background-color:rgba(255, 255, 255,255);}</string>
                 </property>
                 <property name="text">
                  <string/>

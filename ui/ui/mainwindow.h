@@ -53,15 +53,20 @@ private slots:
 
     void on_confirmMapBtn_clicked();
 
-    void on_blackButton_clicked();
+    // void on_blackButton_clicked();
 
-    void on_whiteButton_clicked();
+    // void on_whiteButton_clicked();
 
     void on_eraserBtn_clicked();
+
+    void on_greyscaleSlider_valueChanged(int value);
+
+    void on_colorSelectBtn_clicked();
 
     void on_spawnParticlesBtn_clicked();
 
     void on_numParticlesSlider_valueChanged(int value);
+
 
 private:
     void loadDefaultMaps();

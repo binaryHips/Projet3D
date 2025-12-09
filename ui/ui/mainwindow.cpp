@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QDebug>
+#include <QColorDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,13 +50,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // Eraser button (ugly)
-    QPixmap pixmap("/home/drew/Downloads/eraser.png");
+    QPixmap pixmap(":/ressources/icons/eraser.png");
     pixmap = pixmap.scaled(ui->eraserBtn->height(), ui->eraserBtn->height() , Qt::KeepAspectRatio);
     QIcon ButtonIcon(pixmap);
     ui->eraserBtn->setIcon(ButtonIcon);
     ui->eraserBtn->setIconSize(pixmap.rect().size());
 
-
+    // init btn
+    int initGrey = ui->greyscaleSlider->value();
+    QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #555; border-radius: 4px; }")
+                    .arg(initGrey);
+    ui->colorSelectBtn->setStyleSheet(style);
 
 }
 
@@ -174,31 +179,33 @@ void MainWindow::on_opacityValSLider_valueChanged(int value)
     ui->widget_2->setPenOpacity(value);
 }
 
-void MainWindow::on_blackButton_clicked()
+void MainWindow::on_greyscaleSlider_valueChanged(int value)
 {
-    ui->blackButton->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px; background-color: rgba(0,0,0,255);}");
-
-    // lowkey you need to do ts for all of them if we add more colors
-    ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
-    ui->eraserBtn->setStyleSheet("QPushButton{border:none;}");
-    ui->widget_2->setPenColor(QColor(0,0,0));
-
+    // update button color to the slider's value
+    QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #555; border-radius: 4px; }").arg(value);
+    ui->colorSelectBtn->setStyleSheet(style);
 }
 
-void MainWindow::on_whiteButton_clicked()
-{
-    ui->whiteButton->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px; background-color: rgba(255,255,255,255);}");
-    ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
-    ui->eraserBtn->setStyleSheet("QPushButton{border:none;}");
-    ui->widget_2->setPenColor(QColor(255,255,255));
-}
 
 void MainWindow::on_eraserBtn_clicked()
 {
+    // Hightlight this and unhighlight the other (same fot other btn)
     ui->eraserBtn->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px;}");
-    ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
-    ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
+    ui->colorSelectBtn->setStyleSheet(ui->colorSelectBtn->styleSheet().replace("border: 2px solid #B700FF", "border: 2px solid #555"));
     ui->widget_2->setEraser(true);
+}
+
+void MainWindow::on_colorSelectBtn_clicked()
+{
+
+    int value = ui->greyscaleSlider->value();
+    
+    ui->widget_2->setPenColor(QColor(value, value, value));
+    ui->widget_2->setEraser(false);
+    
+    QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #B700FF; border-radius: 4px; }").arg(value);
+    ui->colorSelectBtn->setStyleSheet(style);
+    ui->eraserBtn->setStyleSheet("QPushButton{border: none;}");
 }
 
 
@@ -217,7 +224,6 @@ void MainWindow::on_confirmMapBtn_clicked()
 
 }
 
-
 void MainWindow::on_numParticlesSlider_valueChanged(int value)
 {
     m_particles = value;
@@ -228,6 +234,5 @@ void MainWindow::on_spawnParticlesBtn_clicked()
 {
     ui->widget->spawnParticles(m_particles);
 }
-
 
 
