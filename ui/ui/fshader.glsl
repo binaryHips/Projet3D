@@ -4,8 +4,7 @@ in vec2 v_uv;
 in vec3 v_position;
 in vec3 v_normal;
 in float height;
-in int material;
-uniform sampler2D materialIndexTexture;
+flat in int material;
 
 vec3 light_position = vec3(0,2,2);
 
@@ -87,5 +86,5 @@ void main() {
     }
 
     fragColor = vec4(final.color, 1.0);
-    
+
 }

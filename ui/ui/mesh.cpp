@@ -273,25 +273,13 @@ void Mesh::updatePlaneHeightmap(GeoContextCPU &context)
 {
     context.update(0);
 
-    float data[IMGSIZE][IMGSIZE];
-
-    u8 materialIndex[IMGSIZE][IMGSIZE];
-
-    for (u32 i = 0 ; i < IMGSIZE ; i++)
-    {
-        for (u32 j = 0 ; j < IMGSIZE ; j++)
-        {
-            uvec2 pixel(i,j);
-            data[i][j] = context.totalHeight(pixel, &(materialIndex[i][j]));
-        }
+    for (int i = 0; i < 4; ++i){
+        float* data = context.maps[i].ptrToData();
+        gl_funcs->glActiveTexture(GL_TEXTURE0 + i);
+        gl_funcs->glBindTexture(GL_TEXTURE_2D , (&mapTextureBedrock)[i]);
+        gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 , GL_R32F, IMGSIZE, IMGSIZE, 0 , GL_RED , GL_FLOAT , (void*)data);
     }
 
-    gl_funcs->glActiveTexture(GL_TEXTURE0 + 0);
-    gl_funcs->glBindTexture(GL_TEXTURE_2D , mapTexture);
-    gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 , GL_R32F, IMGSIZE, IMGSIZE, 0 , GL_RED , GL_FLOAT , (void*)data);
-    gl_funcs->glActiveTexture(GL_TEXTURE0 + 1);
-    gl_funcs->glBindTexture(GL_TEXTURE_2D , materialIndexTexture);
-    gl_funcs->glTexImage2D(GL_TEXTURE_2D , 0 ,  GL_R8, IMGSIZE, IMGSIZE, 0 , GL_RED ,  GL_UNSIGNED_BYTE , (void*)materialIndex);
 }
 
 Mesh Mesh::load_mesh_off(std::string filename) {

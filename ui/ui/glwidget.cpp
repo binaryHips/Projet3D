@@ -18,7 +18,6 @@ inline size_t currentTime()
     return ms; // Convert to seconds
 }
 
-
 GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
 {
@@ -52,7 +51,7 @@ void GLWidget::initializeGL()
 
     backend = static_cast<MainWindow*>(window())->backend;
 
-    backend->context.particleSystem.spawn(512);
+    //backend->context.particleSystem.spawn(512);
     backend->drawParticles(this , backend->context.particleSystem);
 
     for(Mesh *m:meshes){
@@ -76,7 +75,6 @@ void GLWidget::setMesh(Mesh *m, int index)
     meshes[index] = m;
     pendingSetMeshUpdate = true;
 }
-
 
 void GLWidget::resizeGL(int w, int h)
 {

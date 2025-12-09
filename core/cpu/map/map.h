@@ -36,4 +36,7 @@ public:
         return data[clamped_x + clamped_y * IMGSIZE];
     }
 
+    inline Pixel* ptrToData(){
+        return data.data();
+    }
 };

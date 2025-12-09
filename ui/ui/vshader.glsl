@@ -8,7 +8,7 @@ out vec2 v_uv;
 out vec3 v_position;
 out vec3 v_normal;
 out float height;
-out int material;
+flat out int material;
 
 // Use uniform names expected by Mesh::renderForward()
 uniform mat4 MVP;
@@ -20,26 +20,36 @@ uniform sampler2D heightmapStone;
 uniform sampler2D heightmapSand;
 uniform sampler2D heightmapWater;
 
+float heightFactor = 0.2;
+
+float getHeightAt(vec2 pos){
+    float vBedrock = texture(heightmapBedrock, pos).r;
+    float vStone = texture(heightmapStone, pos).r;
+    float vSand = texture(heightmapSand, pos).r;
+    float vWater = texture(heightmapWater, pos).r;
+
+    return (vBedrock+ vStone + max(vSand, vWater)) * heightFactor;
+}
 
 float getHeightAt(vec2 pos, out int material){
-    float vBedrock = texture(heightmapBedrock, pos);
-    float vStone = texture(heightmapStone, pos);
-    float vSand = texture(heightmapSand, pos);
-    float vWater = texture(heightmapWater, pos);
+    float vBedrock = texture(heightmapBedrock, pos).r;
+    float vStone = texture(heightmapStone, pos).r;
+    float vSand = texture(heightmapSand, pos).r;
+    float vWater = texture(heightmapWater, pos).r;
 
     // dependent on structure
     if (vWater > 0.0 || vSand > 0.0){
         material =  (vWater > vSand) ? 3 : 2;
     } else{
-        material = vStone > 0.0;
+        material = int(vStone > 0.0);
     }
 
-    return vBedrock+ vStone + max(vSand + vWater);
+    return (vBedrock+ vStone + max(vSand, vWater)) * heightFactor;
 }
 
 void main() {
     // Transform position with the model matrix and pass it to the fragment shader
-    v_uv = coords;
+    v_uv = coords;;
     height = getHeightAt(coords, material);
     v_position = (Model * (vertex + vec4(0, height, 0, 0))).xyz;
 
