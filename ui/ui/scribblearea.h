@@ -18,7 +18,7 @@ public:
     bool openImage(const QString &fileName);
     void loadImage(const QPixmap &pixmap);
     void setBackgroundPixmap(const QPixmap &pixmap);
-    void setPenColor(const QColor &color) { m_penColor = color; }
+    void setPenColor(const QColor &color);
     void setPenWidth(int w) { m_penWidth = w; }
     void setPenOpacity(int alpha) { m_opacity = alpha;}
     void setEraser(bool enabled) { m_eraserMode = enabled; }

@@ -111,6 +111,12 @@ void ScribbleArea::resizeEvent(QResizeEvent *event)
 	QWidget::resizeEvent(event);
 }
 
+void ScribbleArea::setPenColor(const QColor &color)
+{
+    setEraser(false);
+    m_penColor = color;
+}
+
 void ScribbleArea::drawLineTo(const QPoint &endPoint)
 {
 	if (m_overlay.isNull())

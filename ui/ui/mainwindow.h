@@ -59,7 +59,12 @@ private slots:
 
     void on_eraserBtn_clicked();
 
+    void on_spawnParticlesBtn_clicked();
+
+    void on_numParticlesSlider_valueChanged(int value);
+
 private:
     void loadDefaultMaps();
+    int m_particles = 512;
 };
 #endif // MAINWINDOW_H

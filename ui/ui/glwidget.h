@@ -24,15 +24,15 @@ public:
 
     Mesh *addMesh(Mesh *m);
     void setMesh(Mesh *m, int index=0);
-    float simSpeed = 1.0f;
+    void spawnParticles(int nbParticles);
 
-public slots:
-    void setControlType(controlTypes type);
+    float simSpeed = 1.0f;
 
 signals :
     void mouseButtonClicked(Qt::MouseButton button);
 
 public slots:
+    void setControlType(controlTypes type);
     void updateGLSlot();
 
 protected:
@@ -71,6 +71,7 @@ private:
     
     bool pendingSetMeshUpdate = false;
     bool pendingHeightmapUpdate = false;
+    bool pendingParticlees = false;
 };
 
 
