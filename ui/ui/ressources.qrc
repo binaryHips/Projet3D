@@ -3,6 +3,8 @@
         <file>suzanne.off</file>
         <file>vshader.glsl</file>
         <file>fshader.glsl</file>
+        <file>ressources/shaders/particle_vshader.glsl</file>
+        <file>ressources/shaders/particle_fshader.glsl</file>
         <file>test.png</file>
         <file>Takezo.qss</file>
         <file>ressources/icons/white.png</file>

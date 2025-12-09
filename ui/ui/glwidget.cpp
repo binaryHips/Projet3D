@@ -120,7 +120,6 @@ void GLWidget::paintGL()
     if(pendingParticlees)
     {
         backend->context.particleSystem.spawn(512);
-        backend->drawParticles(this , backend->context.particleSystem);
         pendingParticlees=false;
     }
 
@@ -153,6 +152,11 @@ void GLWidget::paintGL()
     for (Mesh *m : meshes)
     {
         m->renderForward(VP, cam.getForward(), QMatrix4x4());
+    }
+
+    // Always render particles if there are any
+    if (!backend->context.particleSystem.pages.empty()) {
+        backend->drawParticles(this, backend->context.particleSystem, VP);
     }
 }
 

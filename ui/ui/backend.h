@@ -4,6 +4,7 @@
 #include <QString>
 #include <QWidget>
 #include <QOpenGLExtraFunctions>
+#include <QOpenGLShaderProgram>
 
 #include "includes_all_cpu.h"
 
@@ -18,11 +19,21 @@ public :
 
     MapCPU loadHeightmap(QString filename, MAP_LAYERS layer, float scale = 1.0f);
     MapCPU setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale = 1.0f);
-    static void drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem);
+    
+    // Particle rendering
+    void initParticleRenderer(QOpenGLExtraFunctions *gl_funcs);
+    void drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem, const QMatrix4x4 &MVP);
+    void cleanupParticleRenderer(QOpenGLExtraFunctions *gl_funcs);
 
     // for debug mostly
     QPixmap saveImageFromMap(MAP_LAYERS layer);
     bool simulating;
+
+    // Particle rendering state
+    QOpenGLShaderProgram *particleShader = nullptr;
+    GLuint particleVAO = 0;
+    GLuint particleVBO = 0;
+    bool particleRendererInitialized = false;
 
 signals :
     void loadMapSignal(QString filename , MAP_LAYERS layer);

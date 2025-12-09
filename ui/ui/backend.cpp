@@ -70,19 +70,81 @@ MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
     return res;
 }
 
-void Backend::drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem)
+void Backend::initParticleRenderer(QOpenGLExtraFunctions *gl_funcs)
 {
-    for(auto &page : particleSystem.pages){
-        GLuint buf;
-        gl_funcs->glGenBuffers(1, &buf);
-        gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, buf);
-        gl_funcs->glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * page.nbParticles , page.position ,  GL_STATIC_DRAW);
-        gl_funcs->glDrawArrays(GL_POINTS, 0 , page.nbParticles);
+    if (particleRendererInitialized) return;
 
-        gl_funcs->glBindBuffer(GL_ARRAY_BUFFER , 0);
-        gl_funcs->glDeleteBuffers(1, &buf);
+    // Create shader program
+    particleShader = new QOpenGLShaderProgram();
+    
+    if (!particleShader->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/ressources/shaders/particle_vshader.glsl")) {
+        qDebug() << "Particle vertex shader failed:" << particleShader->log();
     }
+    if (!particleShader->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/ressources/shaders/particle_fshader.glsl")) {
+        qDebug() << "Particle fragment shader failed:" << particleShader->log();
+    }
+    if (!particleShader->link()) {
+        qDebug() << "Particle shader linking failed:" << particleShader->log();
+    }
+
+    // Create VAO and VBO
+    gl_funcs->glGenVertexArrays(1, &particleVAO);
+    gl_funcs->glGenBuffers(1, &particleVBO);
+
+    gl_funcs->glBindVertexArray(particleVAO);
+    gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+
+    // Setup vertex attribute for position (location 0, vec3)
+    gl_funcs->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), nullptr);
+    gl_funcs->glEnableVertexAttribArray(0);
+
+    gl_funcs->glBindVertexArray(0);
+
+    particleRendererInitialized = true;
+    qDebug() << "Particle renderer initialized successfully";
 }
+
+void Backend::drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSystemCPU &particleSystem, const QMatrix4x4 &MVP)
+{
+    if (!particleRendererInitialized) {
+        initParticleRenderer(gl_funcs);
+    }
+
+    // Count total particles for debug
+    int totalParticles = 0;
+    for (const auto &page : particleSystem.pages) {
+        totalParticles += page.nbParticles;
+    }
+    
+    if (totalParticles == 0) {
+        return; 
+    }
+
+    // Apparntly mandatory for the points to work
+    gl_funcs->glEnable(GL_PROGRAM_POINT_SIZE);
+
+    particleShader->bind();
+    particleShader->setUniformValue("MVP", MVP);
+    particleShader->setUniformValue("pointSize", 100.0f);  
+    particleShader->setUniformValue("particleColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));  
+
+    gl_funcs->glBindVertexArray(particleVAO);
+
+    for (const auto &page : particleSystem.pages) {
+        if (page.nbParticles == 0) continue;
+
+        gl_funcs->glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+        gl_funcs->glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * page.nbParticles, page.position, GL_STREAM_DRAW);
+
+        gl_funcs->glDrawArrays(GL_POINTS, 0, page.nbParticles);
+    }
+
+    gl_funcs->glBindVertexArray(0);
+    particleShader->release();
+
+    gl_funcs->glDisable(GL_PROGRAM_POINT_SIZE);
+}
+
 
 QPixmap Backend::saveImageFromMap(MAP_LAYERS layer)
 {
