@@ -9,103 +9,54 @@ void thermalErode(GeoContextCPU &context, float delta){
 
         Pixel &currentPixel = context.maps[layerIndex](i, j);
         double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
+        if (currentHeight > 0.001)
+        {
+            const float maxSlope = 1.0 * (1.0 / IMGSIZE);
+            
+            u32 prev_i  = (i == 0) ? 0u : i-1u;
+            u32 prev_j  = (j == 0) ? 0u : j-1u;
 
-        const float maxSlope = 0.0 * (1.0 / IMGSIZE);
-        const double maxDisplaceQuantity = 0.5; // x times the difference in height.
-        
-        // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
+            // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
 
-        // modified von neuman neighbourhood
-        double grad_xy      = currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex);
-        double grad_mxmy    = currentHeight - context.heightTo(uvec2(i-1, j-1), layerIndex);
-        double grad_xmy     = currentHeight - context.heightTo(uvec2(i+1, j-1), layerIndex);
-        double grad_mxy     = currentHeight - context.heightTo(uvec2(i-1, j+1), layerIndex);
+            // modified von neuman neighbourhood
+            double grad_xy      = currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex);
+            double grad_mxmy    = currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex);
+            double grad_xmy     = currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex);
+            double grad_mxy     = currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex);
 
-        double maxGrad = 0.0;
-        double maxGrad_ = 0.0; // used for small speedup
-        uvec2 maxgradDir;
-        uvec2 maxgradDir_;
+            double maxGrad = 0.0;
+            double maxGrad_ = 0.0; // used for small speedup
+            uvec2 maxgradDir;
+            uvec2 maxgradDir_;
 
 
-        // find max dir 
-        if (grad_xy > grad_mxmy){
-            maxGrad = grad_xy;
-            maxgradDir = uvec2(i+1, j+1);
-        } else {
-            maxGrad = grad_mxmy;
-            maxgradDir = uvec2(i-1, j-1);
+            // find max dir 
+            if (grad_xy > grad_mxmy){
+                maxGrad = grad_xy;
+                maxgradDir = uvec2(i+1, j+1);
+            } else {
+                maxGrad = grad_mxmy;
+                maxgradDir = uvec2(prev_i, prev_j);
+            }
+            if (grad_xmy > grad_mxy){
+                maxGrad_ = grad_xmy;
+                maxgradDir_ = uvec2(i+1, prev_j);
+            } else {
+                maxGrad_ = grad_mxy;
+                maxgradDir = uvec2(prev_i, j+1);
+            }
+
+            if (maxGrad_ > maxGrad){
+                maxGrad = maxGrad_;
+                maxgradDir = maxgradDir_;
+            }
+
+            if (maxGrad > maxSlope){
+                float displaceToCurrent = std::min(maxGrad * delta, currentHeight);
+                currentPixel -= displaceToCurrent;
+                context.maps[layerIndex](maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
+            }
         }
-        if (grad_xmy > grad_mxy){
-            maxGrad_ = grad_xy;
-            maxgradDir_ = uvec2(i+1, j-1);
-        } else {
-            maxGrad = grad_xy;
-            maxgradDir = uvec2(i-1, j+1);
-        }
-
-        if (maxGrad_ > maxGrad){
-            maxGrad = maxGrad_;
-            maxgradDir = maxgradDir_;
-        }
-
-        if (maxGrad > maxSlope){
-            float displaceToCurrent = std::min(maxGrad * delta, maxGrad / 2.0);
-            currentPixel -= displaceToCurrent;
-            context.maps[layerIndex](maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
-        } 
-    }
-}
-
-void water(GeoContextCPU &context, float delta){
-
-    for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
-        u32 layerIndex = to_underlying(MAP_LAYERS::WATER);
-
-        Pixel &currentPixel = context.maps[layerIndex](i, j);
-        double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
-
-        const float maxSlope = 0.1 * (1.0 / IMGSIZE);
-        const double maxDisplaceQuantity = 0.5; // x times the difference in height.
-        
-        // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
-
-        // modified von neuman neighbourhood
-        double grad_xy      = currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex);
-        double grad_mxmy    = currentHeight - context.heightTo(uvec2(i-1, j-1), layerIndex);
-        double grad_xmy     = currentHeight - context.heightTo(uvec2(i+1, j-1), layerIndex);
-        double grad_mxy     = currentHeight - context.heightTo(uvec2(i-1, j+1), layerIndex);
-
-        double maxGrad = 0.0;
-        double maxGrad_ = 0.0; // used for small speedup
-        uvec2 maxgradDir;
-        uvec2 maxgradDir_;
-
-
-        // find max dir 
-        if (grad_xy > grad_mxmy){
-            maxGrad = grad_xy;
-            maxgradDir = uvec2(i+1, j+1);
-        } else {
-            maxGrad = grad_mxmy;
-            maxgradDir = uvec2(i-1, j-1);
-        }
-        if (grad_xmy > grad_mxy){
-            maxGrad_ = grad_xy;
-            maxgradDir_ = uvec2(i+1, j-1);
-        } else {
-            maxGrad = grad_xy;
-            maxgradDir = uvec2(i-1, j+1);
-        }
-        if (maxGrad_ > maxGrad){
-            maxGrad = maxGrad_;
-            maxgradDir = maxgradDir_;
-        }
-
-        if (maxGrad > maxSlope){
-            float displaceToCurrent = std::min(maxGrad * delta, maxGrad / 2.0);
-            currentPixel -= displaceToCurrent;
-            context.maps[layerIndex](maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
-        } 
     }
 }
 

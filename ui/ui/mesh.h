@@ -43,7 +43,6 @@ struct Triangle {
     std::array<TRI_IDX_TYPE, 3> v;
 };
 
-
 class Mesh {
 protected:
 
@@ -77,8 +76,10 @@ public:
     QVector< Triangle > triangles;
     QVector< QVector3D > colors;
 
-    mutable GLuint mapTexture;
-    mutable GLuint materialIndexTexture;
+    mutable GLuint mapTextureBedrock;
+    mutable GLuint mapTextureStone;
+    mutable GLuint mapTextureSand;
+    mutable GLuint mapTextureWater;
 
     //tangent / bitangent
     QVector<QVector3D> tangents;
