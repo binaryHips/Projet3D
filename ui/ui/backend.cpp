@@ -70,6 +70,33 @@ MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
     return res;
 }
 
+MapCPU Backend::setHeightmap(QPixmap pixmap, FEATURE_LAYERS layer, float scale)
+{
+    QImage hmap = pixmap.toImage();
+    MapCPU res = MapCPU();
+
+    hmap = hmap.scaled(IMGSIZE , IMGSIZE);
+
+    for (int y = 0; y < hmap.height(); y++) {
+        for (int x = 0; x < hmap.width(); x++) {
+            QRgb color = hmap.pixel(x,y);
+
+            int r = color >> 0 & 0xFF;
+            int g = color >> 8 & 0xFF;
+            int b = color >> 16 & 0xFF;
+
+
+            float mean = (r + g + b) / (3.0 * 255.0);
+
+            res(x,y) = mean * scale;
+        }
+    }
+    context.featureMaps[to_underlying(layer)] = std::move(res);
+    emit updateFeatureSignal(pixmap , layer);
+    return res;
+}
+
+
 void Backend::initParticleRenderer(QOpenGLExtraFunctions *gl_funcs)
 {
     if (particleRendererInitialized) return;
@@ -149,6 +176,31 @@ void Backend::drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSyste
 QPixmap Backend::saveImageFromMap(MAP_LAYERS layer)
 {
     const MapCPU &map = context.maps[to_underlying(layer)];
+
+    QImage image(IMGSIZE, IMGSIZE, QImage::Format_ARGB32);
+    for (int y = 0; y < IMGSIZE; ++y) {
+        for (int x = 0; x < IMGSIZE; ++x) {
+
+            float v = map(x, y);
+            v = qBound(0.0f, v, 1.0f);
+
+            int grey = static_cast<int>(v * 255.0f + 0.5f);
+            image.setPixel(x, y, qRgb(grey, grey, grey));
+        }
+    }
+
+    QPixmap pix = QPixmap::fromImage(image);
+
+    // SAVE MAP FOR DEBUG PURPOSES !!
+    // QString filename = QString("map_test.png");
+    // pix.save(filename);
+
+    return pix;
+}
+
+QPixmap Backend::saveImageFromMap(FEATURE_LAYERS layer)
+{
+    const MapCPU &map = context.featureMaps[to_underlying(layer)];
 
     QImage image(IMGSIZE, IMGSIZE, QImage::Format_ARGB32);
     for (int y = 0; y < IMGSIZE; ++y) {

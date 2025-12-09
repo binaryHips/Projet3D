@@ -85,6 +85,12 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.maps[to_underlying(MAP_LAYERS::SAND)].name = "Sand";
     context.maps[to_underlying(MAP_LAYERS::WATER)].name = "Water";
 
+    context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_HEIGHT)].name = "Height";
+    context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_WATER)].name = "Water";
+    context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_VERDURE)].name = "Verdure";
+
+
+
 
     context.addProcess(thermalErode);
 

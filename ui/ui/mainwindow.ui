@@ -21,14 +21,14 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="page">
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="2,0,1">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="3,0,2">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,1">
           <item>
            <widget class="GLWidget" name="widget" native="true"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="gl_settings_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+           <layout class="QVBoxLayout" name="gl_settings_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
             <property name="sizeConstraint">
              <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
             </property>
@@ -56,6 +56,13 @@
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="Line" name="line_8">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="Line" name="line_2">
@@ -103,6 +110,13 @@
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="Line" name="line_9">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="Line" name="line_3">
@@ -220,6 +234,13 @@
              </widget>
             </item>
             <item>
+             <widget class="Line" name="line_10">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="Line" name="line_4">
               <property name="orientation">
                <enum>Qt::Orientation::Vertical</enum>
@@ -266,12 +287,82 @@
              <x>0</x>
              <y>0</y>
              <width>815</width>
-             <height>202</height>
+             <height>243</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
-             <layout class="QHBoxLayout" name="maps_layout"/>
+             <widget class="QToolBox" name="toolBox">
+              <property name="currentIndex">
+               <number>1</number>
+              </property>
+              <widget class="QWidget" name="page_3">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>797</width>
+                 <height>161</height>
+                </rect>
+               </property>
+               <attribute name="label">
+                <string>Layer maps</string>
+               </attribute>
+               <layout class="QHBoxLayout" name="horizontalLayout_9">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="maps_layout"/>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="page_4">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>797</width>
+                 <height>161</height>
+                </rect>
+               </property>
+               <attribute name="label">
+                <string>Feature maps</string>
+               </attribute>
+               <layout class="QHBoxLayout" name="horizontalLayout_11">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="features_layout"/>
+                </item>
+               </layout>
+              </widget>
+             </widget>
             </item>
            </layout>
           </widget>

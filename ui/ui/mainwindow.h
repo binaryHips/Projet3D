@@ -37,11 +37,15 @@ signals:
 
 public slots:
     void mapClicked(QPixmap pixmap , MAP_LAYERS layer);
+    void featureClicked(QPixmap pixmap , FEATURE_LAYERS layer);
+
     void openFileSearchHeightmap(MAP_LAYERS layer);
 
 private slots:
 
     void updateMap(QPixmap map , MAP_LAYERS layer);
+    void updateFeature(QPixmap map , FEATURE_LAYERS layer);
+
     void on_subdiv_slider_valueChanged(int value);
     void on_simulateBtn_clicked();
     void on_simspeedslider_valueChanged(int value);

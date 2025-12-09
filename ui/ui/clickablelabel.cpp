@@ -9,5 +9,11 @@ ClickableLabel::ClickableLabel(QWidget* parent, Qt::WindowFlags f)
 ClickableLabel::~ClickableLabel() {}
 
 void ClickableLabel::mousePressEvent(QMouseEvent* event) {
-    emit clicked(this->pixmap(Qt::ReturnByValue) , layer);
+    if(isMap)
+    {
+        emit clicked(this->pixmap(Qt::ReturnByValue) , layer);
+    }else
+    {
+        emit clickedFeat(this->pixmap(Qt::ReturnByValue) , feat_layer);
+    }
 }

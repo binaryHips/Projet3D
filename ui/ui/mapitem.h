@@ -14,6 +14,7 @@ class MapItem : public QWidget
 public:
     explicit MapItem(QWidget *parent = nullptr);
     explicit MapItem(QPixmap image, MAP_LAYERS layer, QWidget *parent = nullptr);
+    explicit MapItem(QPixmap image, FEATURE_LAYERS layer, QWidget *parent = nullptr);
     ~MapItem();
 
     void updateMap(QPixmap im);
@@ -21,7 +22,9 @@ public:
     QVBoxLayout *layout;
     QPixmap map;
     ClickableLabel *map_image;
+    bool isMap = true;
     MAP_LAYERS m_layer = MAP_LAYERS::SAND; // Default val
+    FEATURE_LAYERS m_feat_layer;
 
 protected :
     virtual void resizeEvent(QResizeEvent* event) override;

@@ -19,6 +19,8 @@ public :
 
     MapCPU loadHeightmap(QString filename, MAP_LAYERS layer, float scale = 1.0f);
     MapCPU setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale = 1.0f);
+    MapCPU setHeightmap(QPixmap pixmap, FEATURE_LAYERS layer, float scale = 1.0f);
+
     
     // Particle rendering
     void initParticleRenderer(QOpenGLExtraFunctions *gl_funcs);
@@ -27,6 +29,7 @@ public :
 
     // for debug mostly
     QPixmap saveImageFromMap(MAP_LAYERS layer);
+    QPixmap saveImageFromMap(FEATURE_LAYERS layer);
     bool simulating;
 
     // Particle rendering state
@@ -38,6 +41,8 @@ public :
 signals :
     void loadMapSignal(QString filename , MAP_LAYERS layer);
     void updateMapSignal(QPixmap pixmap, MAP_LAYERS layer);
+    void updateFeatureSignal(QPixmap pixmap, FEATURE_LAYERS layer);
+
 
 };
 

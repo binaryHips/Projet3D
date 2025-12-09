@@ -48,6 +48,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::updateMap);
     QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
 
+    QObject::connect(backend, &Backend::updateFeatureSignal, this, &MainWindow::updateFeature);
+
 
     // Eraser button (ugly)
     QPixmap pixmap(":/ressources/icons/eraser.png");
@@ -80,6 +82,7 @@ void MainWindow::loadDefaultMaps()
         item->m_layer = layer;
         if (item->map_image) {
             item->map_image->layer = layer;
+            item->map_image->isMap = true;
             QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
         }
         ui->maps_layout->addWidget(item);
@@ -88,6 +91,24 @@ void MainWindow::loadDefaultMaps()
     }
 
     ui->maps_layout->addStretch();
+
+    QVector<FEATURE_LAYERS> features = {FEATURE_LAYERS::DESIRED_HEIGHT, FEATURE_LAYERS::DESIRED_WATER , FEATURE_LAYERS::DESIRED_VERDURE};
+
+    for(FEATURE_LAYERS layer : features)
+    {
+        QPixmap map = backend->saveImageFromMap(layer);
+        MapItem *item = new MapItem(map, layer, this);
+        item->m_feat_layer = layer;
+        if (item->map_image) {
+            item->map_image->feat_layer = layer;
+            item->map_image->isMap = false;
+            QObject::connect(item->map_image, &ClickableLabel::clickedFeat, this, &MainWindow::featureClicked);
+        }
+        ui->features_layout->addWidget(item);
+        // ui->maps_layout->addLayout(item->layout);
+    }
+
+    ui->features_layout->addStretch();
 
 }
 
@@ -118,6 +139,21 @@ void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
     pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
     ui->widget_2->setBackgroundPixmap(pixmap);
     ui->widget_2->layer = layer;
+    ui->widget_2->isMap = true;
+
+    // restore overlay for this layer if we have one, otherwise clear
+    ui->widget_2->clearOverlay();
+
+    ui->stackedWidget->setCurrentWidget(ui->page_2);
+}
+
+void MainWindow::featureClicked(QPixmap pixmap , FEATURE_LAYERS layer)
+{
+    // set new background and layer
+    pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
+    ui->widget_2->setBackgroundPixmap(pixmap);
+    ui->widget_2->feat_layer = layer;
+    ui->widget_2->isMap = false;
 
     // restore overlay for this layer if we have one, otherwise clear
     ui->widget_2->clearOverlay();
@@ -135,6 +171,18 @@ void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
         }
     }
     ui->widget->updateGLSlot();
+}
+
+void MainWindow::updateFeature(QPixmap map , FEATURE_LAYERS layer)
+{
+    for(int i = 0 ; i < ui->features_layout->count() ; i++)
+    {
+        //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
+        if(MapItem *item = dynamic_cast<MapItem*>(ui->features_layout->itemAt(i)->widget())) {
+            if(item->m_feat_layer == layer) item->updateMap(map);
+        }
+    }
+    // ui->widget->updateGLSlot();
 }
 
 void MainWindow::on_subdiv_slider_valueChanged(int value)
@@ -218,8 +266,16 @@ void MainWindow::on_resetDrawingBtn_clicked()
 void MainWindow::on_confirmMapBtn_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page);
-    MAP_LAYERS layer = ui->widget_2->layer;
-    backend->setHeightmap(ui->widget_2->getImage() , layer);
+    if(ui->widget_2->isMap)
+    {
+        MAP_LAYERS layer = ui->widget_2->layer;
+        backend->setHeightmap(ui->widget_2->getImage() , layer);
+    }
+    else
+    {
+        FEATURE_LAYERS layer = ui->widget_2->feat_layer;
+        backend->setHeightmap(ui->widget_2->getImage() , layer);
+    }
     ui->widget->updateGLSlot();
 
 }
