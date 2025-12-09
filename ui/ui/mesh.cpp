@@ -37,21 +37,14 @@ void Mesh::synchronize() const {
 
     // qDebug() << "Vertices : " << vertices.size() << "normals : " << normals.size() ;
 
-    gl_funcs->glGenTextures(1 , &mapTexture);
-    gl_funcs->glBindTexture(GL_TEXTURE_2D, mapTexture);
-    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // index textures
-    gl_funcs->glGenTextures(1 , &materialIndexTexture);
-    gl_funcs->glBindTexture(GL_TEXTURE_2D, materialIndexTexture);
-    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+    gl_funcs->glGenTextures(4 , &mapTextureBedrock);
+    for (int i = 0; i < 4; ++i){ // map textures
+        gl_funcs->glBindTexture(GL_TEXTURE_2D, (&mapTextureBedrock)[i]);
+        gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        gl_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
 
     // TODO : Figure out the VertexArray problems
     gl_funcs->glGenVertexArrays(1, &_VAO);
@@ -149,23 +142,18 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
     gl_funcs->glBindVertexArray(_VAO);
     gl_funcs->glUseProgram(shaderPID);
 
-    gl_funcs->glActiveTexture(GL_TEXTURE0 + 0);
-    gl_funcs->glBindTexture(GL_TEXTURE_2D , mapTexture);
+
+    for (int i = 0; i < 4; ++i){
+        gl_funcs->glActiveTexture(GL_TEXTURE0 + i);
+        gl_funcs->glBindTexture(GL_TEXTURE_2D , (&mapTextureBedrock)[i]);
 
 
-    gl_funcs->glUniform1i(
-        gl_funcs->glGetUniformLocation(shaderPID, "heightmap"),
-        0
-    );
+        gl_funcs->glUniform1i(
+            gl_funcs->glGetUniformLocation(shaderPID, "heightmap"),
+            i
+        );
 
-    gl_funcs->glActiveTexture(GL_TEXTURE0 + 1);
-    gl_funcs->glBindTexture(GL_TEXTURE_2D , materialIndexTexture);
-
-    gl_funcs->glUniform1i(
-        gl_funcs->glGetUniformLocation(shaderPID, "materialIndexTexture"),
-        1
-    );
-
+    }
 
     // todo just tranfer a struct to the gpu with all interesting data
     GLuint mvpUniformLocation = gl_funcs->glGetUniformLocation(shaderPID, "MVP");
@@ -198,7 +186,7 @@ void Mesh::unsynchronize() const {
     gl_funcs->glDeleteBuffers(1, &_NORMALS);
     gl_funcs->glDeleteProgram(shaderPID);
     gl_funcs->glDeleteVertexArrays(1, &_VAO);
-    gl_funcs->glDeleteTextures(2, &mapTexture); // map texture and material index texture
+    gl_funcs->glDeleteTextures(4, &mapTextureBedrock); // map texture and material index texture
 
     _synchronized = false;
 

@@ -4,7 +4,7 @@ in vec2 v_uv;
 in vec3 v_position;
 in vec3 v_normal;
 in float height;
-
+in int material;
 uniform sampler2D materialIndexTexture;
 
 vec3 light_position = vec3(0,2,2);
@@ -67,11 +67,8 @@ MaterialReturn water(){
 }
 
 void main() {
-
-    uint materialIndex = uint(texture(materialIndexTexture, v_uv).r * 255);
     MaterialReturn final;
-
-    switch (materialIndex){
+    switch (material){
         case 0: 
             final = deepstone();
             break;
