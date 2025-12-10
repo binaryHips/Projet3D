@@ -1,11 +1,9 @@
 #include "geo_context.h"
 
-
-
 void thermalErode(GeoContextCPU &context, float delta){
 
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
-        u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
+        u32 layerIndex = to_underlying(MAP_LAYERS::STONE);
 
         Pixel &currentPixel = context.maps[layerIndex](i, j);
         double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
@@ -60,6 +58,63 @@ void thermalErode(GeoContextCPU &context, float delta){
     }
 }
 
+void fallingSand(GeoContextCPU &context, float delta){
+
+    delta = delta * 10.0;
+    for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
+        u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
+
+        Pixel &currentPixel = context.maps[layerIndex](i, j);
+        double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
+
+        const float maxSlope = 10.0 * (1.0 / IMGSIZE);
+        
+        u32 prev_i  = (i == 0) ? 0u : i-1u;
+        u32 prev_j  = (j == 0) ? 0u : j-1u;
+
+        // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
+
+        // modified von neuman neighbourhood
+        double grad_xy      = currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex);
+        double grad_mxmy    = currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex);
+        double grad_xmy     = currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex);
+        double grad_mxy     = currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex);
+
+        double maxGrad = 0.0;
+        double maxGrad_ = 0.0; // used for small speedup
+        uvec2 maxgradDir;
+        uvec2 maxgradDir_;
+
+
+        // find max dir 
+        if (grad_xy > grad_mxmy){
+            maxGrad = grad_xy;
+            maxgradDir = uvec2(i+1, j+1);
+        } else {
+            maxGrad = grad_mxmy;
+            maxgradDir = uvec2(prev_i, prev_j);
+        }
+        if (grad_xmy > grad_mxy){
+            maxGrad_ = grad_xmy;
+            maxgradDir_ = uvec2(i+1, prev_j);
+        } else {
+            maxGrad_ = grad_mxy;
+            maxgradDir = uvec2(prev_i, j+1);
+        }
+
+        if (maxGrad_ > maxGrad){
+            maxGrad = maxGrad_;
+            maxgradDir = maxgradDir_;
+        }
+
+        if (maxGrad > maxSlope){
+            float displaceToCurrent = std::clamp(maxGrad * delta, 0.0, currentHeight);
+            currentPixel -= displaceToCurrent;
+            context.maps[layerIndex](maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
+        }
+    }
+}
+
 GeoContextCPU GeoContextCPU::createGeoContext(){
 
     GeoContextCPU context = GeoContextCPU();
@@ -85,8 +140,13 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.maps[to_underlying(MAP_LAYERS::SAND)].name = "Sand";
     context.maps[to_underlying(MAP_LAYERS::WATER)].name = "Water";
 
+    // feature maps
+    context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_HEIGHT)].name = "desired elevation";
+    context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_INFlOW)].name = "water inflow";
+    context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_OUTFLOW)].name = "water sink";
 
-    context.addProcess(thermalErode);
+
+    context.addProcess(fallingSand);
 
     return context;
 }

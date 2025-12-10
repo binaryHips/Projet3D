@@ -19,7 +19,7 @@ using u8 = unsigned char;
 using ParticleId = u32;
 using Pixel = float;
 
-#define IMGSIZE 256u
+#define IMGSIZE 256
 
 
 // easifies the use of enum classes
@@ -30,8 +30,8 @@ constexpr typename std::underlying_type<E>::type to_underlying(E e) {
 
 enum class FEATURE_LAYERS {
     DESIRED_HEIGHT,
-    DESIRED_WATER,
-    DESIRED_VERDURE,
+    WATER_INFlOW,
+    WATER_OUTFLOW,
     MAX_
 };
 

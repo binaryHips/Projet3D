@@ -140,17 +140,16 @@ void Mesh::renderForward(const QMatrix4x4 & vpMatrix, QVector3D fv, const QMatri
     gl_funcs->glBindVertexArray(_VAO);
     gl_funcs->glUseProgram(shaderPID);
 
+    const char* uniformNames[4] = {"heightmapBedrock", "heightmapStone", "heightmapSand", "heightmapWater"};
 
     for (int i = 0; i < 4; ++i){
         gl_funcs->glActiveTexture(GL_TEXTURE0 + i);
         gl_funcs->glBindTexture(GL_TEXTURE_2D , (&mapTextureBedrock)[i]);
 
-
         gl_funcs->glUniform1i(
-            gl_funcs->glGetUniformLocation(shaderPID, "heightmap"),
+            gl_funcs->glGetUniformLocation(shaderPID, uniformNames[i]),
             i
         );
-
     }
 
     // todo just tranfer a struct to the gpu with all interesting data
@@ -271,8 +270,6 @@ Mesh Mesh::gen_tesselatedSquare(int nX, int nY, float sX, float sY){
 
 void Mesh::updatePlaneHeightmap(GeoContextCPU &context)
 {
-    context.update(0);
-
     for (int i = 0; i < 4; ++i){
         float* data = context.maps[i].ptrToData();
         gl_funcs->glActiveTexture(GL_TEXTURE0 + i);

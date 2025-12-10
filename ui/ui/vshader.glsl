@@ -20,7 +20,7 @@ uniform sampler2D heightmapStone;
 uniform sampler2D heightmapSand;
 uniform sampler2D heightmapWater;
 
-float heightFactor = 0.2;
+float heightFactor = 0.1;
 
 float getHeightAt(vec2 pos){
     float vBedrock = texture(heightmapBedrock, pos).r;
@@ -49,7 +49,7 @@ float getHeightAt(vec2 pos, out int material){
 
 void main() {
     // Transform position with the model matrix and pass it to the fragment shader
-    v_uv = coords;;
+    v_uv = coords;
     height = getHeightAt(coords, material);
     v_position = (Model * (vertex + vec4(0, height, 0, 0))).xyz;
 

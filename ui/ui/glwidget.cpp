@@ -97,7 +97,6 @@ void GLWidget::paintGL()
     size_t ct = currentTime();
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
-
     // Used when we set the plane by hand
     if (pendingSetMeshUpdate)
     {
