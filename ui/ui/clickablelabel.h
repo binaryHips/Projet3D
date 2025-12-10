@@ -15,9 +15,13 @@ public:
     ~ClickableLabel();
 
     MAP_LAYERS layer = MAP_LAYERS::SAND; // Default layer is sand because idk
+    FEATURE_LAYERS feat_layer;
+    bool isMap = true;
 
 signals:
     void clicked(QPixmap pixmap , MAP_LAYERS layer);
+    void clickedFeat(QPixmap pixmap , FEATURE_LAYERS layer);
+
 
 protected:
     void mousePressEvent(QMouseEvent* event);

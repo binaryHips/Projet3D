@@ -30,6 +30,8 @@ public:
     bool saveImage(const QString &fileName, const char *fileFormat = "PNG") const;
 
     MAP_LAYERS layer = MAP_LAYERS::SAND; // default is still sand
+    FEATURE_LAYERS feat_layer;
+    bool isMap = true;
 
 signals:
     void modified();

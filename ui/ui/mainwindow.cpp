@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QDebug>
+#include <QColorDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -47,15 +48,21 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::updateMap);
     QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
 
+    QObject::connect(backend, &Backend::updateFeatureSignal, this, &MainWindow::updateFeature);
+
 
     // Eraser button (ugly)
-    QPixmap pixmap("/home/drew/Downloads/eraser.png");
+    QPixmap pixmap(":/ressources/icons/eraser.png");
     pixmap = pixmap.scaled(ui->eraserBtn->height(), ui->eraserBtn->height() , Qt::KeepAspectRatio);
     QIcon ButtonIcon(pixmap);
     ui->eraserBtn->setIcon(ButtonIcon);
     ui->eraserBtn->setIconSize(pixmap.rect().size());
 
-
+    // init btn
+    int initGrey = ui->greyscaleSlider->value();
+    QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #555; border-radius: 4px; }")
+                    .arg(initGrey);
+    ui->colorSelectBtn->setStyleSheet(style);
 
 }
 
@@ -75,6 +82,7 @@ void MainWindow::loadDefaultMaps()
         item->m_layer = layer;
         if (item->map_image) {
             item->map_image->layer = layer;
+            item->map_image->isMap = true;
             QObject::connect(item->map_image, &ClickableLabel::clicked, this, &MainWindow::mapClicked);
         }
         ui->maps_layout->addWidget(item);
@@ -83,6 +91,24 @@ void MainWindow::loadDefaultMaps()
     }
 
     ui->maps_layout->addStretch();
+
+    QVector<FEATURE_LAYERS> features = {FEATURE_LAYERS::DESIRED_HEIGHT, FEATURE_LAYERS::DESIRED_WATER , FEATURE_LAYERS::DESIRED_VERDURE};
+
+    for(FEATURE_LAYERS layer : features)
+    {
+        QPixmap map = backend->saveImageFromMap(layer);
+        MapItem *item = new MapItem(map, layer, this);
+        item->m_feat_layer = layer;
+        if (item->map_image) {
+            item->map_image->feat_layer = layer;
+            item->map_image->isMap = false;
+            QObject::connect(item->map_image, &ClickableLabel::clickedFeat, this, &MainWindow::featureClicked);
+        }
+        ui->features_layout->addWidget(item);
+        // ui->maps_layout->addLayout(item->layout);
+    }
+
+    ui->features_layout->addStretch();
 
 }
 
@@ -113,6 +139,21 @@ void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
     pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
     ui->widget_2->setBackgroundPixmap(pixmap);
     ui->widget_2->layer = layer;
+    ui->widget_2->isMap = true;
+
+    // restore overlay for this layer if we have one, otherwise clear
+    ui->widget_2->clearOverlay();
+
+    ui->stackedWidget->setCurrentWidget(ui->page_2);
+}
+
+void MainWindow::featureClicked(QPixmap pixmap , FEATURE_LAYERS layer)
+{
+    // set new background and layer
+    pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
+    ui->widget_2->setBackgroundPixmap(pixmap);
+    ui->widget_2->feat_layer = layer;
+    ui->widget_2->isMap = false;
 
     // restore overlay for this layer if we have one, otherwise clear
     ui->widget_2->clearOverlay();
@@ -130,6 +171,18 @@ void MainWindow::updateMap(QPixmap map , MAP_LAYERS layer)
         }
     }
     ui->widget->updateGLSlot();
+}
+
+void MainWindow::updateFeature(QPixmap map , FEATURE_LAYERS layer)
+{
+    for(int i = 0 ; i < ui->features_layout->count() ; i++)
+    {
+        //https://stackoverflow.com/questions/500493/c-equivalent-of-javas-instanceof
+        if(MapItem *item = dynamic_cast<MapItem*>(ui->features_layout->itemAt(i)->widget())) {
+            if(item->m_feat_layer == layer) item->updateMap(map);
+        }
+    }
+    // ui->widget->updateGLSlot();
 }
 
 void MainWindow::on_subdiv_slider_valueChanged(int value)
@@ -174,31 +227,33 @@ void MainWindow::on_opacityValSLider_valueChanged(int value)
     ui->widget_2->setPenOpacity(value);
 }
 
-void MainWindow::on_blackButton_clicked()
+void MainWindow::on_greyscaleSlider_valueChanged(int value)
 {
-    ui->blackButton->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px; background-color: rgba(0,0,0,255);}");
-
-    // lowkey you need to do ts for all of them if we add more colors
-    ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
-    ui->eraserBtn->setStyleSheet("QPushButton{border:none;}");
-    ui->widget_2->setPenColor(QColor(0,0,0));
-
+    // update button color to the slider's value
+    QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #555; border-radius: 4px; }").arg(value);
+    ui->colorSelectBtn->setStyleSheet(style);
 }
 
-void MainWindow::on_whiteButton_clicked()
-{
-    ui->whiteButton->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px; background-color: rgba(255,255,255,255);}");
-    ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
-    ui->eraserBtn->setStyleSheet("QPushButton{border:none;}");
-    ui->widget_2->setPenColor(QColor(255,255,255));
-}
 
 void MainWindow::on_eraserBtn_clicked()
 {
+    // Hightlight this and unhighlight the other (same fot other btn)
     ui->eraserBtn->setStyleSheet("QPushButton{border: 2px solid #B700FF; border-radius: 4px;}");
-    ui->blackButton->setStyleSheet("QPushButton{border:none; background-color: rgba(0,0,0,255);}");
-    ui->whiteButton->setStyleSheet("QPushButton{border:none; background-color: rgba(255,255,255,255);}");
+    ui->colorSelectBtn->setStyleSheet(ui->colorSelectBtn->styleSheet().replace("border: 2px solid #B700FF", "border: 2px solid #555"));
     ui->widget_2->setEraser(true);
+}
+
+void MainWindow::on_colorSelectBtn_clicked()
+{
+
+    int value = ui->greyscaleSlider->value();
+    
+    ui->widget_2->setPenColor(QColor(value, value, value));
+    ui->widget_2->setEraser(false);
+    
+    QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #B700FF; border-radius: 4px; }").arg(value);
+    ui->colorSelectBtn->setStyleSheet(style);
+    ui->eraserBtn->setStyleSheet("QPushButton{border: none;}");
 }
 
 
@@ -211,12 +266,19 @@ void MainWindow::on_resetDrawingBtn_clicked()
 void MainWindow::on_confirmMapBtn_clicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page);
-    MAP_LAYERS layer = ui->widget_2->layer;
-    backend->setHeightmap(ui->widget_2->getImage() , layer);
+    if(ui->widget_2->isMap)
+    {
+        MAP_LAYERS layer = ui->widget_2->layer;
+        backend->setHeightmap(ui->widget_2->getImage() , layer);
+    }
+    else
+    {
+        FEATURE_LAYERS layer = ui->widget_2->feat_layer;
+        backend->setHeightmap(ui->widget_2->getImage() , layer);
+    }
     ui->widget->updateGLSlot();
 
 }
-
 
 void MainWindow::on_numParticlesSlider_valueChanged(int value)
 {
@@ -228,6 +290,5 @@ void MainWindow::on_spawnParticlesBtn_clicked()
 {
     ui->widget->spawnParticles(m_particles);
 }
-
 
 

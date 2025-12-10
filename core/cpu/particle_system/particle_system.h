@@ -60,7 +60,8 @@ public:
             const u32 toFill = std::min(remainingInLastPage, n);
 
             for (u32 i = 0; i < toFill; ++i){
-                lastPage.addParticle(vec3(0.0f), vec3(rand()/float(RAND_MAX), 2.0f, rand()/float(RAND_MAX)));
+                // maybe add some user control idk? 
+                lastPage.addParticle(vec3(0, 0.5f , 0), vec3(rand()/float(RAND_MAX), rand()/float(RAND_MAX), rand()/float(RAND_MAX)));
             }
 
             n -= toFill;

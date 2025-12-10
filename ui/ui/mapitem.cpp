@@ -35,6 +35,30 @@ MapItem::MapItem(QPixmap image, MAP_LAYERS layer, QWidget *parent)
 
 }
 
+MapItem::MapItem(QPixmap image, FEATURE_LAYERS layer, QWidget *parent)
+    : QWidget{parent}
+{
+    map = image;
+    m_feat_layer = layer;
+    map_image = new ClickableLabel(this);
+    layout = new QVBoxLayout(this);
+    isMap = false;
+
+    map_image->setSizePolicy(QSizePolicy::Minimum,  QSizePolicy::Minimum);
+
+    int h = map_image->height() ;
+
+    map_image->setPixmap(map.scaled(h,h, Qt::IgnoreAspectRatio));
+
+    GeoContextCPU context = static_cast<MainWindow*>(window())->backend->context;
+    QLabel* layerName = new QLabel(QString::fromStdString(context.featureMaps[to_underlying(m_feat_layer)].name));
+
+    layout->addWidget(layerName);
+    layout->addWidget(map_image);
+    layout->setStretch(1,5);
+
+}
+
 void MapItem::updateMap(QPixmap im) // Or pixmap or string idk we'll see
 {
     map = im;
