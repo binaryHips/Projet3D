@@ -135,7 +135,8 @@ void fallingSand(GeoContextCPU &context, float delta){
         }
 
         if (maxGrad > maxSlope){
-            float displaceToCurrent = std::clamp(maxGrad * delta, 0.0, currentHeight);
+            double maxDisplacement = std::min(maxGrad - maxSlope , currentHeight);
+            float displaceToCurrent = std::clamp(maxGrad * delta, 0.0, maxDisplacement);
             outMap(i,j) -= displaceToCurrent;
             outMap(maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
         }
