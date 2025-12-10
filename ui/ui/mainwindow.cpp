@@ -66,11 +66,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->eraserBtn->setIcon(ButtonIcon);
     ui->eraserBtn->setIconSize(pixmap.rect().size());
 
-    // init btn
-    int initGrey = ui->greyscaleSlider->value();
-    QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #555; border-radius: 4px; }")
-                    .arg(initGrey);
-    ui->colorSelectBtn->setStyleSheet(style);
+    // // init btn
+    // int initGrey = ui->greyscaleSlider->value();
+    // QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #555; border-radius: 4px; }")
+    //                 .arg(initGrey);
+    // ui->colorSelectBtn->setStyleSheet(style);
+
+    on_colorSelectBtn_clicked();
 
 }
 
@@ -259,6 +261,7 @@ void MainWindow::on_greyscaleSlider_valueChanged(int value)
     // update button color to the slider's value
     QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #555; border-radius: 4px; }").arg(value);
     ui->colorSelectBtn->setStyleSheet(style);
+    on_colorSelectBtn_clicked();
 }
 
 
