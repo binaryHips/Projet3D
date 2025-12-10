@@ -92,7 +92,7 @@ void MainWindow::loadDefaultMaps()
 
     ui->maps_layout->addStretch();
 
-    QVector<FEATURE_LAYERS> features = {FEATURE_LAYERS::DESIRED_HEIGHT, FEATURE_LAYERS::DESIRED_WATER , FEATURE_LAYERS::DESIRED_VERDURE};
+    QVector<FEATURE_LAYERS> features = {FEATURE_LAYERS::DESIRED_HEIGHT, FEATURE_LAYERS::WATER_INFlOW , FEATURE_LAYERS::WATER_OUTFLOW};
 
     for(FEATURE_LAYERS layer : features)
     {

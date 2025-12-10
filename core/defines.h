@@ -45,5 +45,7 @@ enum class MAP_LAYERS {
 
 enum class ATTRIBUTE_LAYERS {
     SEDIMENT,
+    WATER_VELOCITY_U,
+    WATER_VELOCITY_V,
     MAX_
 };

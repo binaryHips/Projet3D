@@ -3,24 +3,24 @@
 void thermalErode(GeoContextCPU &context, float delta){
 
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
-        u32 layerIndex = to_underlying(MAP_LAYERS::STONE);
+        const u32 layerIndex = to_underlying(MAP_LAYERS::STONE);
 
         Pixel &currentPixel = context.maps[layerIndex](i, j);
         double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
         if (currentHeight > 0.001)
         {
-            const float maxSlope = 1.0 * (1.0 / IMGSIZE);
+            const float maxSlope = 10.0 * (1.0 / IMGSIZE);
             
-            u32 prev_i  = (i == 0) ? 0u : i-1u;
-            u32 prev_j  = (j == 0) ? 0u : j-1u;
+            const u32 prev_i  = (i == 0) ? 0u : i-1u;
+            const u32 prev_j  = (j == 0) ? 0u : j-1u;
 
             // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
 
             // modified von neuman neighbourhood
-            double grad_xy      = currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex);
-            double grad_mxmy    = currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex);
-            double grad_xmy     = currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex);
-            double grad_mxy     = currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex);
+            double grad_xy      = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex));
+            double grad_mxmy    = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex));
+            double grad_xmy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex));
+            double grad_mxy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex));
 
             double maxGrad = 0.0;
             double maxGrad_ = 0.0; // used for small speedup
@@ -62,23 +62,23 @@ void fallingSand(GeoContextCPU &context, float delta){
 
     delta = delta * 10.0;
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
-        u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
+        const u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
 
         Pixel &currentPixel = context.maps[layerIndex](i, j);
         double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
 
-        const float maxSlope = 10.0 * (1.0 / IMGSIZE);
+        const float maxSlope = 1.0 * (1.0 / IMGSIZE);
         
-        u32 prev_i  = (i == 0) ? 0u : i-1u;
-        u32 prev_j  = (j == 0) ? 0u : j-1u;
+        const u32 prev_i  = (i == 0) ? 0u : i-1u;
+        const u32 prev_j  = (j == 0) ? 0u : j-1u;
 
         // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
 
         // modified von neuman neighbourhood
-        double grad_xy      = currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex);
-        double grad_mxmy    = currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex);
-        double grad_xmy     = currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex);
-        double grad_mxy     = currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex);
+        double grad_xy      = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex));
+        double grad_mxmy    = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex));
+        double grad_xmy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex));
+        double grad_mxy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex));
 
         double maxGrad = 0.0;
         double maxGrad_ = 0.0; // used for small speedup
@@ -115,6 +115,58 @@ void fallingSand(GeoContextCPU &context, float delta){
     }
 }
 
+void waterSpawnAndDrain(GeoContextCPU &context, float delta){
+
+    delta = delta * 10.0;
+    for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
+        const u32 layerIndex = to_underlying(MAP_LAYERS::WATER);
+        const u32 featureRainIndex = to_underlying(FEATURE_LAYERS::WATER_INFlOW);
+        const u32 featureDrainIndex = to_underlying(FEATURE_LAYERS::WATER_OUTFLOW);
+
+        Pixel& p = context.maps[layerIndex](i, j);
+        p += context.featureMaps[featureRainIndex](i, j) * delta;
+        p = std::max(-100.0f, p - context.featureMaps[featureDrainIndex](i, j) * delta);
+    }
+}
+
+
+void waterMove(GeoContextCPU &context, float delta){
+    const float dxdy = (1.0f);
+    const float g = 10.0;
+    const float cfl = dxdy / (5.0 * delta);
+
+    const u32 layerIndex = to_underlying(MAP_LAYERS::WATER);
+    const u32 velocityUIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U);
+    const u32 velocityVIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V);
+
+    for (u32 ii = 0; ii < IMGSIZE-1; ++ii) for (u32 jj = 0; jj < IMGSIZE-1; ++jj){
+
+
+
+        const u32 prev_i  = (ii == 0) ? 0u : ii-1u;
+        const u32 prev_j  = (jj == 0) ? 0u : jj-1u;
+
+        Pixel &vel_u = context.attributeMaps[velocityUIndex](ii, jj);
+        Pixel &vel_v = context.attributeMaps[velocityVIndex](ii, jj);
+
+
+        float dh_dx = (context.heightTo(uvec2(ii, jj), layerIndex) - context.heightTo(uvec2(prev_i, jj), layerIndex) );
+
+        float dh_dy = (context.heightTo(uvec2(ii, jj), layerIndex) - context.heightTo(uvec2(ii, prev_j), layerIndex) );
+
+        vel_u = vel_u - std::clamp(delta * g * dh_dx, -cfl, cfl);
+        vel_v = vel_v - std::clamp(delta * g * dh_dy, -cfl, cfl);
+
+        float du_dx = ( context.attributeMaps[velocityUIndex](ii+1, jj) - context.attributeMaps[velocityUIndex](prev_i, jj) ) / (2 * dxdy);
+        float dv_dy = ( context.attributeMaps[velocityVIndex](ii, jj+1) - context.attributeMaps[velocityVIndex](ii, prev_j) ) / (2 * dxdy);
+
+
+        context.maps[layerIndex](ii, jj) = context.maps[layerIndex](ii, jj) + delta * (-(du_dx + dv_dy));
+
+    }
+}
+
+
 GeoContextCPU GeoContextCPU::createGeoContext(){
 
     GeoContextCPU context = GeoContextCPU();
@@ -147,6 +199,7 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
 
 
     context.addProcess(fallingSand);
-
+    context.addProcess(waterSpawnAndDrain);
+    context.addProcess(waterMove);
     return context;
 }
