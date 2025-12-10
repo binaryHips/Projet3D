@@ -3,11 +3,11 @@
 #include <vector>
 
 class ParticlePageBase__{
-protected:
+public:
     enum {
         PAGE_SIZE = 256
     };
-    u32 nbParticles;
+    u32 nbParticles = 0;
 
     void update(float deltaTime);
 };
@@ -19,6 +19,5 @@ protected:
     void update(float deltaTime);
 
     void spawn(u32 n);
-
 
 };

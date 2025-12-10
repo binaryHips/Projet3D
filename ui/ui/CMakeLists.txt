@@ -9,17 +9,26 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+add_subdirectory(../../core build/core)
 
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        glwidget.cpp
+        glwidget.h
+        mesh.cpp
+        mesh.h
+        clickablelabel.cpp
+        clickablelabel.h
 )
+
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ui
@@ -41,14 +50,29 @@ else()
         add_executable(ui
             ${PROJECT_SOURCES}
             mapitem.h mapitem.cpp
+            glwidget.h glwidget.cpp
+            mesh.h mesh.cpp
+            clickablelabel.h clickablelabel.cpp
+            ressources.qrc
+
+            tangentspace.h tangentspace.cpp
+            texture.h texture.cpp
+            shader.h shader.cpp
+            cameracontroller.h cameracontroller.cpp
+            backend.h backend.cpp
+            backend.cpp
+            scribblearea.h scribblearea.cpp
 
         )
+        target_include_directories(ui PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+
     endif()
 endif()
 
 target_link_libraries(ui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(ui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(ui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(ui PRIVATE core)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

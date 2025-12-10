@@ -1,24 +1,29 @@
 #include "mainwindow.h"
 #include "mapitem.h"
 #include "ui_mainwindow.h"
+#include "glwidget.h"
+#include "backend.h"
 
 #include <QApplication>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QFileDialog>
+#include <QDir>
+#include <QObject>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
 
-    MapItem * item = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
-    MapItem * item_2 = new MapItem("/home/drew/Desktop/3DProject/Pics/test.png");
+    // Style sheet : https://qss-stock.devsecstudio.com/templates.php
+    QFile styleFile( ":/Takezo.qss" );
+    styleFile.open( QFile::ReadOnly );
+    QString style( styleFile.readAll() );
+    a.setStyleSheet( style );
 
-    w.ui->maps_layout->addLayout(&item->layout);
-    w.ui->maps_layout->addLayout(&item_2->layout);
 
-    w.ui->maps_layout->addStretch();
-
+    // w.ui->maps_layout->addStretch();
     w.show();
     return a.exec();
 }
