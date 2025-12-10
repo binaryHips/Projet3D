@@ -80,6 +80,12 @@ void fallingSand(GeoContextCPU &context, float delta){
         double grad_xmy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex));
         double grad_mxy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex));
 
+        // use local gradient 
+        // double grad_xy      = (1.0 / 2) * (currentHeight - context.maps[layerIndex](i+1, j+1));
+        // double grad_mxmy    = (1.0 / 2) * (currentHeight - context.maps[layerIndex](prev_i, prev_j));
+        // double grad_xmy     = (1.0 / 2) * (currentHeight - context.maps[layerIndex](i+1, prev_j));
+        // double grad_mxy     = (1.0 / 2) * (currentHeight - context.maps[layerIndex](prev_i, j+1));
+
         double maxGrad = 0.0;
         double maxGrad_ = 0.0; // used for small speedup
         uvec2 maxgradDir;
@@ -99,7 +105,7 @@ void fallingSand(GeoContextCPU &context, float delta){
             maxgradDir_ = uvec2(i+1, prev_j);
         } else {
             maxGrad_ = grad_mxy;
-            maxgradDir = uvec2(prev_i, j+1);
+            maxgradDir_ = uvec2(prev_i, j+1);
         }
 
         if (maxGrad_ > maxGrad){
@@ -199,7 +205,7 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
 
 
     context.addProcess(fallingSand);
-    context.addProcess(waterSpawnAndDrain);
-    context.addProcess(waterMove);
+    // context.addProcess(waterSpawnAndDrain);
+    // context.addProcess(waterMove);
     return context;
 }
