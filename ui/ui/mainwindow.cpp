@@ -138,6 +138,11 @@ void MainWindow::openFileSearchHeightmap(MAP_LAYERS layer)
     {
         backend->loadHeightmap(fileName, layer);
         backend->saveImageFromMap(layer);
+        if(ui->stackedWidget->currentWidget() == ui->page_2)
+        {
+
+            mapClicked(fileName , layer);
+        }
     }
 }
 
@@ -157,6 +162,11 @@ void MainWindow::openFileSearchFeaturemap(FEATURE_LAYERS layer)
     {
         backend->loadFeaturemap(fileName, layer);
         backend->saveImageFromMap(layer);
+        if(ui->stackedWidget->currentWidget() == ui->page_2)
+        {
+
+            featureClicked(fileName , layer);
+        }
     }
 }
 
