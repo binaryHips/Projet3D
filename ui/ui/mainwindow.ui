@@ -570,7 +570,7 @@
     </property>
     <widget class="QMenu" name="menuLoad_Heightmap">
      <property name="title">
-      <string>Load Heightmap</string>
+      <string>Load</string>
      </property>
      <widget class="QMenu" name="menuHeightmaps">
       <property name="title">
@@ -581,8 +581,16 @@
       <addaction name="actionSand_layer"/>
       <addaction name="actionWater_layer"/>
      </widget>
+     <widget class="QMenu" name="menuFeature_maps">
+      <property name="title">
+       <string>Feature maps</string>
+      </property>
+      <addaction name="actionHeight"/>
+      <addaction name="actionWaterIn"/>
+      <addaction name="actionWaterOut"/>
+     </widget>
      <addaction name="menuHeightmaps"/>
-     <addaction name="actionFeature_map"/>
+     <addaction name="menuFeature_maps"/>
     </widget>
     <addaction name="menuLoad_Heightmap"/>
    </widget>
@@ -592,11 +600,6 @@
   <action name="actionCamera_type">
    <property name="text">
     <string>Camera type</string>
-   </property>
-  </action>
-  <action name="actionFeature_map">
-   <property name="text">
-    <string>Feature maps</string>
    </property>
   </action>
   <action name="actionBedrock_layer">
@@ -617,6 +620,21 @@
   <action name="actionWater_layer">
    <property name="text">
     <string>Water layer</string>
+   </property>
+  </action>
+  <action name="actionHeight">
+   <property name="text">
+    <string>Height</string>
+   </property>
+  </action>
+  <action name="actionWaterIn">
+   <property name="text">
+    <string>Water inflow</string>
+   </property>
+  </action>
+  <action name="actionWaterOut">
+   <property name="text">
+    <string>Water outflow</string>
    </property>
   </action>
  </widget>

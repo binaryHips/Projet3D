@@ -40,6 +40,8 @@ public slots:
     void featureClicked(QPixmap pixmap , FEATURE_LAYERS layer);
 
     void openFileSearchHeightmap(MAP_LAYERS layer);
+    void openFileSearchFeaturemap(FEATURE_LAYERS layer);
+
 
 private slots:
 
