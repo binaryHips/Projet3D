@@ -185,6 +185,17 @@ void waterMove(GeoContextCPU &context, float delta){
     const u32 velocityUIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U);
     const u32 velocityVIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V);
 
+    MapCPU& inMaps = context.maps[layerIndex];
+    MapCPU& outMaps = context.tempMaps[layerIndex];
+
+    for(int i = 0 ; i < IMGSIZE ; i++)
+    {
+        for(int j = 0 ; j < IMGSIZE ; j++)
+        {
+            outMaps(i,j) = inMaps(i,j);
+        } 
+    }
+
     for (u32 ii = 0; ii < IMGSIZE-1; ++ii) for (u32 jj = 0; jj < IMGSIZE-1; ++jj){
 
 
@@ -207,8 +218,16 @@ void waterMove(GeoContextCPU &context, float delta){
         float dv_dy = ( context.attributeMaps[velocityVIndex](ii, jj+1) - context.attributeMaps[velocityVIndex](ii, prev_j) ) / (2 * dxdy);
 
 
-        context.maps[layerIndex](ii, jj) = context.maps[layerIndex](ii, jj) + delta * (-(du_dx + dv_dy));
+        outMaps(ii, jj) = inMaps(ii, jj) + delta * (-(du_dx + dv_dy));
 
+    }
+
+    for(int i = 0 ; i < IMGSIZE ; i++)
+    {
+        for(int j = 0 ; j < IMGSIZE ; j++)
+        {
+            inMaps(i,j) = outMaps(i,j);
+        } 
     }
 }
 
@@ -251,7 +270,7 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     } 
 
     context.addProcess(fallingSand);
-    // context.addProcess(waterSpawnAndDrain);
-    // context.addProcess(waterMove);
+    context.addProcess(waterSpawnAndDrain);
+    context.addProcess(waterMove);
     return context;
 }
