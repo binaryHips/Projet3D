@@ -1,3 +1,4 @@
 build/*
 core/build/*
 ui/build-ui-Desktop-Release/*
+ui/build-ui-Desktop-Debug/*
