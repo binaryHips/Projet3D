@@ -32,11 +32,17 @@ MainWindow::MainWindow(QWidget *parent)
     *plane = Mesh::gen_tesselatedSquare(nbDiv,nbDiv,1,1);
     ui->widget->addMesh(plane);
 
-    // connect load mesh
+    // connect load heightmap
     QObject::connect(ui->actionBedrock_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::BEDROCK);});
     QObject::connect(ui->actionStone_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::STONE);});
     QObject::connect(ui->actionSand_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::SAND);});
     QObject::connect(ui->actionWater_layer , &QAction::triggered , this , [this]{openFileSearchHeightmap(MAP_LAYERS::WATER);});
+
+    // connect load feature map
+    QObject::connect(ui->actionHeight , &QAction::triggered , this , [this]{openFileSearchFeaturemap(FEATURE_LAYERS::DESIRED_HEIGHT);});
+    QObject::connect(ui->actionWaterIn, &QAction::triggered , this , [this]{openFileSearchFeaturemap(FEATURE_LAYERS::WATER_INFlOW);});
+    QObject::connect(ui->actionWaterOut , &QAction::triggered , this , [this]{openFileSearchFeaturemap(FEATURE_LAYERS::WATER_OUTFLOW);});
+
 
     loadDefaultMaps();
 
@@ -46,8 +52,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     // TODO : See if making these the same signal is smart
     QObject::connect(backend, &Backend::loadMapSignal, this, &MainWindow::updateMap);
-    QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
+    QObject::connect(backend, &Backend::loadFeatureSignal, this, &MainWindow::updateFeature);
 
+
+    QObject::connect(backend, &Backend::updateMapSignal, this, &MainWindow::updateMap);
     QObject::connect(backend, &Backend::updateFeatureSignal, this, &MainWindow::updateFeature);
 
 
@@ -92,7 +100,7 @@ void MainWindow::loadDefaultMaps()
 
     ui->maps_layout->addStretch();
 
-    QVector<FEATURE_LAYERS> features = {FEATURE_LAYERS::DESIRED_HEIGHT, FEATURE_LAYERS::DESIRED_WATER , FEATURE_LAYERS::DESIRED_VERDURE};
+    QVector<FEATURE_LAYERS> features = {FEATURE_LAYERS::DESIRED_HEIGHT, FEATURE_LAYERS::WATER_INFlOW , FEATURE_LAYERS::WATER_OUTFLOW};
 
     for(FEATURE_LAYERS layer : features)
     {
@@ -127,6 +135,25 @@ void MainWindow::openFileSearchHeightmap(MAP_LAYERS layer)
     if (!fileName.isEmpty())
     {
         backend->loadHeightmap(fileName, layer);
+        backend->saveImageFromMap(layer);
+    }
+}
+
+void MainWindow::openFileSearchFeaturemap(FEATURE_LAYERS layer)
+{
+    QString fileName;
+
+    QFileDialog dlg(this,"Open Image", QDir::homePath());
+    dlg.setNameFilter("Image Files (*.png *.jpg *.jpeg);;All Files()");
+    dlg.setOption(QFileDialog::DontUseNativeDialog);
+    if(dlg.exec() == QDialog::Accepted)
+    {
+        fileName = dlg.selectedFiles().first();
+    }
+
+    if (!fileName.isEmpty())
+    {
+        backend->loadFeaturemap(fileName, layer);
         backend->saveImageFromMap(layer);
     }
 }

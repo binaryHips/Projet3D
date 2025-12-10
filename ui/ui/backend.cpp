@@ -44,6 +44,37 @@ MapCPU Backend::loadHeightmap(QString filename, MAP_LAYERS layer, float scale)
     return res;
 }
 
+MapCPU Backend::loadFeaturemap(QString filename, FEATURE_LAYERS layer, float scale)
+{
+    QImage hmap = QImage();
+    MapCPU res = MapCPU();
+
+    if (!hmap.load(filename)) {
+        qDebug() << "Heightmap " + filename << " was not found !";
+        return res;
+    }
+
+    hmap = hmap.scaled(IMGSIZE , IMGSIZE);
+
+    for (int y = 0; y < hmap.height(); y++) {
+        for (int x = 0; x < hmap.width(); x++) {
+            QRgb color = hmap.pixel(x,y);
+
+            int r = color >> 0 & 0xFF;
+            int g = color >> 8 & 0xFF;
+            int b = color >> 16 & 0xFF;
+
+
+            float mean = (r + g + b) / (3.0 * 255.0);
+
+            res(x,y) = mean * scale;
+        }
+    }
+    context.featureMaps[to_underlying(layer)] = std::move(res);
+    emit loadFeatureSignal(filename , layer);
+    return res;
+}
+
 MapCPU Backend::setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale)
 {
     QImage hmap = pixmap.toImage();

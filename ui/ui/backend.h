@@ -18,6 +18,8 @@ public :
     GeoContextCPU context = GeoContextCPU::createGeoContext();
 
     MapCPU loadHeightmap(QString filename, MAP_LAYERS layer, float scale = 1.0f);
+    MapCPU loadFeaturemap(QString filename, FEATURE_LAYERS layer, float scale = 1.0f);
+
     MapCPU setHeightmap(QPixmap pixmap, MAP_LAYERS layer, float scale = 1.0f);
     MapCPU setHeightmap(QPixmap pixmap, FEATURE_LAYERS layer, float scale = 1.0f);
 
@@ -40,6 +42,7 @@ public :
 
 signals :
     void loadMapSignal(QString filename , MAP_LAYERS layer);
+    void loadFeatureSignal(QString filename , FEATURE_LAYERS layer);
     void updateMapSignal(QPixmap pixmap, MAP_LAYERS layer);
     void updateFeatureSignal(QPixmap pixmap, FEATURE_LAYERS layer);
 
