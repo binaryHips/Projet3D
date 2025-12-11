@@ -23,8 +23,6 @@ public:
 
     std::vector<Process> processes; // functions that will update the maps
 
-    std::vector<MapCPU> tempMaps; // for double buffering of maps
-
     void update(float delta){
 
         for (Process process: processes){
@@ -49,11 +47,11 @@ public:
         maps.push_back(std::move(map));
     }
 
-    float totalHeight(float x, float y) const {
+    float totalHeight(float x, float y, u8* topLayer = nullptr) const {
 
         // TODO unneceessary conversion
         uvec2 pxVec = uvec2(x * IMGSIZE, y * IMGSIZE);
-        return totalHeight(pxVec);
+        return totalHeight(pxVec, topLayer);
     }
 
     inline float totalHeight(uvec2 pos, u8* topLayer = nullptr) const { // can be a u8

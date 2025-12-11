@@ -65,7 +65,7 @@ void fallingSand(GeoContextCPU &context, float delta){
     const float maxSlope = 3.0 * (1.0 / IMGSIZE);
 
     MapCPU& inMap = context.maps[layerIndex];
-    MapCPU& outMap = context.tempMaps[layerIndex];
+    MapCPU outMap = inMap;
 
     for(int i = 0 ; i < IMGSIZE ; i++)
     {
@@ -142,23 +142,7 @@ void fallingSand(GeoContextCPU &context, float delta){
         }
     }
 
-    // drain on edges
-    for(int i = 0 ; i < IMGSIZE ; i++)
-    {
-        outMap(0, i) *= 0.95f;           // left edge
-        outMap(IMGSIZE-1, i) *= 0.95f;   // right edge
-        outMap(i, 0) *= 0.95f;           // top edge
-        outMap(i, IMGSIZE-1) *= 0.95f;   // bottom edge    
-    }
-
-
-    for(int i = 0 ; i < IMGSIZE ; i++)
-    {
-        for(int j = 0 ; j < IMGSIZE ; j++)
-        {
-            inMap(i,j) = outMap(i,j);
-        }
-    }
+    context.maps[layerIndex] = std::move(outMap);
 }
 
 void sandCalcification(GeoContextCPU &context , float delta)
@@ -216,7 +200,7 @@ void waterMove(GeoContextCPU &context, float delta){
     const u32 velocityVIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V);
 
     MapCPU& inMaps = context.maps[layerIndex];
-    MapCPU& outMaps = context.tempMaps[layerIndex];
+    MapCPU& outMaps = inMaps;
 
     for(int i = 0 ; i < IMGSIZE ; i++)
     {
@@ -261,6 +245,21 @@ void waterMove(GeoContextCPU &context, float delta){
     }
 }
 
+void wind(GeoContextCPU &context, float delta){
+
+    const int n_pages = 1;
+    const float spawnDelay = 5.0;
+    const vec3 winddirection  = vec3(0, 1, 0);
+    
+
+    static float time = spawnDelay;
+    time += delta;
+
+    if (time > spawnDelay){
+        time = 0.0;
+        context.particleSystem.spawn(n_pages, spawnDelay, spawnDelay, winddirection, 0.0, 0.0);
+    }
+}
 
 GeoContextCPU GeoContextCPU::createGeoContext(){
 
@@ -291,13 +290,6 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_HEIGHT)].name = "desired elevation";
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_INFlOW)].name = "water inflow";
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_OUTFLOW)].name = "water sink";
-
-    // fill tmp uffer with maps
-    context.tempMaps.resize(context.maps.size());
-    for(size_t i = 0 ; i < context.maps.size() ; ++i)
-    {
-        context.tempMaps[i] = context.maps[i];
-    } 
 
     context.addProcess(fallingSand);
     context.addProcess(sandCalcification);
