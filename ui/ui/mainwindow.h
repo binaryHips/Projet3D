@@ -74,6 +74,8 @@ private slots:
     void on_numParticlesSlider_valueChanged(int value);
 
 
+    void on_saveMapBtn_clicked();
+
 private:
     void loadDefaultMaps();
     int m_particles = 512;

@@ -332,3 +332,22 @@ void MainWindow::on_spawnParticlesBtn_clicked()
 }
 
 
+
+void MainWindow::on_saveMapBtn_clicked()
+{
+    QString fileName;
+
+    QFileDialog dlg(this,"Save Image", QDir::homePath());
+    dlg.setNameFilter("Image Files (*.png *.jpg *.jpeg);;All Files()");
+    dlg.setOption(QFileDialog::DontUseNativeDialog);
+    if(dlg.exec() == QDialog::Accepted)
+    {
+        fileName = dlg.selectedFiles().first();
+    }
+
+    if (!fileName.isEmpty())
+    {
+        ui->widget_2->saveImage(fileName);
+    }
+}
+

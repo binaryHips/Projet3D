@@ -23,6 +23,8 @@ public:
 
     std::vector<Process> processes; // functions that will update the maps
 
+    std::vector<MapCPU> tempMaps; // for double buffering of maps
+
     void update(float delta){
 
         for (Process process: processes){
