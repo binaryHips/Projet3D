@@ -61,13 +61,34 @@ void thermalErode(GeoContextCPU &context, float delta){
 void fallingSand(GeoContextCPU &context, float delta){
 
     delta = delta * 10.0;
+    const u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
+    const float maxSlope = 1.0 * (1.0 / IMGSIZE);
+
+    MapCPU& inMap = context.maps[layerIndex];
+    MapCPU& outMap = context.tempMaps[layerIndex];
+
+    for(int i = 0 ; i < IMGSIZE ; i++)
+    {
+        for(int j = 0 ; j < IMGSIZE ; j++)
+        {
+            outMap(i,j) = inMap(i,j);
+        }
+    }
+
+    // Small values to decide whether the sand or height are negligeable
+    double minHeight = 0.001;
+    double minSand = 0.001;
+
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
-        const u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
+
 
         Pixel &currentPixel = context.maps[layerIndex](i, j);
         double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
 
-        const float maxSlope = 1.0 * (1.0 / IMGSIZE);
+        // delete tiny values
+        if (currentHeight < minHeight) continue;
+        Pixel currentSand = inMap(i, j);
+        if (currentSand < minSand) continue;
         
         const u32 prev_i  = (i == 0) ? 0u : i-1u;
         const u32 prev_j  = (j == 0) ? 0u : j-1u;
@@ -79,6 +100,12 @@ void fallingSand(GeoContextCPU &context, float delta){
         double grad_mxmy    = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex));
         double grad_xmy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex));
         double grad_mxy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex));
+
+        // use local gradient 
+        // double grad_xy      = (1.0 / 2) * (currentHeight - context.maps[layerIndex](i+1, j+1));
+        // double grad_mxmy    = (1.0 / 2) * (currentHeight - context.maps[layerIndex](prev_i, prev_j));
+        // double grad_xmy     = (1.0 / 2) * (currentHeight - context.maps[layerIndex](i+1, prev_j));
+        // double grad_mxy     = (1.0 / 2) * (currentHeight - context.maps[layerIndex](prev_i, j+1));
 
         double maxGrad = 0.0;
         double maxGrad_ = 0.0; // used for small speedup
@@ -99,7 +126,7 @@ void fallingSand(GeoContextCPU &context, float delta){
             maxgradDir_ = uvec2(i+1, prev_j);
         } else {
             maxGrad_ = grad_mxy;
-            maxgradDir = uvec2(prev_i, j+1);
+            maxgradDir_ = uvec2(prev_i, j+1);
         }
 
         if (maxGrad_ > maxGrad){
@@ -108,9 +135,28 @@ void fallingSand(GeoContextCPU &context, float delta){
         }
 
         if (maxGrad > maxSlope){
-            float displaceToCurrent = std::clamp(maxGrad * delta, 0.0, currentHeight);
-            currentPixel -= displaceToCurrent;
-            context.maps[layerIndex](maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
+            double maxDisplacement = std::min(maxGrad - maxSlope , currentHeight);
+            float displaceToCurrent = std::clamp(maxGrad * delta, 0.0, maxDisplacement);
+            outMap(i,j) -= displaceToCurrent;
+            outMap(maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
+        }
+    }
+
+    // drain on edges
+    for(int i = 0 ; i < IMGSIZE ; i++)
+    {
+        outMap(0, i) *= 0.95f;           // left edge
+        outMap(IMGSIZE-1, i) *= 0.95f;   // right edge
+        outMap(i, 0) *= 0.95f;           // top edge
+        outMap(i, IMGSIZE-1) *= 0.95f;   // bottom edge    
+    }
+
+
+    for(int i = 0 ; i < IMGSIZE ; i++)
+    {
+        for(int j = 0 ; j < IMGSIZE ; j++)
+        {
+            inMap(i,j) = outMap(i,j);
         }
     }
 }
@@ -139,6 +185,17 @@ void waterMove(GeoContextCPU &context, float delta){
     const u32 velocityUIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U);
     const u32 velocityVIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V);
 
+    MapCPU& inMaps = context.maps[layerIndex];
+    MapCPU& outMaps = context.tempMaps[layerIndex];
+
+    for(int i = 0 ; i < IMGSIZE ; i++)
+    {
+        for(int j = 0 ; j < IMGSIZE ; j++)
+        {
+            outMaps(i,j) = inMaps(i,j);
+        } 
+    }
+
     for (u32 ii = 0; ii < IMGSIZE-1; ++ii) for (u32 jj = 0; jj < IMGSIZE-1; ++jj){
 
 
@@ -161,8 +218,16 @@ void waterMove(GeoContextCPU &context, float delta){
         float dv_dy = ( context.attributeMaps[velocityVIndex](ii, jj+1) - context.attributeMaps[velocityVIndex](ii, prev_j) ) / (2 * dxdy);
 
 
-        context.maps[layerIndex](ii, jj) = context.maps[layerIndex](ii, jj) + delta * (-(du_dx + dv_dy));
+        outMaps(ii, jj) = inMaps(ii, jj) + delta * (-(du_dx + dv_dy));
 
+    }
+
+    for(int i = 0 ; i < IMGSIZE ; i++)
+    {
+        for(int j = 0 ; j < IMGSIZE ; j++)
+        {
+            inMaps(i,j) = outMaps(i,j);
+        } 
     }
 }
 
@@ -197,6 +262,12 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_INFlOW)].name = "water inflow";
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_OUTFLOW)].name = "water sink";
 
+    // fill tmp uffer with maps
+    context.tempMaps.resize(context.maps.size());
+    for(size_t i = 0 ; i < context.maps.size() ; ++i)
+    {
+        context.tempMaps[i] = context.maps[i];
+    } 
 
     context.addProcess(fallingSand);
     context.addProcess(waterSpawnAndDrain);
