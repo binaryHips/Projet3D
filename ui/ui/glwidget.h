@@ -28,6 +28,8 @@ public:
     Mesh *getMesh(int index = 0);
     float simSpeed = 1.0f;
 
+    void setShowParticles(bool show) {showParticles = show;};
+
 signals :
     void mouseButtonClicked(Qt::MouseButton button);
 
@@ -72,6 +74,7 @@ private:
     bool pendingSetMeshUpdate = false;
     bool pendingHeightmapUpdate = false;
     bool pendingParticlees = false;
+    bool showParticles = false;
 };
 
 

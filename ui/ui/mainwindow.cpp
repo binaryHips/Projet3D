@@ -359,3 +359,9 @@ void MainWindow::on_softnessSlider_valueChanged(int value)
     ui->widget_2->setSoftness(val);
 }
 
+
+void MainWindow::on_showParticlesCheck_stateChanged(int arg1)
+{
+    ui->widget->setShowParticles(arg1);
+}
+

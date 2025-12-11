@@ -28,7 +28,7 @@
            <widget class="GLWidget" name="widget" native="true"/>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="gl_settings_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+           <layout class="QVBoxLayout" name="gl_settings_layout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
             <property name="sizeConstraint">
              <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
             </property>
@@ -239,6 +239,13 @@
              </layout>
             </item>
             <item>
+             <widget class="QCheckBox" name="showParticlesCheck">
+              <property name="text">
+               <string>Show particles</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="spawnParticlesBtn">
               <property name="text">
                <string>Spawn particles</string>
@@ -299,7 +306,7 @@
              <x>0</x>
              <y>0</y>
              <width>815</width>
-             <height>243</height>
+             <height>232</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -314,7 +321,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>797</width>
-                 <height>161</height>
+                 <height>150</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -346,8 +353,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>100</width>
-                 <height>30</height>
+                 <width>797</width>
+                 <height>150</height>
                 </rect>
                </property>
                <attribute name="label">
