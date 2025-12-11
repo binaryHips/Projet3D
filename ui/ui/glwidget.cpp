@@ -60,6 +60,11 @@ void GLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
 }
 
+Mesh* GLWidget::getMesh(int index)
+{
+    return meshes[index];
+}
+
 void GLWidget::setMesh(Mesh *m, int index)
 {
 
