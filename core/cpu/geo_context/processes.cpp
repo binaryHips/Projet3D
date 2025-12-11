@@ -62,7 +62,7 @@ void fallingSand(GeoContextCPU &context, float delta){
 
     delta = delta * 10.0;
     const u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
-    const float maxSlope = 1.0 * (1.0 / IMGSIZE);
+    const float maxSlope = 3.0 * (1.0 / IMGSIZE);
 
     MapCPU& inMap = context.maps[layerIndex];
     MapCPU outMap = inMap;
@@ -143,6 +143,36 @@ void fallingSand(GeoContextCPU &context, float delta){
     }
 
     context.maps[layerIndex] = std::move(outMap);
+}
+
+void sandCalcification(GeoContextCPU &context , float delta)
+{
+
+    const u32 sandLayerIndex = to_underlying(MAP_LAYERS::SAND);
+    const u32 stoneLayerIndex = to_underlying(MAP_LAYERS::STONE);
+
+    float threshold = 0.2;
+
+    for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j)
+    {
+        float calcifiedQuantity = std::max(delta * 0.05 , 0.000001); // probably gonna be uge but wharreva
+
+        Pixel &sandPixel = context.maps[sandLayerIndex](i, j);
+        Pixel &stonePixel = context.maps[stoneLayerIndex](i, j);
+
+        // if(sandPixel < 0 || calcifiedQuantity < 0)
+        //     std::cout << "Calc : " << calcifiedQuantity << "sand : " << sandPixel << std::endl ;
+
+
+        calcifiedQuantity = std::clamp(calcifiedQuantity, 0.0f , sandPixel);
+
+        if(sandPixel > threshold)
+        {
+            sandPixel -= calcifiedQuantity;
+            stonePixel += calcifiedQuantity;
+        }
+    }
+
 }
 
 void waterSpawnAndDrain(GeoContextCPU &context, float delta){
@@ -262,8 +292,9 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_OUTFLOW)].name = "water sink";
 
     context.addProcess(fallingSand);
+    context.addProcess(sandCalcification);
     context.addProcess(waterSpawnAndDrain);
-    context.addProcess(waterMove);
     context.addProcess(wind);
+    //context.addProcess(waterMove);
     return context;
 }

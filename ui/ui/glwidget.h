@@ -25,7 +25,7 @@ public:
     Mesh *addMesh(Mesh *m);
     void setMesh(Mesh *m, int index=0);
     void spawnParticles(int nbParticles);
-
+    Mesh *getMesh(int index = 0);
     float simSpeed = 1.0f;
 
 signals :

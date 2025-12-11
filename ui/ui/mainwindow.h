@@ -76,6 +76,8 @@ private slots:
 
     void on_saveMapBtn_clicked();
 
+    void on_softnessSlider_valueChanged(int value);
+
 private:
     void loadDefaultMaps();
     int m_particles = 512;

@@ -50,8 +50,6 @@ protected:
     QOpenGLExtraFunctions *gl_funcs; // We use glwidget cuz it inherits Functions and Extrafunctions
 
     // GPU, VBO etc
-    void unsynchronize() const;
-    void synchronize() const;
 
     mutable bool _synchronized = false;
     mutable GLuint _VBO;
@@ -84,6 +82,9 @@ public:
     //tangent / bitangent
     QVector<QVector3D> tangents;
     QVector<QVector3D> bitangents;
+
+    void unsynchronize() const;
+    void synchronize() const;
 
     static Mesh gen_tesselatedSquare(int nX, int nY, float sX = 1, float sY = 1);
     static Mesh load_mesh_off(std::string filename);

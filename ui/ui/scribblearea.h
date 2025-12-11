@@ -23,6 +23,7 @@ public:
     void setPenOpacity(int alpha) { m_opacity = alpha;}
     void setEraser(bool enabled) { m_eraserMode = enabled; }
     bool isEraser() const { return m_eraserMode; }
+    void setSoftness(float softness) { m_softness = softness;}
     void clearOverlay();
     QPixmap getImage();
     QPixmap getOverlayPixmap();
@@ -57,6 +58,7 @@ private:
     int m_penWidth = 3;
     int m_opacity = 255;
     bool m_eraserMode = false;
+    float m_softness = 0.0f;
 };
 
 #endif // SCRIBBLEAREA_H

@@ -228,7 +228,7 @@ void MainWindow::on_subdiv_slider_valueChanged(int value)
 {
     Mesh *plane= new Mesh();
     *plane = Mesh::gen_tesselatedSquare(value,value,1,1);
-    ui->widget->setMesh(plane,0);
+    ui->widget->setMesh(plane);
     ui->subdivval_label->setText(QString::number(value));
 }
 
@@ -349,5 +349,13 @@ void MainWindow::on_saveMapBtn_clicked()
     {
         ui->widget_2->saveImage(fileName);
     }
+}
+
+
+void MainWindow::on_softnessSlider_valueChanged(int value)
+{
+    float val = value / 10.0f;
+    ui->softnessLabel->setText(QString::number(val , 'f' , 2));
+    ui->widget_2->setSoftness(val);
 }
 
