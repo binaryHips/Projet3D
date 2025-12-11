@@ -69,8 +69,6 @@ private slots:
 
     void on_colorSelectBtn_clicked();
 
-    void on_spawnParticlesBtn_clicked();
-
     void on_numParticlesSlider_valueChanged(int value);
 
 
