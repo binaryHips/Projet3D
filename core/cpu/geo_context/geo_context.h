@@ -28,7 +28,6 @@ public:
         for (Process process: processes){
             process(*this, delta);
         }
-
         particleSystem.update(delta);
     }
 

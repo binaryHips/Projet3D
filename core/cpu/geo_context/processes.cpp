@@ -247,7 +247,7 @@ void waterMove(GeoContextCPU &context, float delta){
 void wind(GeoContextCPU &context, float delta){
 
     const int n_pages = 1;
-    const float spawnDelay = 2.0;
+    const float spawnDelay = 0.5;
     const float lifetime = 10.0;
     const vec3 winddirection  = vec3(1.0, - 0.3, 0);
     const vec3 gravity = vec3(0, -0.0, 0);
