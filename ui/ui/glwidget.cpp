@@ -118,7 +118,6 @@ void GLWidget::paintGL()
     // update : it does not work
     if(pendingParticlees)
     {
-        backend->context.particleSystem.spawn(512);
         pendingParticlees=false;
     }
 

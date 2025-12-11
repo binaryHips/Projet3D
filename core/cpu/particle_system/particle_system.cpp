@@ -1,7 +1,7 @@
 #include "particle_system.h"
 #include <immintrin.h>
 #include "cpu/geo_context/geo_context.h"
-void ParticlePageCPU::update(float deltaTime, const GeoContextCPU &context){
+void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
     const int increment = 16 * 3; // 16 x 4 bytes = 512 bits
 
     // integrate
@@ -48,6 +48,7 @@ void ParticlePageCPU::update(float deltaTime, const GeoContextCPU &context){
             const __m512 updatedVel = _mm512_add_ps(pos, scaledGrav[offset]);
 
             const __m512 scaledVel = _mm512_mul_ps(vel, delta);
+
             const __m512 updatedPos = _mm512_add_ps(pos, scaledVel);
             _mm512_stream_ps(ptrPos, updatedPos);
         }
@@ -61,20 +62,66 @@ void ParticlePageCPU::update(float deltaTime, const GeoContextCPU &context){
     }
 
     for (; i < nbParticles; i++){ // end of unroll
-        
         position[i] = position[i] + velocity[i] * deltaTime;
         lifetime[i] += deltaTime;
     }
 
     // collide
+    // This is not simded for now. Do it if perfs are not enough !
+    i = 0;
+    finished = 0;
+    for (; i < nbParticles; i++){
+        float px = position[i][0];
+        float py = position[i][1];
+        float pz = position[i][2];
+        if (lifetime[i] > 0.0 && lifetime[i] < maxLifeTime &&
+            (px >= 0.0f && px < 1.0f) &&
+            (pz >= 0.0f && pz < 1.0f))
+        {
+            uvec2 pos = uvec2(px * IMGSIZE, pz * IMGSIZE);
+            u8 mat = -1;
+            float h = context.totalHeight(pos, &mat);
+            if (py < h){
+                position[i][1] = h;
+                float dh_dx = (context.totalHeight(pos) - context.totalHeight(pos + uvec2(1, 0)));
+                float dh_dy = (context.totalHeight(pos) - context.totalHeight(pos + uvec2(0, 1)));
 
+                // rebound 
+                vec3 gx = vec3(1.0 / IMGSIZE, dh_dx, 0.0);
+                vec3 gy = vec3(0.0, dh_dy, 1.0 / IMGSIZE);
+                vec3 n = vec3::cross(gx, gy).normalized();
+                velocity[i] = velocity[i].reflect(n) * 0.95;
+
+                // impact on context
+                float placed = water[i] / 2.0;
+                context.maps[mat](pos) += placed;
+                water[i] -= placed;
+
+                placed = dust[i] / 2.0;
+                context.maps[mat](pos) += placed;
+                water[i] -= placed;
+                if (mat == to_underlying(MAP_LAYERS::WATER)){
+                    float displaced = context.maps[mat](pos) / 100.0;
+                    water[i] += displaced;
+                    context.maps[mat](pos) -= displaced;
+                } else if (mat == to_underlying(MAP_LAYERS::SAND)){
+                    float displaced = context.maps[mat](pos) / 100.0;
+                    dust[i] += displaced;
+                    context.maps[mat](pos) -= displaced;
+                }
+            } else {
+                finished++;
+            }
+        }
+    }
 }
 
-void ParticlePageCPU::addParticle(const vec3 &position, const vec3 &velocity)
+void ParticlePageCPU::addParticle(const vec3 &position, const vec3 &velocity, float baseDust, float baseWater)
 {
-    std::cout << "Nb particles : " << nbParticles << std::endl;
     this->position[nbParticles] = position;
     this->velocity[nbParticles] = velocity;
+    dust[nbParticles] = baseDust;
+    water[nbParticles] = baseWater;
     this->lifetime[nbParticles] = 0.0f;
     nbParticles++;
 }

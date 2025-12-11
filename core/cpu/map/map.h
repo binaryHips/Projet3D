@@ -12,6 +12,20 @@ public:
         data = std::vector<Pixel>(IMGSIZE * IMGSIZE, 0.0f);
     }
 
+    MapCPU(MapCPU &&other){
+        data = std::move(other.data);
+    }
+    MapCPU& operator= (MapCPU &&other){
+        data = std::move(other.data);
+        return *this;
+    }
+
+    MapCPU(const MapCPU &other) = default;
+    MapCPU& operator= (const MapCPU &other){
+        data = (other.data);
+        return *this;
+    }
+
     std::string name = "Heeeelp";
 
     inline Pixel operator() (const u32 x, const u32 y) const {

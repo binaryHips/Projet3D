@@ -1,5 +1,6 @@
 #pragma once
 #include "commons/particle_system/particle_system.h"
+#include <functional>
 
 class GeoContextCPU;
 class ParticlePageCPU : public ParticlePageBase__{
@@ -16,20 +17,22 @@ public:
     
     alignas(64) float lifetime[PAGE_SIZE];
 
-    void update(float deltaTime, const GeoContextCPU &context);
-    void addParticle(const vec3 &position, const vec3 &velocity);
+    float maxLifeTime = 5.0;
+    int finished = 0; // number of particles already finished
+
+    // The direction is used to define the wind direction,so the way the particle come frm and go toward.
+    vec3 direction = vec3(1.0, 0.0, 0.0);
+
+    void update(float deltaTime, GeoContextCPU &context);
+    void addParticle(const vec3 &position, const vec3 &velocity, float baseWater, float baseDust);
 };
 
 class ParticleSystemCPU : public ParticleSystemBase__{
 public:
     std::vector<ParticlePageCPU> pages;
-    const GeoContextCPU *context;
+    GeoContextCPU *context;
 
-
-    // The direction is used to define the wind direction,so the way the particle come frm and go toward.
-    vec3 direction = vec3(1.0, 0.0, 0.0);
-
-    ParticleSystemCPU(const GeoContextCPU *context)
+    ParticleSystemCPU(GeoContextCPU *context)
         : context(context)
         {}
     
@@ -40,34 +43,20 @@ public:
             page.update(deltaTime, *context);
         }
     }
-    void spawn(u32 n){
-        std::cout << "HUHHH" << std::endl;
-        while (n > 0){
-            std::cout << "n : " << n << std::endl;
-            if (pages.empty()){
-                pages.emplace_back();
+    void spawn(u32 nPages, float maxLifetimes, float spawnDuration, const vec3 &directionVector_p, float baseWater, float baseDust){
+        vec3 directionVector = directionVector_p.normalized();
+        while (nPages > 0){
+            ParticlePageCPU& page = pages.emplace_back();
+
+            page.direction = directionVector;
+            page.maxLifeTime = maxLifetimes;
+
+            for (u32 i = 0; i < ParticlePageCPU::PAGE_SIZE; ++i){
+                vec3 pos = vec3(rand()/float(RAND_MAX), rand()/float(RAND_MAX), rand()/float(RAND_MAX));
+                pos -= vec3(0.5, 0.5 + 0.5, 0.5) + directionVector * 2.0;
+                page.addParticle(pos, directionVector_p, baseWater, baseDust);
             }
-
-            if(pages.back().nbParticles >= ParticlePageCPU::PAGE_SIZE)
-            {
-                pages.emplace_back();
-            }
-
-            ParticlePageCPU& lastPage = pages.back();
-            const u32 remainingInLastPage = ParticlePageCPU::PAGE_SIZE - lastPage.nbParticles;
-
-            // fill the page like crazy
-            const u32 toFill = std::min(remainingInLastPage, n);
-
-            for (u32 i = 0; i < toFill; ++i){
-                // maybe add some user control idk? 
-                lastPage.addParticle(vec3(0, 0.5f , 0), vec3(rand()/float(RAND_MAX), rand()/float(RAND_MAX), rand()/float(RAND_MAX)));
-            }
-
-            n -= toFill;
-
-            // n-=1;
-
+            nPages--;
         }
     }
 };
