@@ -78,6 +78,8 @@ private slots:
 
     void on_softnessSlider_valueChanged(int value);
 
+    void on_showParticlesCheck_stateChanged(int arg1);
+
 private:
     void loadDefaultMaps();
     int m_particles = 512;
