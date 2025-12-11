@@ -2,3 +2,4 @@ build/*
 core/build/*
 ui/build-ui-Qt_5_15_3_in_PATH_qt5-Debug/*
 ui/build-ui-Desktop-Debug/*
+ui/build-ui-Desktop-Release/*
