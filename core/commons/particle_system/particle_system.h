@@ -5,7 +5,7 @@
 class ParticlePageBase__{
 public:
     enum {
-        PAGE_SIZE = 256
+        PAGE_SIZE = 16
     };
     u32 nbParticles = 0;
 
