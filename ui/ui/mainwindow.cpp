@@ -170,6 +170,9 @@ void MainWindow::openFileSearchFeaturemap(FEATURE_LAYERS layer)
 void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
 {
 
+    // pause
+    if(backend->simulating)
+        on_simulateBtn_clicked();
 
     // set new background and layer
     pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
