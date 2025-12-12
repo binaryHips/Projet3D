@@ -35,6 +35,21 @@ public:
         processes.push_back(process);
     }
 
+    void clearHeightMaps(){
+        for (auto& map: maps){
+            map.clear();
+        }
+        for (auto& map: attributeMaps){
+            map.clear();
+        }
+    }
+    void clearFeatureMaps(){
+        for (auto& map: featureMaps){
+            map.clear();
+        }
+
+    }
+
     void addMap(MapCPU &&map){
         // Insert map keeping ordering by yIndex. If no insertion happened, append at the end.
         for (u32 i = 0; i < maps.size(); ++i){

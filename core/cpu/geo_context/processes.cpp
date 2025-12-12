@@ -392,7 +392,7 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.addProcess(ProcessCPU(fallingSand, "Sand"));
     context.addProcess(ProcessCPU(sandCalcification, "Cementation"));
     context.addProcess(ProcessCPU(wind, "Wind"));
-    context.addProcess(ProcessCPU(waterSpawnAndDrain, "Raind and drain"));
+    context.addProcess(ProcessCPU(waterSpawnAndDrain, "Rain and drain"));
     context.addProcess(ProcessCPU(sandStorm, "Sandstorm"));
     context.addProcess(ProcessCPU(waterMove, "Shallow water"));
     return context;

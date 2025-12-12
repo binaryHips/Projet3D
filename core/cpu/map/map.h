@@ -28,6 +28,10 @@ public:
 
     std::string name = "Heeeelp";
 
+    void clear(){
+        data = std::vector<Pixel>(IMGSIZE * IMGSIZE, 0.0f);
+    }
+
     inline Pixel operator() (const u32 x, const u32 y) const {
         u32 clamped_x = std::clamp(x, 0u, IMGSIZE - 1u);
         u32 clamped_y = std::clamp(y, 0u, IMGSIZE - 1u);
