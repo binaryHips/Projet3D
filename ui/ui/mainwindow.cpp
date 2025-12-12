@@ -43,6 +43,9 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->actionWaterIn, &QAction::triggered , this , [this]{openFileSearchFeaturemap(FEATURE_LAYERS::WATER_INFlOW);});
     QObject::connect(ui->actionWaterOut , &QAction::triggered , this , [this]{openFileSearchFeaturemap(FEATURE_LAYERS::WATER_OUTFLOW);});
 
+    // connect simulation info ting
+    QObject::connect(ui->actionSimulation_info, &QAction::toggled , this , &MainWindow::toggleSimulationInfo);
+
 
     loadDefaultMaps();
 
@@ -358,3 +361,7 @@ void MainWindow::on_showParticlesCheck_stateChanged(int arg1)
     ui->widget->setShowParticles(arg1);
 }
 
+void MainWindow::toggleSimulationInfo(bool checked)
+{
+    ui->widget->setShowOverlay(checked);
+}

@@ -78,6 +78,9 @@ private slots:
 
     void on_showParticlesCheck_stateChanged(int arg1);
 
+    void toggleSimulationInfo(bool checked);
+
+
 private:
     void loadDefaultMaps();
     int m_particles = 512;

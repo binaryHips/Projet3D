@@ -675,7 +675,14 @@
     </widget>
     <addaction name="menuLoad_Heightmap"/>
    </widget>
+   <widget class="QMenu" name="menuDisplay">
+    <property name="title">
+     <string>Display</string>
+    </property>
+    <addaction name="actionSimulation_info"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuDisplay"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionCamera_type">
@@ -716,6 +723,17 @@
   <action name="actionWaterOut">
    <property name="text">
     <string>Water outflow</string>
+   </property>
+  </action>
+  <action name="actionSimulation_info">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Simulation info</string>
    </property>
   </action>
  </widget>
