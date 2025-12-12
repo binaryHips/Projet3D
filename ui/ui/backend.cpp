@@ -183,7 +183,7 @@ void Backend::drawParticles(QOpenGLExtraFunctions *gl_funcs, const ParticleSyste
 
     particleShader->bind();
     particleShader->setUniformValue("MVP", MVP);
-    particleShader->setUniformValue("pointSize", 10.0f);  
+    particleShader->setUniformValue("pointSize", 2.0f);
     particleShader->setUniformValue("particleColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));  
 
     gl_funcs->glBindVertexArray(particleVAO);

@@ -28,7 +28,6 @@ public:
         for (Process process: processes){
             process(*this, delta);
         }
-
         particleSystem.update(delta);
     }
 
@@ -74,7 +73,7 @@ public:
                     }
                 }
             } else {
-                if (h > 0.0){
+                if (h > 0.0 && topLayer){
                     *topLayer = map.materialIndex;
                 }
                 height += currentYIndexHeight;

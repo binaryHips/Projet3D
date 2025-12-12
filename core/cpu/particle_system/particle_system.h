@@ -62,7 +62,7 @@ public:
 
             for (u32 i = 0; i < ParticlePageCPU::PAGE_SIZE; ++i){
                 vec3 pos = vec3(rand()/float(RAND_MAX), rand()/float(RAND_MAX), rand()/float(RAND_MAX));
-                pos += vec3(0, -0.5, 0) - directionVector * 2.0;
+                pos += -directionVector * 2.0;
                 float startingLifetime = 0.0; //- i * (1.0 / ParticlePageCPU::PAGE_SIZE) * spawnDuration; // this'd smoothen the spawn but requires lifetimes < 0 to not integrate (TODO in the simd code)
                 page.addParticle(pos, directionVector_p, startingLifetime, baseWater, baseDust);
             }
