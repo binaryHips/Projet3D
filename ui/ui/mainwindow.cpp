@@ -197,6 +197,10 @@ void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
 
 void MainWindow::featureClicked(QPixmap pixmap , FEATURE_LAYERS layer)
 {
+
+    if(backend->simulating)
+        on_simulateBtn_clicked();
+
     // set new background and layer
     pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
     ui->widget_2->setBackgroundPixmap(pixmap);
