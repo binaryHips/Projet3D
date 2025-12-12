@@ -296,6 +296,7 @@ void waterMove(GeoContextCPU &context, float delta) {
             float du_dt = -centerU * du_dx - g * dh_dx;
             float dv_dt = -centerV * dv_dy - g * dh_dy;
 
+            /*
             // test
             const float minslope = 0.5;
             if (fabs(du_dt) <= minslope)
@@ -303,6 +304,7 @@ void waterMove(GeoContextCPU &context, float delta) {
 
             if (fabs(dv_dt) <= minslope)
                 dv_dt = minslope * sign(dv_dt);
+            */
 
             float viscosity = 0.5f;
             float laplacianU = (u(i+1,j) + u(i-1,j) + u(i,j+1) + u(i,j-1) - 4.0f*centerU) / (dxdy*dxdy);
@@ -424,6 +426,28 @@ void waterMove(GeoContextCPU &context, float delta) {
             
             newH(i, j) = heightCenter + dh_dt * delta;
             newH(i, j) = std::max(0.0f, newH(i, j));
+            
+            uvec2 dir = uvec2(
+                (div_x > 0) ? 1 : ((i == 0 ) ? 0 : -1), 
+                (div_y > 0) ? 1 : ((j == 0 ) ? 0 : -1)
+            );
+            Pixel& sediment = context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::SEDIMENT)](i, j);
+            Pixel& last_sediment = context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::SEDIMENT)](i + dir[0], j + dir[1]);
+            float d = last_sediment * dh_dt * delta;
+            sediment += d;
+            last_sediment -= d;
+
+
+
+            Pixel& sand = context.maps[to_underlying(MAP_LAYERS::SAND)](i,j);
+            float dsand = std::min(sand, float(delta * fabs(dh_dt)));
+            sediment += dsand;
+            sand -= dsand;
+
+            if (sediment > 0.5) {
+                sand += sediment * delta;
+                sediment = std::max(0.0f, sediment - sediment * delta);
+            }
         }
     }
     
