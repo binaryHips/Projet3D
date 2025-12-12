@@ -6,7 +6,7 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
 
     // integrate
     u32 i = 0;
-    u32 size = nbParticles-increment;
+    u32 size = nbParticles - (nbParticles % 16);
     const __m512 delta = _mm512_set1_ps(deltaTime);
 
     const __m512 gravityExpanded[3] = { // expand as virtual stream
@@ -58,6 +58,7 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
         i += increment;
     }
     for (; i < nbParticles; i++){ // end of unroll
+        velocity[i] = velocity[i] + gravity * deltaTime;
         position[i] = position[i] + velocity[i] * deltaTime;
         lifetime[i] += deltaTime;
     }
@@ -77,8 +78,8 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
         {
             uvec2 pos = uvec2(px * IMGSIZE, pz * IMGSIZE);
             u8 mat = 0;
-            float h = context.totalHeight(pos, &mat);
-            if (py < h){
+            float h = context.totalHeight(pos, &mat) * heightFactor;
+            if (py >= -0.01 && py <= h){
                 position[i][1] = h;
                 float dh_dx = (context.totalHeight(pos) - context.totalHeight(pos + uvec2(1, 0)));
                 float dh_dy = (context.totalHeight(pos) - context.totalHeight(pos + uvec2(0, 1)));
@@ -87,15 +88,15 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
                 vec3 gx = vec3(1.0 / IMGSIZE, dh_dx, 0.0);
                 vec3 gy = vec3(0.0, dh_dy, 1.0 / IMGSIZE);
                 vec3 n = vec3::cross(gx, gy).normalized();
-                velocity[i] = velocity[i].reflect(n) * 0.7;
+                velocity[i] = velocity[i].reflect(n) * 0.2;
 
                 // impact on context
                 float placed = water[i] / 2.0;
-                context.maps[mat](pos) += placed;
+                context.maps[to_underlying(MAP_LAYERS::WATER)](pos) += placed;
                 water[i] -= placed;
 
                 placed = dust[i] / 2.0;
-                context.maps[mat](pos) += placed;
+                context.maps[to_underlying(MAP_LAYERS::SAND)](pos) += placed;
                 water[i] -= placed;
                 if (mat == to_underlying(MAP_LAYERS::WATER)){
                     float displaced = context.maps[mat](pos) / 100.0;
@@ -114,7 +115,7 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
     }
 }
 
-void ParticlePageCPU::addParticle(const vec3 &position, const vec3 &velocity, float startingLifetime, float baseDust, float baseWater)
+void ParticlePageCPU::addParticle(const vec3 &position, const vec3 &velocity, float startingLifetime, float baseWater, float baseDust)
 {
     this->position[nbParticles] = position;
     this->velocity[nbParticles] = velocity;

@@ -21,6 +21,7 @@ using Pixel = float;
 
 #define IMGSIZE 512
 
+constexpr float heightFactor = 0.1;
 
 // easifies the use of enum classes
 template <typename E>
