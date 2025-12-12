@@ -55,10 +55,11 @@ void GLWidget::initializeGL()
     for(Mesh *m:meshes){
         m->setGlFunctions(this);
         m->setShader(":/vshader.glsl" , ":/fshader.glsl");
-        glDisable(GL_CULL_FACE);
     }
 
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDisable(GL_CULL_FACE);
 }
 
 Mesh* GLWidget::getMesh(int index)
