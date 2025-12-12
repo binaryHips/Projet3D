@@ -6,13 +6,13 @@
 #include "commons/geo_context/geo_context.h"
 #include "cpu/map/map.h"
 #include "cpu/particle_system/particle_system.h"
+#include "process.h"
 
 class GeoContextCPU : public GeoContextBase__ {
 
 private:
     GeoContextCPU() = default;
 public:
-    using Process = void(*)(GeoContextCPU&, float);
     std::vector<MapCPU> featureMaps; // maps that drive the processes
 
     ParticleSystemCPU particleSystem = ParticleSystemCPU(this);
@@ -21,17 +21,17 @@ public:
 
     std::vector<MapCPU> attributeMaps; // maps used for internal working of physical processes. (ex : sediment map for hydro erosion)
 
-    std::vector<Process> processes; // functions that will update the maps
+    std::vector<ProcessCPU> processes; // functions that will update the maps
 
     void update(float delta){
 
-        for (Process process: processes){
-            process(*this, delta);
+        for (ProcessCPU &process: processes){
+            process.update(*this, delta);
         }
         particleSystem.update(delta);
     }
 
-    void addProcess(Process process){
+    void addProcess(ProcessCPU process){
         processes.push_back(process);
     }
 

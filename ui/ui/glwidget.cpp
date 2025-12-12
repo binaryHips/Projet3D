@@ -96,6 +96,8 @@ void GLWidget::paintGL()
     float dt = (ct - lastTime) * 0.000001;
     lastTime = ct;
 
+    float fixedDt = 0.01;
+
     // Used when we set the plane by hand
     if (pendingSetMeshUpdate)
     {
@@ -108,14 +110,14 @@ void GLWidget::paintGL()
     // Used when we modify/load one of the maps
     if (pendingHeightmapUpdate) {
         pendingHeightmapUpdate = false;
-        backend->context.update(0);
+        //backend->context.update(0);
         meshes[0]->updatePlaneHeightmap(backend->context);
     }
 
     // Used when simulation is running
     if(backend->simulating){
 
-        backend->context.update(dt * simSpeed);
+        backend->context.update(fixedDt * simSpeed);
         meshes[0]->updatePlaneHeightmap(backend->context);
 
         QPixmap map = backend->saveImageFromMap(MAP_LAYERS::BEDROCK);
@@ -144,7 +146,7 @@ void GLWidget::paintGL()
     }
 
     // Always render particles if there are any
-    if (!backend->context.particleSystem.pages.empty()) {
+    if (!backend->context.particleSystem.pages.empty() && showParticles) {
         backend->drawParticles(this, backend->context.particleSystem, VP);
     }
 }

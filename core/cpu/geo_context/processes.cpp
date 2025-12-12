@@ -247,16 +247,33 @@ void sandStorm(GeoContextCPU &context, float delta){
 
     const int n_pages = 1;
     const float spawnDelay = 0.5;
-    const float lifetime = 10.0;
-    const vec3 winddirection  = vec3(0.35, - 0.5, 0);
-    const vec3 gravity = vec3(0, -0.5, 0);
+    const float lifetime = 5.0;
+    const vec3 winddirection  = vec3(0.35, - 0.01, 0);
+    const vec3 gravity = winddirection + vec3(0, -0.2, 0);
 
     static float time = spawnDelay;
     time += delta;
 
     if (time > spawnDelay){
         time = 0.0;
-        context.particleSystem.spawn(n_pages, lifetime, spawnDelay /*does nothing for now*/, winddirection, winddirection,  0.0, 0.2);
+        context.particleSystem.spawn(n_pages, lifetime, spawnDelay /*does nothing for now*/, winddirection, gravity,  0.0, 0.04);
+    }
+}
+
+void wind(GeoContextCPU &context, float delta){
+
+    const int n_pages = 1;
+    const float spawnDelay = 0.5;
+    const float lifetime = 5.0;
+    const vec3 winddirection  = vec3(0.35, - 0.01, 0);
+    const vec3 gravity = winddirection + vec3(0, -0.2, 0);
+
+    static float time = spawnDelay;
+    time += delta;
+
+    if (time > spawnDelay){
+        time = 0.0;
+        context.particleSystem.spawn(n_pages, lifetime, spawnDelay /*does nothing for now*/, winddirection, gravity,  0.0, 0.0);
     }
 }
 
@@ -290,10 +307,11 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_INFlOW)].name = "water inflow";
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_OUTFLOW)].name = "water sink";
 
-    context.addProcess(fallingSand);
-    context.addProcess(sandCalcification);
-    context.addProcess(waterSpawnAndDrain);
-    context.addProcess(sandStorm);
+    context.addProcess(ProcessCPU(fallingSand, "sand"));
+    context.addProcess(ProcessCPU(sandCalcification, "cementation"));
+    context.addProcess(ProcessCPU(waterSpawnAndDrain, "raind&drain"));
+    context.addProcess(ProcessCPU(wind, "wind"));
+    context.addProcess(ProcessCPU(sandStorm, "sandstorm"));
     //context.addProcess(waterMove);
     return context;
 }

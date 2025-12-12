@@ -79,8 +79,10 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
             uvec2 pos = uvec2(px * IMGSIZE, pz * IMGSIZE);
             u8 mat = 0;
             float h = context.totalHeight(pos, &mat) * heightFactor;
-            if (py >= -0.01 && py <= h){
-                position[i][1] = h;
+            if (py >= -0.05 && py <= h){
+                position[i] -= deltaTime * velocity[i];
+                uvec2 oldPos = uvec2(position[i][0] * IMGSIZE, position[i][2] * IMGSIZE);
+                position[i][1] =  0.5 * (h + context.totalHeight(oldPos, &mat) * heightFactor);
                 float dh_dx = (context.totalHeight(pos) - context.totalHeight(pos + uvec2(1, 0)));
                 float dh_dy = (context.totalHeight(pos) - context.totalHeight(pos + uvec2(0, 1)));
 
@@ -88,7 +90,7 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
                 vec3 gx = vec3(1.0 / IMGSIZE, dh_dx, 0.0);
                 vec3 gy = vec3(0.0, dh_dy, 1.0 / IMGSIZE);
                 vec3 n = vec3::cross(gx, gy).normalized();
-                velocity[i] = velocity[i].reflect(n) * 0.2;
+                velocity[i] = velocity[i].reflect(n) * 0.5;
 
                 // impact on context
                 float placed = water[i] / 2.0;
@@ -97,13 +99,13 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
 
                 placed = dust[i] / 2.0;
                 context.maps[to_underlying(MAP_LAYERS::SAND)](pos) += placed;
-                water[i] -= placed;
+                dust[i] -= placed;
                 if (mat == to_underlying(MAP_LAYERS::WATER)){
-                    float displaced = context.maps[mat](pos) / 100.0;
+                    float displaced = context.maps[mat](pos) / 10.0;
                     water[i] += displaced;
                     context.maps[mat](pos) -= displaced;
                 } else if (mat == to_underlying(MAP_LAYERS::SAND)){
-                    float displaced = context.maps[mat](pos) / 100.0;
+                    float displaced = context.maps[mat](pos) / 10.0;
                     dust[i] += displaced;
                     context.maps[mat](pos) -= displaced;
                 }
@@ -111,6 +113,14 @@ void ParticlePageCPU::update(float deltaTime, GeoContextCPU &context){
         } else if (lifetime[i] >= maxLifeTime) {
             finished++;
 
+            uvec2 pos = uvec2(px * IMGSIZE, pz * IMGSIZE);
+            float placed = water[i];
+            context.maps[to_underlying(MAP_LAYERS::WATER)](pos) += placed;
+            water[i] = 0.0;
+
+            placed = dust[i];
+            context.maps[to_underlying(MAP_LAYERS::SAND)](pos) += placed;
+            dust[i] = 0.0;
         }
     }
 }
