@@ -338,12 +338,6 @@ void MainWindow::on_confirmMapBtn_clicked()
 
 }
 
-void MainWindow::on_numParticlesSlider_valueChanged(int value)
-{
-    m_particles = value;
-    ui->numParticlesLabel->setText(QString::number(value));
-}
-
 void MainWindow::on_saveMapBtn_clicked()
 {
     QString fileName;

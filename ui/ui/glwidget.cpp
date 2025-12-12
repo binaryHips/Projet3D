@@ -140,8 +140,9 @@ void GLWidget::paintGL()
         map = backend->saveImageFromMap(MAP_LAYERS::WATER);
         backend->setHeightmap(map , MAP_LAYERS::WATER);
         
-        cam.updateCamera(dt);
     }
+
+    cam.updateCamera(dt);
 
     glClearColor(0.5, 0.5, 0.7, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -156,16 +157,24 @@ void GLWidget::paintGL()
         m->renderForward(VP, cam.getForward(), QMatrix4x4());
     }
 
-    // Always render particles if there are any
     if (!backend->context.particleSystem.pages.empty() && showParticles) {
         backend->drawParticles(this, backend->context.particleSystem, VP);
     }
 
     // Draw text overlay using QPainter
     if (showOverlay) {
+        // Reset OpenGL state for QPainter compatibility
+        glDisable(GL_DEPTH_TEST);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        glUseProgram(0);
+
         QPainter painter(this);
         drawOverlay(painter);
         painter.end();
+
+        // Restore depth test for next frame
+        glEnable(GL_DEPTH_TEST);
     }
 }
 
@@ -178,7 +187,15 @@ void GLWidget::drawOverlay(QPainter &painter)
         particleCount += (page.PAGE_SIZE - page.finished);
     }
     
-    size_t processCount = backend->context.processes.size();
+
+    size_t processCount = 0;
+    for(int i = 0 ; i < backend->context.processes.size() ; i++)
+    {
+        if(backend->context.processes[i].activated)
+        {
+            processCount++;
+        }
+    }
     
     // Draw background rectangle
     int lineHeight = 20;
