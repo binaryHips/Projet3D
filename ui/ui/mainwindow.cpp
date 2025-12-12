@@ -324,6 +324,15 @@ void MainWindow::on_confirmMapBtn_clicked()
         FEATURE_LAYERS layer = ui->widget_2->feat_layer;
         backend->setHeightmap(ui->widget_2->getImage() , layer);
     }
+
+    float totalHeight = 0;
+    for(int i = 0 ; i < IMGSIZE ; i ++)
+        for(int j = 0 ; j < IMGSIZE ; j++)
+        {
+            totalHeight += backend->context.maps[to_underlying(MAP_LAYERS::WATER)](i,j);
+        }
+
+    qDebug() << "Total map val init : " << totalHeight;
     ui->widget->updateGLSlot();
 
 }
@@ -387,8 +396,8 @@ void MainWindow::setupProcessCheckboxes()
         
         QCheckBox *checkbox = new QCheckBox(QString::fromStdString(process.name));
         
-        checkbox->setChecked(true);
-        process.activated = true;
+        checkbox->setChecked(false);
+        process.activated = false;
         
         connect(checkbox, &QCheckBox::toggled, this, [&process](bool checked) {
             process.activated = checked;

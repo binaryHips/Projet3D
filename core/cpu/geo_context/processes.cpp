@@ -184,7 +184,7 @@ void waterSpawnAndDrain(GeoContextCPU &context, float delta){
 
 void waterMove(GeoContextCPU &context, float delta) {
     const float dxdy = 1.0f;
-    const float g = 9.81f;  // More realistic gravity
+    const float g = 9.81f;
     const float dryThreshold = 0.001f;
     
     const u32 layerIndex = to_underlying(MAP_LAYERS::WATER);
@@ -195,7 +195,6 @@ void waterMove(GeoContextCPU &context, float delta) {
     MapCPU& u = context.attributeMaps[velocityUIndex];  
     MapCPU& v = context.attributeMaps[velocityVIndex]; 
     
-    // Temporary storage for new values
     MapCPU newH = h;
     MapCPU newU = u;
     MapCPU newV = v;
@@ -204,62 +203,71 @@ void waterMove(GeoContextCPU &context, float delta) {
     for (u32 i = 1; i < IMGSIZE - 1; ++i) {
         for (u32 j = 1; j < IMGSIZE - 1; ++j) {
             
-            float h_center = h(i, j);
+            float heightCenter = h(i, j);
             
-            // dry like minHeight for sand
-            if (h_center < dryThreshold) {
+            if (heightCenter < dryThreshold) {
                 newU(i, j) = 0.0f;
                 newV(i, j) = 0.0f;
                 continue;
             }
             
+            // gradients like arthur
+
             float heightLeft = h(i - 1, j);
             float heightRight = h(i + 1, j);
             float heightBottom = h(i, j - 1);
             float heightTop = h(i, j + 1);
+
+            float terrainCenter = context.heightTo(uvec2(i,j), layerIndex);
+            float terrainLeft   = context.heightTo(uvec2(i-1,j), layerIndex);
+            float terrainRight  = context.heightTo(uvec2(i+1,j), layerIndex);
+            float terrainBottom = context.heightTo(uvec2(i,j-1), layerIndex);
+            float terrainTop    = context.heightTo(uvec2(i,j+1), layerIndex);
             
-            // gradients like arthur
-            float dh_dx = (heightRight - heightLeft) / (2.0f * dxdy);
-            float dh_dy = (heightTop - heightBottom) / (2.0f * dxdy);
+            float etaCenter = terrainCenter + heightCenter;
+            float etaLeft   = terrainLeft + heightLeft;
+            float etaRight  = terrainRight + heightRight;
+            float etaBottom = terrainBottom + heightBottom;
+            float etaTop    = terrainTop + heightTop;
+                        
+            float dh_dx = (etaRight - etaLeft) / (2.0f * dxdy);
+            float dh_dy = (etaTop - etaBottom) / (2.0f * dxdy);
             
-            // 
-            float u_center = u(i, j);
-            float v_center = v(i, j);
+            float centerU = u(i, j);
+            float centerV = v(i, j);
             
             float du_dx, dv_dy;
             
             // upwind for u
-            if (u_center > 0.0f) {
-                du_dx = (u_center - u(i - 1, j)) / dxdy;
+            if (centerU > 0.0f) {
+                du_dx = (centerU - u(i - 1, j)) / dxdy;
             } else {
-                du_dx = (u(i + 1, j) - u_center) / dxdy;
+                du_dx = (u(i + 1, j) - centerU) / dxdy;
             }
             
             // upwind for v
-            if (v_center > 0.0f) {
-                dv_dy = (v_center - v(i, j - 1)) / dxdy;
+            if (centerV > 0.0f) {
+                dv_dy = (centerV - v(i, j - 1)) / dxdy;
             } else {
-                dv_dy = (v(i, j + 1) - v_center) / dxdy;
+                dv_dy = (v(i, j + 1) - centerV) / dxdy;
             }
             
-            // Momentum 
-            float du_dt = -u_center * du_dx - g * dh_dx;
-            float dv_dt = -v_center * dv_dy - g * dh_dy;
+            // momentuim
+            float du_dt = -centerU * du_dx - g * dh_dx;
+            float dv_dt = -centerV * dv_dy - g * dh_dy;
             
-            // Viscocity is necessary cuz we're approximating the edge transitions
             float viscosity = 0.5f;
-            float laplacian_u = (u(i+1,j) + u(i-1,j) + u(i,j+1) + u(i,j-1) - 4.0f*u_center) / (dxdy*dxdy);
-            float laplacian_v = (v(i+1,j) + v(i-1,j) + v(i,j+1) + v(i,j-1) - 4.0f*v_center) / (dxdy*dxdy);
+            float laplacianU = (u(i+1,j) + u(i-1,j) + u(i,j+1) + u(i,j-1) - 4.0f*centerU) / (dxdy*dxdy);
+            float laplacianV = (v(i+1,j) + v(i-1,j) + v(i,j+1) + v(i,j-1) - 4.0f*centerV) / (dxdy*dxdy);
             
-            du_dt += viscosity * laplacian_u;
-            dv_dt += viscosity * laplacian_v;
+            du_dt += viscosity * laplacianU;
+            dv_dt += viscosity * laplacianV;
             
             // update velocities
-            newU(i, j) = u_center + du_dt * delta;
-            newV(i, j) = v_center + dv_dt * delta;
+            newU(i, j) = centerU + du_dt * delta;
+            newV(i, j) = centerV + dv_dt * delta;
             
-            // limit velocity
-            float max_speed = std::sqrt(g * h_center);
+            float max_speed = std::sqrt(g * heightCenter);
             float speed_limit = 2.0f * max_speed;  
             
             float speed = std::sqrt(newU(i,j)*newU(i,j) + newV(i,j)*newV(i,j));
@@ -271,7 +279,7 @@ void waterMove(GeoContextCPU &context, float delta) {
         }
     }
     
-    // Edge things (merci arthur)
+    // edge cases (merci arthur)
     for (u32 i = 0; i < IMGSIZE; ++i) {
         newU(i, 0) = 0.0f;
         newV(i, 0) = 0.0f;
@@ -289,27 +297,84 @@ void waterMove(GeoContextCPU &context, float delta) {
     for (u32 i = 1; i < IMGSIZE - 1; ++i) {
         for (u32 j = 1; j < IMGSIZE - 1; ++j) {
             
-            float h_center = h(i, j);
+            float heightCenter = h(i, j);
             
-            if (h_center < dryThreshold) {
-                newH(i, j) = 0.0f;
-                continue;
+            // Compute flux at right face (between i,j and i+1,j)
+            float h1 = h(i, j);
+            float h2 = h(i+1, j);
+            float u1 = newU(i, j);
+            float u2 = newU(i+1, j);
+            
+            float fluxRight;
+            if (h1 < dryThreshold && h2 < dryThreshold) {
+                fluxRight = 0.0f;
+            } else if (h1 < dryThreshold) {
+                fluxRight = h2 * u2;
+            } else if (h2 < dryThreshold) {
+                fluxRight = h1 * u1;
+            } else {
+                fluxRight = 0.5f * (h1 + h2) * 0.5f * (u1 + u2);
             }
             
+            // Compute flux at left face (between i-1,j and i,j)
+            h1 = h(i-1, j);
+            h2 = h(i, j);
+            u1 = newU(i-1, j);
+            u2 = newU(i, j);
             
-            float flux_right = h(i + 1, j) * newU(i + 1, j);
-            float flux_left = h(i - 1, j) * newU(i - 1, j);
-            float flux_top = h(i, j + 1) * newV(i, j + 1);
-            float flux_bottom = h(i, j - 1) * newV(i, j - 1);
+            float fluxLeft;
+            if (h1 < dryThreshold && h2 < dryThreshold) {
+                fluxLeft = 0.0f;
+            } else if (h1 < dryThreshold) {
+                fluxLeft = h2 * u2;
+            } else if (h2 < dryThreshold) {
+                fluxLeft = h1 * u1;
+            } else {
+                fluxLeft = 0.5f * (h1 + h2) * 0.5f * (u1 + u2);
+            }
             
-            float div_x = (flux_right - flux_left) / (2.0f * dxdy);
-            float div_y = (flux_top - flux_bottom) / (2.0f * dxdy);
+            // Compute flux at top face (between i,j and i,j+1)
+            h1 = h(i, j);
+            h2 = h(i, j+1);
+            float v1 = newV(i, j);
+            float v2 = newV(i, j+1);
+            
+            float fluxTop;
+            if (h1 < dryThreshold && h2 < dryThreshold) {
+                fluxTop = 0.0f;
+            } else if (h1 < dryThreshold) {
+                fluxTop = h2 * v2;
+            } else if (h2 < dryThreshold) {
+                fluxTop = h1 * v1;
+            } else {
+                fluxTop = 0.5f * (h1 + h2) * 0.5f * (v1 + v2);
+            }
+            
+            // Compute flux at bottom face (between i,j-1 and i,j)
+            h1 = h(i, j-1);
+            h2 = h(i, j);
+            v1 = newV(i, j-1);
+            v2 = newV(i, j);
+            
+            float fluxBottom;
+            if (h1 < dryThreshold && h2 < dryThreshold) {
+                fluxBottom = 0.0f;
+            } else if (h1 < dryThreshold) {
+                fluxBottom = h2 * v2;
+            } else if (h2 < dryThreshold) {
+                fluxBottom = h1 * v1;
+            } else {
+                fluxBottom = 0.5f * (h1 + h2) * 0.5f * (v1 + v2);
+            }
+            
+            float div_x = (fluxRight - fluxLeft) / dxdy;
+            float div_y = (fluxTop - fluxBottom) / dxdy;
             
             float divergence = div_x + div_y;
             
             float dh_dt = -divergence;
             
-            newH(i, j) = h_center + dh_dt * delta;
+            newH(i, j) = heightCenter + dh_dt * delta;
             newH(i, j) = std::max(0.0f, newH(i, j));
         }
     }
@@ -317,6 +382,15 @@ void waterMove(GeoContextCPU &context, float delta) {
     context.maps[layerIndex] = std::move(newH);
     context.attributeMaps[velocityUIndex] = std::move(newU);
     context.attributeMaps[velocityVIndex] = std::move(newV);
+
+    float totalHeight = 0;
+    for (u32 i = 1; i < IMGSIZE - 1; ++i) {
+        for (u32 j = 1; j < IMGSIZE - 1; ++j) {
+            totalHeight += context.maps[layerIndex](i,j);
+        }
+    }
+
+    std::cout << "Total height after process : " << totalHeight<< std::endl;
 }
 
 void sandStorm(GeoContextCPU &context, float delta){
@@ -385,8 +459,8 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
 
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j)
     {
-        context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U)](i,j) = 0.01f;
-        context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V)](i,j) = 0.01f;
+        context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U)](i,j) = 0.1f;
+        context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V)](i,j) = 0.1f;
     }
 
     context.addProcess(ProcessCPU(fallingSand, "Sand"));
