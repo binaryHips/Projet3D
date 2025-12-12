@@ -2,59 +2,101 @@
 
 void thermalErode(GeoContextCPU &context, float delta){
 
+    delta = delta * 0.5;
+    const u32 layerIndex = to_underlying(MAP_LAYERS::STONE);
+    const float maxSlope = 3.0 * (1.0 / IMGSIZE);
+
+    MapCPU& inMap = context.maps[layerIndex];
+    MapCPU outMap = inMap;
+
+    // Small values to decide whether the sand or height are negligeable
+    double minHeight = 0.001;
+    double minSand = 0.001;
+
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
-        const u32 layerIndex = to_underlying(MAP_LAYERS::STONE);
+
 
         Pixel &currentPixel = context.maps[layerIndex](i, j);
         double currentHeight = context.heightTo(uvec2(i, j), layerIndex);
-        if (currentHeight > 0.001)
-        {
-            const float maxSlope = 10.0 * (1.0 / IMGSIZE);
-            
-            const u32 prev_i  = (i == 0) ? 0u : i-1u;
-            const u32 prev_j  = (j == 0) ? 0u : j-1u;
 
-            // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
+        // delete tiny values
+        if (currentHeight < minHeight) continue;
+        Pixel currentSand = inMap(i, j);
+        if (currentSand < minSand) continue;
+        
+        const u32 prev_i  = (i == 0) ? 0u : i-1u;
+        const u32 prev_j  = (j == 0) ? 0u : j-1u;
 
-            // modified von neuman neighbourhood
-            double grad_xy      = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex));
-            double grad_mxmy    = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex));
-            double grad_xmy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex));
-            double grad_mxy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex));
+        // adapted from "Realtime Procedural Terrain Generation. Realtime Synthesis of Eroded Fractal Terrain for Use in Computer Games"
 
-            double maxGrad = 0.0;
-            double maxGrad_ = 0.0; // used for small speedup
-            uvec2 maxgradDir;
-            uvec2 maxgradDir_;
+        // modified von neuman neighbourhood
+        double grad_xy      = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, j+1), layerIndex));
+        double grad_mxmy    = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, prev_j), layerIndex));
+        double grad_xmy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(i+1, prev_j), layerIndex));
+        double grad_mxy     = (1.0 / 2) * (currentHeight - context.heightTo(uvec2(prev_i, j+1), layerIndex));
+
+        // use local gradient 
+        // double grad_xy      = (1.0 / 2) * (currentHeight - context.maps[layerIndex](i+1, j+1));
+        // double grad_mxmy    = (1.0 / 2) * (currentHeight - context.maps[layerIndex](prev_i, prev_j));
+        // double grad_xmy     = (1.0 / 2) * (currentHeight - context.maps[layerIndex](i+1, prev_j));
+        // double grad_mxy     = (1.0 / 2) * (currentHeight - context.maps[layerIndex](prev_i, j+1));
+
+        double maxGrad = 0.0;
+        double maxGrad_ = 0.0; // used for small speedup
+        uvec2 maxgradDir;
+        uvec2 maxgradDir_;
 
 
-            // find max dir 
-            if (grad_xy > grad_mxmy){
-                maxGrad = grad_xy;
-                maxgradDir = uvec2(i+1, j+1);
-            } else {
-                maxGrad = grad_mxmy;
-                maxgradDir = uvec2(prev_i, prev_j);
-            }
-            if (grad_xmy > grad_mxy){
-                maxGrad_ = grad_xmy;
-                maxgradDir_ = uvec2(i+1, prev_j);
-            } else {
-                maxGrad_ = grad_mxy;
-                maxgradDir = uvec2(prev_i, j+1);
-            }
-
-            if (maxGrad_ > maxGrad){
-                maxGrad = maxGrad_;
-                maxgradDir = maxgradDir_;
-            }
-
-            if (maxGrad > maxSlope){
-                float displaceToCurrent = std::min(maxGrad * delta, currentHeight);
-                currentPixel -= displaceToCurrent;
-                context.maps[layerIndex](maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
-            }
+        // find max dir 
+        if (grad_xy > grad_mxmy){
+            maxGrad = grad_xy;
+            maxgradDir = uvec2(i+1, j+1);
+        } else {
+            maxGrad = grad_mxmy;
+            maxgradDir = uvec2(prev_i, prev_j);
         }
+        if (grad_xmy > grad_mxy){
+            maxGrad_ = grad_xmy;
+            maxgradDir_ = uvec2(i+1, prev_j);
+        } else {
+            maxGrad_ = grad_mxy;
+            maxgradDir_ = uvec2(prev_i, j+1);
+        }
+
+        if (maxGrad_ > maxGrad){
+            maxGrad = maxGrad_;
+            maxgradDir = maxgradDir_;
+        }
+
+        if (maxGrad > maxSlope){
+            double maxDisplacement = std::min(maxGrad - maxSlope , currentHeight);
+            float displaceToCurrent = std::clamp(maxGrad * delta, 0.0, maxDisplacement);
+            outMap(i,j) -= displaceToCurrent;
+            outMap(maxgradDir[0], maxgradDir[1]) += displaceToCurrent;
+        }
+    }
+
+    context.maps[layerIndex] = std::move(outMap);
+}
+
+void tectonics(GeoContextCPU &context, float delta){
+
+    delta = delta * 0.5;
+    const u32 layerIndex = to_underlying(MAP_LAYERS::STONE);
+    const u32 layerIndex2 = to_underlying(MAP_LAYERS::BEDROCK);
+
+    for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
+
+
+        Pixel &currentPixel = context.maps[layerIndex](i, j);
+
+        float desiredHeight = context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_HEIGHT)](i, j) / 2.0;
+
+        currentPixel += (desiredHeight - currentPixel) / 2.0;
+
+        Pixel &currentPixel2 = context.maps[layerIndex2](i, j);
+
+        currentPixel2 += (desiredHeight - currentPixel2) / 2.0;
     }
 }
 
@@ -396,17 +438,13 @@ void waterMove(GeoContextCPU &context, float delta) {
 void sandStorm(GeoContextCPU &context, float delta){
 
     const int n_pages = 1;
-    const float spawnDelay = 0.5;
-    const float lifetime = 5.0;
-    const vec3 winddirection  = vec3(0.35, - 0.01, 0);
-    const vec3 gravity = winddirection + vec3(0, -0.2, 0);
-
-    static float time = spawnDelay;
-    time += delta;
+    const float spawnDelay = 0.5; const float lifetime = 5.0;
+    const vec3 winddirection  = vec3(0.35, 0, 0); const vec3 gravity = winddirection + vec3(0, -0.1, 0); const float sandValue = 0.1;
+    static float time = spawnDelay; time += delta;
 
     if (time > spawnDelay){
         time = 0.0;
-        context.particleSystem.spawn(n_pages, lifetime, spawnDelay /*does nothing for now*/, winddirection, gravity,  0.0, 0.04);
+        context.particleSystem.spawn(n_pages, lifetime, spawnDelay /*does nothing for now*/, winddirection, gravity,  0.0, sandValue);
     }
 }
 
@@ -462,7 +500,8 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
         context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U)](i,j) = 0.1f;
         context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V)](i,j) = 0.1f;
     }
-
+    context.addProcess(ProcessCPU(thermalErode, "erosion"));
+    context.addProcess(ProcessCPU(tectonics, "tectonics"));
     context.addProcess(ProcessCPU(fallingSand, "Sand"));
     context.addProcess(ProcessCPU(sandCalcification, "Cementation"));
     context.addProcess(ProcessCPU(wind, "Wind"));
