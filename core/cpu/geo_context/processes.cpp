@@ -379,9 +379,9 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.maps[to_underlying(MAP_LAYERS::WATER)].name = "Water";
 
     // feature maps
-    context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_HEIGHT)].name = "desired elevation";
-    context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_INFlOW)].name = "water inflow";
-    context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_OUTFLOW)].name = "water sink";
+    context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_HEIGHT)].name = "Desired elevation";
+    context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_INFlOW)].name = "Water inflow";
+    context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_OUTFLOW)].name = "Water sink";
 
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j)
     {
@@ -389,11 +389,11 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
         context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V)](i,j) = 0.01f;
     }
 
-    context.addProcess(ProcessCPU(fallingSand, "sand"));
-    context.addProcess(ProcessCPU(sandCalcification, "cementation"));
-    context.addProcess(ProcessCPU(waterSpawnAndDrain, "raind&drain"));
-    context.addProcess(ProcessCPU(wind, "wind"));
-    context.addProcess(ProcessCPU(sandStorm, "sandstorm"));
-    //context.addProcess(waterMove);
+    context.addProcess(ProcessCPU(fallingSand, "Sand"));
+    context.addProcess(ProcessCPU(sandCalcification, "Cementation"));
+    context.addProcess(ProcessCPU(wind, "Wind"));
+    context.addProcess(ProcessCPU(waterSpawnAndDrain, "Raind and drain"));
+    context.addProcess(ProcessCPU(sandStorm, "Sandstorm"));
+    context.addProcess(ProcessCPU(waterMove, "Shallow water"));
     return context;
 }
