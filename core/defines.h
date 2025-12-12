@@ -50,3 +50,9 @@ enum class ATTRIBUTE_LAYERS {
     WATER_VELOCITY_V,
     MAX_
 };
+
+
+
+template <typename T> int sign(T val) {
+    return (T(0) < val) - (val < T(0));
+}

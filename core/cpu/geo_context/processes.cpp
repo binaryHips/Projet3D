@@ -209,7 +209,6 @@ void sandCalcification(GeoContextCPU &context , float delta)
 
 void waterSpawnAndDrain(GeoContextCPU &context, float delta){
 
-    delta = delta * 10.0;
     for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j){
         const u32 layerIndex = to_underlying(MAP_LAYERS::WATER);
         const u32 featureRainIndex = to_underlying(FEATURE_LAYERS::WATER_INFlOW);
@@ -217,7 +216,7 @@ void waterSpawnAndDrain(GeoContextCPU &context, float delta){
 
         Pixel& p = context.maps[layerIndex](i, j);
         p += context.featureMaps[featureRainIndex](i, j) * delta;
-        p = std::max(-100.0f, p - context.featureMaps[featureDrainIndex](i, j) * delta);
+        p = std::max(-0.0f, p - context.featureMaps[featureDrainIndex](i, j) * delta);
     }
 }
 
@@ -296,7 +295,15 @@ void waterMove(GeoContextCPU &context, float delta) {
             // momentuim
             float du_dt = -centerU * du_dx - g * dh_dx;
             float dv_dt = -centerV * dv_dy - g * dh_dy;
-            
+
+            // test
+            const float minslope = 0.5;
+            if (fabs(du_dt) <= minslope)
+                du_dt = minslope * sign(du_dt);
+
+            if (fabs(dv_dt) <= minslope)
+                dv_dt = minslope * sign(dv_dt);
+
             float viscosity = 0.5f;
             float laplacianU = (u(i+1,j) + u(i-1,j) + u(i,j+1) + u(i,j-1) - 4.0f*centerU) / (dxdy*dxdy);
             float laplacianV = (v(i+1,j) + v(i-1,j) + v(i,j+1) + v(i,j-1) - 4.0f*centerV) / (dxdy*dxdy);
@@ -423,7 +430,7 @@ void waterMove(GeoContextCPU &context, float delta) {
     context.maps[layerIndex] = std::move(newH);
     context.attributeMaps[velocityUIndex] = std::move(newU);
     context.attributeMaps[velocityVIndex] = std::move(newV);
-
+    return;
     float totalHeight = 0;
     for (u32 i = 1; i < IMGSIZE - 1; ++i) {
         for (u32 j = 1; j < IMGSIZE - 1; ++j) {
