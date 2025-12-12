@@ -326,13 +326,6 @@ void MainWindow::on_numParticlesSlider_valueChanged(int value)
     ui->numParticlesLabel->setText(QString::number(value));
 }
 
-void MainWindow::on_spawnParticlesBtn_clicked()
-{
-    ui->widget->spawnParticles(m_particles);
-}
-
-
-
 void MainWindow::on_saveMapBtn_clicked()
 {
     QString fileName;

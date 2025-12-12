@@ -90,13 +90,6 @@ void GLWidget::updateGLSlot()
     pendingHeightmapUpdate = true;
 }
 
-void GLWidget::spawnParticles(int nbParticles)
-{
-    pendingParticlees = true;
-    // backend->context.particleSystem.spawn(nbParticles);
-    // backend->drawParticles(this , backend->context.particleSystem);
-}
-
 void GLWidget::paintGL()
 {   
     size_t ct = currentTime();
@@ -117,14 +110,6 @@ void GLWidget::paintGL()
         pendingHeightmapUpdate = false;
         backend->context.update(0);
         meshes[0]->updatePlaneHeightmap(backend->context);
-    }
-
-    // Used when particles are spawned
-    // TODO : if this works allow modifying the number
-    // update : it does not work
-    if(pendingParticlees)
-    {
-        pendingParticlees=false;
     }
 
     // Used when simulation is running
