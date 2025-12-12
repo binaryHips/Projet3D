@@ -191,7 +191,7 @@ void waterMove(GeoContextCPU &context, float delta) {
     const u32 velocityUIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U);
     const u32 velocityVIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V);
 
-    MapCPU& h = context.maps[layerIndex]; 
+    MapCPU& h = context.maps[layerIndex];  
     MapCPU& u = context.attributeMaps[velocityUIndex];  
     MapCPU& v = context.attributeMaps[velocityVIndex]; 
     
@@ -375,7 +375,7 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.addProcess(fallingSand);
     context.addProcess(sandCalcification);
     context.addProcess(waterSpawnAndDrain);
-    context.addProcess(sandStorm);
+    // context.addProcess(sandStorm);
     context.addProcess(waterMove);
     return context;
 }
