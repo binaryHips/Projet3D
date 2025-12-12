@@ -2,9 +2,8 @@
 
 void thermalErode(GeoContextCPU &context, float delta){
 
-    delta = delta * 0.5;
     const u32 layerIndex = to_underlying(MAP_LAYERS::STONE);
-    const float maxSlope = 3.0 * (1.0 / IMGSIZE);
+    const float maxSlope = 2.0 * (1.0 / IMGSIZE);
 
     MapCPU& inMap = context.maps[layerIndex];
     MapCPU outMap = inMap;
@@ -81,7 +80,7 @@ void thermalErode(GeoContextCPU &context, float delta){
 
 void tectonics(GeoContextCPU &context, float delta){
 
-    delta = delta * 0.5;
+    delta = delta * 0.1;
     const u32 layerIndex = to_underlying(MAP_LAYERS::STONE);
     const u32 layerIndex2 = to_underlying(MAP_LAYERS::BEDROCK);
 
@@ -92,11 +91,11 @@ void tectonics(GeoContextCPU &context, float delta){
 
         float desiredHeight = context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_HEIGHT)](i, j) / 2.0;
 
-        currentPixel += (desiredHeight - currentPixel) / 2.0;
+        currentPixel += (desiredHeight - currentPixel) * delta;
 
         Pixel &currentPixel2 = context.maps[layerIndex2](i, j);
 
-        currentPixel2 += (desiredHeight - currentPixel2) / 2.0;
+        currentPixel2 += (desiredHeight - currentPixel2) * delta;
     }
 }
 
@@ -104,7 +103,7 @@ void fallingSand(GeoContextCPU &context, float delta){
 
     delta = delta * 10.0;
     const u32 layerIndex = to_underlying(MAP_LAYERS::SAND);
-    const float maxSlope = 3.0 * (1.0 / IMGSIZE);
+    const float maxSlope = 1.0 * (1.0 / IMGSIZE);
 
     MapCPU& inMap = context.maps[layerIndex];
     MapCPU outMap = inMap;
