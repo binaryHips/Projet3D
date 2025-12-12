@@ -67,14 +67,6 @@ void fallingSand(GeoContextCPU &context, float delta){
     MapCPU& inMap = context.maps[layerIndex];
     MapCPU outMap = inMap;
 
-    for(int i = 0 ; i < IMGSIZE ; i++)
-    {
-        for(int j = 0 ; j < IMGSIZE ; j++)
-        {
-            outMap(i,j) = inMap(i,j);
-        }
-    }
-
     // Small values to decide whether the sand or height are negligeable
     double minHeight = 0.001;
     double minSand = 0.001;
@@ -189,58 +181,142 @@ void waterSpawnAndDrain(GeoContextCPU &context, float delta){
 }
 
 
-void waterMove(GeoContextCPU &context, float delta){
-    const float dxdy = (1.0f);
-    const float g = 100.0;
-    const float cfl = dxdy * (5.0) * delta;
 
+void waterMove(GeoContextCPU &context, float delta) {
+    const float dxdy = 1.0f;
+    const float g = 9.81f;  // More realistic gravity
+    const float dryThreshold = 0.001f;
+    
     const u32 layerIndex = to_underlying(MAP_LAYERS::WATER);
     const u32 velocityUIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U);
     const u32 velocityVIndex = to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V);
 
-    MapCPU& inMaps = context.maps[layerIndex];
-    MapCPU& outMaps = inMaps;
+    MapCPU& h = context.maps[layerIndex];  
+    MapCPU& u = context.attributeMaps[velocityUIndex];  
+    MapCPU& v = context.attributeMaps[velocityVIndex]; 
+    
+    // Temporary storage for new values
+    MapCPU newH = h;
+    MapCPU newU = u;
+    MapCPU newV = v;
 
-    for(int i = 0 ; i < IMGSIZE ; i++)
-    {
-        for(int j = 0 ; j < IMGSIZE ; j++)
-        {
-            outMaps(i,j) = inMaps(i,j);
-        } 
+    // Update velocities
+    for (u32 i = 1; i < IMGSIZE - 1; ++i) {
+        for (u32 j = 1; j < IMGSIZE - 1; ++j) {
+            
+            float h_center = h(i, j);
+            
+            // dry like minHeight for sand
+            if (h_center < dryThreshold) {
+                newU(i, j) = 0.0f;
+                newV(i, j) = 0.0f;
+                continue;
+            }
+            
+            float heightLeft = h(i - 1, j);
+            float heightRight = h(i + 1, j);
+            float heightBottom = h(i, j - 1);
+            float heightTop = h(i, j + 1);
+            
+            // gradients like arthur
+            float dh_dx = (heightRight - heightLeft) / (2.0f * dxdy);
+            float dh_dy = (heightTop - heightBottom) / (2.0f * dxdy);
+            
+            // 
+            float u_center = u(i, j);
+            float v_center = v(i, j);
+            
+            float du_dx, dv_dy;
+            
+            // upwind for u
+            if (u_center > 0.0f) {
+                du_dx = (u_center - u(i - 1, j)) / dxdy;
+            } else {
+                du_dx = (u(i + 1, j) - u_center) / dxdy;
+            }
+            
+            // upwind for v
+            if (v_center > 0.0f) {
+                dv_dy = (v_center - v(i, j - 1)) / dxdy;
+            } else {
+                dv_dy = (v(i, j + 1) - v_center) / dxdy;
+            }
+            
+            // Momentum 
+            float du_dt = -u_center * du_dx - g * dh_dx;
+            float dv_dt = -v_center * dv_dy - g * dh_dy;
+            
+            // Viscocity is necessary cuz we're approximating the edge transitions
+            float viscosity = 0.5f;
+            float laplacian_u = (u(i+1,j) + u(i-1,j) + u(i,j+1) + u(i,j-1) - 4.0f*u_center) / (dxdy*dxdy);
+            float laplacian_v = (v(i+1,j) + v(i-1,j) + v(i,j+1) + v(i,j-1) - 4.0f*v_center) / (dxdy*dxdy);
+            
+            du_dt += viscosity * laplacian_u;
+            dv_dt += viscosity * laplacian_v;
+            
+            // update velocities
+            newU(i, j) = u_center + du_dt * delta;
+            newV(i, j) = v_center + dv_dt * delta;
+            
+            // limit velocity
+            float max_speed = std::sqrt(g * h_center);
+            float speed_limit = 2.0f * max_speed;  
+            
+            float speed = std::sqrt(newU(i,j)*newU(i,j) + newV(i,j)*newV(i,j));
+            if (speed > speed_limit) {
+                float scale = speed_limit / speed;
+                newU(i, j) *= scale;
+                newV(i, j) *= scale;
+            }
+        }
     }
-
-    for (u32 ii = 0; ii < IMGSIZE-1; ++ii) for (u32 jj = 0; jj < IMGSIZE-1; ++jj){
-
-
-
-        const u32 prev_i  = (ii == 0) ? 0u : ii-1u;
-        const u32 prev_j  = (jj == 0) ? 0u : jj-1u;
-
-        Pixel &vel_u = context.attributeMaps[velocityUIndex](ii, jj);
-        Pixel &vel_v = context.attributeMaps[velocityVIndex](ii, jj);
-
-
-        float dh_dx = (context.heightTo(uvec2(ii, jj), layerIndex) - context.heightTo(uvec2(prev_i, jj), layerIndex) );
-
-        float dh_dy = (context.heightTo(uvec2(ii, jj), layerIndex) - context.heightTo(uvec2(ii, prev_j), layerIndex) );
-
-        vel_u = vel_u - std::clamp(delta * g * dh_dx, -cfl, cfl);
-        vel_v = vel_v - std::clamp(delta * g * dh_dy, -cfl, cfl);
-
-        float du_dx = ( context.attributeMaps[velocityUIndex](ii+1, jj) - context.attributeMaps[velocityUIndex](prev_i, jj) ) / (2 * dxdy);
-        float dv_dy = ( context.attributeMaps[velocityVIndex](ii, jj+1) - context.attributeMaps[velocityVIndex](ii, prev_j) ) / (2 * dxdy);
-
-
-        outMaps(ii, jj) = inMaps(ii, jj) + delta * (-(du_dx + dv_dy));
+    
+    // Edge things (merci arthur)
+    for (u32 i = 0; i < IMGSIZE; ++i) {
+        newU(i, 0) = 0.0f;
+        newV(i, 0) = 0.0f;
+        newU(i, IMGSIZE-1) = 0.0f;
+        newV(i, IMGSIZE-1) = 0.0f;
     }
-
-    for(int i = 0 ; i < IMGSIZE ; i++)
-    {
-        for(int j = 0 ; j < IMGSIZE ; j++)
-        {
-            inMaps(i,j) = outMaps(i,j);
-        } 
+    for (u32 j = 0; j < IMGSIZE; ++j) {
+        newU(0, j) = 0.0f;
+        newV(0, j) = 0.0f;
+        newU(IMGSIZE-1, j) = 0.0f;
+        newV(IMGSIZE-1, j) = 0.0f;
     }
+    
+    // Update water
+    for (u32 i = 1; i < IMGSIZE - 1; ++i) {
+        for (u32 j = 1; j < IMGSIZE - 1; ++j) {
+            
+            float h_center = h(i, j);
+            
+            if (h_center < dryThreshold) {
+                newH(i, j) = 0.0f;
+                continue;
+            }
+            
+            
+            float flux_right = h(i + 1, j) * newU(i + 1, j);
+            float flux_left = h(i - 1, j) * newU(i - 1, j);
+            float flux_top = h(i, j + 1) * newV(i, j + 1);
+            float flux_bottom = h(i, j - 1) * newV(i, j - 1);
+            
+            float div_x = (flux_right - flux_left) / (2.0f * dxdy);
+            float div_y = (flux_top - flux_bottom) / (2.0f * dxdy);
+            
+            float divergence = div_x + div_y;
+            
+            float dh_dt = -divergence;
+            
+            newH(i, j) = h_center + dh_dt * delta;
+            newH(i, j) = std::max(0.0f, newH(i, j));
+        }
+    }
+    
+    context.maps[layerIndex] = std::move(newH);
+    context.attributeMaps[velocityUIndex] = std::move(newU);
+    context.attributeMaps[velocityVIndex] = std::move(newV);
 }
 
 void sandStorm(GeoContextCPU &context, float delta){
@@ -306,6 +382,12 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
     context.featureMaps[to_underlying(FEATURE_LAYERS::DESIRED_HEIGHT)].name = "desired elevation";
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_INFlOW)].name = "water inflow";
     context.featureMaps[to_underlying(FEATURE_LAYERS::WATER_OUTFLOW)].name = "water sink";
+
+    for (u32 i = 0; i < IMGSIZE-1; ++i) for (u32 j = 0; j < IMGSIZE-1; ++j)
+    {
+        context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U)](i,j) = 0.01f;
+        context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V)](i,j) = 0.01f;
+    }
 
     context.addProcess(ProcessCPU(fallingSand, "sand"));
     context.addProcess(ProcessCPU(sandCalcification, "cementation"));

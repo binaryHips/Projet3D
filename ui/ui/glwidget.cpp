@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QtMath>
 #include <QTimer>
+#include <QPainter>
 #include "mainwindow.h"
 #include "backend.h"
 #include <chrono>
@@ -98,6 +99,15 @@ void GLWidget::paintGL()
 
     float fixedDt = 0.01;
 
+    // FPS calculation
+    frameCount++;
+    fpsAccumulator += dt;
+    if (fpsAccumulator >= fpsUpdateInterval) {
+        fps = frameCount / fpsAccumulator;
+        frameCount = 0;
+        fpsAccumulator = 0.0f;
+    }
+
     // Used when we set the plane by hand
     if (pendingSetMeshUpdate)
     {
@@ -149,6 +159,56 @@ void GLWidget::paintGL()
     if (!backend->context.particleSystem.pages.empty() && showParticles) {
         backend->drawParticles(this, backend->context.particleSystem, VP);
     }
+
+    // Draw text overlay using QPainter
+    if (showOverlay) {
+        QPainter painter(this);
+        drawOverlay(painter);
+        painter.end();
+    }
+}
+
+void GLWidget::drawOverlay(QPainter &painter)
+{
+    painter.setRenderHint(QPainter::Antialiasing);
+    
+    size_t particleCount = 0;
+    for (const auto &page : backend->context.particleSystem.pages) {
+        particleCount += (page.PAGE_SIZE - page.finished);
+    }
+    
+    size_t processCount = backend->context.processes.size();
+    
+    // Draw background rectangle
+    int lineHeight = 20;
+    int padding = 10;
+    int numLines = 3;
+
+    QRect bgRect(5, 5, 150, numLines * lineHeight + padding);
+    painter.fillRect(bgRect, QColor(0, 0, 0, 150));
+    
+    int y = 20;
+    int x = 10;
+
+    // FPS
+    painter.setPen(QColor(0, 0, 0));
+    painter.drawText(x + 1, y + 1, QString("FPS: %1").arg(QString::number(fps, 'f', 1)));
+    painter.setPen(QColor(255, 255, 0));
+    painter.drawText(x, y, QString("FPS: %1").arg(QString::number(fps, 'f', 1)));
+    y += lineHeight;
+    
+    // Particle count
+    painter.setPen(QColor(0, 0, 0));
+    painter.drawText(x + 1, y + 1, QString("Particles: %1").arg(particleCount));
+    painter.setPen(QColor(0, 255, 255));
+    painter.drawText(x, y, QString("Particles: %1").arg(particleCount));
+    y += lineHeight;
+    
+    // Process count
+    painter.setPen(QColor(0, 0, 0));
+    painter.drawText(x + 1, y + 1, QString("Processes: %1").arg(processCount));
+    painter.setPen(QColor(0, 255, 0));
+    painter.drawText(x, y, QString("Processes: %1").arg(processCount));
 }
 
 

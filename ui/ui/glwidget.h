@@ -9,6 +9,8 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QElapsedTimer>
+#include <QPainter>
+#include <QFont>
 
 #include "mesh.h"
 #include "cameracontroller.h"
@@ -28,6 +30,8 @@ public:
     float simSpeed = 1.0f;
 
     void setShowParticles(bool show) {showParticles = show;};
+    void setShowOverlay(bool show) { showOverlay = show; }
+    bool isOverlayVisible() const { return showOverlay; }
 
 signals :
     void mouseButtonClicked(Qt::MouseButton button);
@@ -73,7 +77,14 @@ private:
     bool pendingSetMeshUpdate = false;
     bool pendingHeightmapUpdate = false;
     bool showParticles = false;
-};
 
+    // Overlay display
+    bool showOverlay = true;
+    int frameCount = 0;
+    float fps = 0.0f;
+    float fpsUpdateInterval = 0.5f; // Update FPS every 0.5 seconds
+    float fpsAccumulator = 0.0f;
+    void drawOverlay(QPainter &painter);
+};
 
 #endif

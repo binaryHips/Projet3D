@@ -43,6 +43,9 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->actionWaterIn, &QAction::triggered , this , [this]{openFileSearchFeaturemap(FEATURE_LAYERS::WATER_INFlOW);});
     QObject::connect(ui->actionWaterOut , &QAction::triggered , this , [this]{openFileSearchFeaturemap(FEATURE_LAYERS::WATER_OUTFLOW);});
 
+    // connect simulation info ting
+    QObject::connect(ui->actionSimulation_info, &QAction::toggled , this , &MainWindow::toggleSimulationInfo);
+
 
     loadDefaultMaps();
 
@@ -66,11 +69,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->eraserBtn->setIcon(ButtonIcon);
     ui->eraserBtn->setIconSize(pixmap.rect().size());
 
-    // // init btn
-    // int initGrey = ui->greyscaleSlider->value();
-    // QString style = QString("QPushButton { background-color: rgb(%1, %1, %1); border: 2px solid #555; border-radius: 4px; }")
-    //                 .arg(initGrey);
-    // ui->colorSelectBtn->setStyleSheet(style);
+    on_greyscaleSlider_valueChanged(180);
+    on_pensizeSlider_valueChanged(100);
 
     on_colorSelectBtn_clicked();
 
@@ -173,6 +173,9 @@ void MainWindow::openFileSearchFeaturemap(FEATURE_LAYERS layer)
 void MainWindow::mapClicked(QPixmap pixmap , MAP_LAYERS layer)
 {
 
+    // pause
+    if(backend->simulating)
+        on_simulateBtn_clicked();
 
     // set new background and layer
     pixmap = pixmap.scaled(ui->widget_2->size() , Qt::KeepAspectRatio);
@@ -358,3 +361,7 @@ void MainWindow::on_showParticlesCheck_stateChanged(int arg1)
     ui->widget->setShowParticles(arg1);
 }
 
+void MainWindow::toggleSimulationInfo(bool checked)
+{
+    ui->widget->setShowOverlay(checked);
+}
