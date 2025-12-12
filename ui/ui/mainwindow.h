@@ -71,9 +71,6 @@ private slots:
 
     void on_colorSelectBtn_clicked();
 
-    void on_numParticlesSlider_valueChanged(int value);
-
-
     void on_saveMapBtn_clicked();
 
     void on_softnessSlider_valueChanged(int value);
