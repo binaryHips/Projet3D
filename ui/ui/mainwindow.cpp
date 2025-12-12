@@ -7,6 +7,9 @@
 #include <QDir>
 #include <QDebug>
 #include <QColorDialog>
+#include <QGroupBox>
+#include <QLabel>
+#include <QFrame>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -46,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent)
     // connect simulation info ting
     QObject::connect(ui->actionSimulation_info, &QAction::toggled , this , &MainWindow::toggleSimulationInfo);
 
+    // Setup process checkboxes
+    setupProcessCheckboxes();
 
     loadDefaultMaps();
 
@@ -364,4 +369,49 @@ void MainWindow::on_showParticlesCheck_stateChanged(int arg1)
 void MainWindow::toggleSimulationInfo(bool checked)
 {
     ui->widget->setShowOverlay(checked);
+}
+
+void MainWindow::setupProcessCheckboxes()
+{
+    QGroupBox *processGroupBox = new QGroupBox("Processes");
+    processGridLayout = new QGridLayout(processGroupBox);
+    processGridLayout->setSpacing(5);
+    
+    std::vector<ProcessCPU> &processes = backend->context.processes;
+    
+    int row = 0;
+    int col = 0;
+    
+    for (size_t i = 0; i < processes.size(); ++i) {
+        ProcessCPU &process = processes[i];
+        
+        QCheckBox *checkbox = new QCheckBox(QString::fromStdString(process.name));
+        
+        checkbox->setChecked(true);
+        process.activated = true;
+        
+        connect(checkbox, &QCheckBox::toggled, this, [&process](bool checked) {
+            process.activated = checked;
+        });
+        
+        // Add to grid layout (2 per row)
+        processGridLayout->addWidget(checkbox, row, col);
+        processCheckboxes.push_back(checkbox);
+        
+        col++;
+        if (col >= 2) {
+            col = 0;
+            row++;
+        }
+    }
+    
+    int insertPos = ui->gl_settings_layout->count() - 1; // before the stretch
+    if (insertPos < 0) insertPos = 0;
+    
+    QFrame *line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    ui->gl_settings_layout->insertWidget(insertPos, line);
+    
+    ui->gl_settings_layout->insertWidget(insertPos + 1, processGroupBox);
 }

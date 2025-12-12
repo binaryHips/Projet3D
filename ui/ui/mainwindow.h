@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGridLayout>
+#include <QCheckBox>
 #include "backend.h"
 #include "mapdrawwindow.h"
 #include "scribblearea.h"
@@ -83,6 +85,9 @@ private slots:
 
 private:
     void loadDefaultMaps();
+    void setupProcessCheckboxes();
     int m_particles = 512;
+    QGridLayout *processGridLayout = nullptr;
+    std::vector<QCheckBox*> processCheckboxes;
 };
 #endif // MAINWINDOW_H
