@@ -677,9 +677,10 @@
    </widget>
    <widget class="QMenu" name="menuDisplay">
     <property name="title">
-     <string>Display</string>
+     <string>Simulation</string>
     </property>
     <addaction name="actionSimulation_info"/>
+    <addaction name="actionReset_simulation"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDisplay"/>
@@ -734,6 +735,11 @@
    </property>
    <property name="text">
     <string>Simulation info</string>
+   </property>
+  </action>
+  <action name="actionReset_simulation">
+   <property name="text">
+    <string>Reset simulation</string>
    </property>
   </action>
  </widget>

@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // connect simulation info ting
     QObject::connect(ui->actionSimulation_info, &QAction::toggled , this , &MainWindow::toggleSimulationInfo);
+    QObject::connect(ui->actionReset_simulation, &QAction::triggered , this , &MainWindow::resetSimulation);
 
     // Setup process checkboxes
     setupProcessCheckboxes();
@@ -423,4 +424,40 @@ void MainWindow::setupProcessCheckboxes()
     ui->gl_settings_layout->insertWidget(insertPos, line);
     
     ui->gl_settings_layout->insertWidget(insertPos + 1, processGroupBox);
+}
+
+void MainWindow::resetSimulation()
+{
+    // Pause simulation if running
+    if(backend->simulating)
+    {
+        on_simulateBtn_clicked();
+    }
+
+    if(ui->stackedWidget->currentWidget() ==  ui->page_2)
+    {
+        ui->stackedWidget->setCurrentWidget(ui->page);
+    }
+
+    backend->context.clearFeatureMaps();
+    backend->context.clearHeightMaps();
+
+    QVector<MAP_LAYERS> maps = {MAP_LAYERS::BEDROCK, MAP_LAYERS::STONE, MAP_LAYERS::SAND, MAP_LAYERS::WATER};
+    for(MAP_LAYERS layer : maps)
+    {
+        QPixmap map = backend->saveImageFromMap(layer);
+        updateMap(map, layer);
+    }
+
+    QVector<FEATURE_LAYERS> features = {FEATURE_LAYERS::DESIRED_HEIGHT, FEATURE_LAYERS::WATER_INFlOW, FEATURE_LAYERS::WATER_OUTFLOW};
+    for(FEATURE_LAYERS layer : features)
+    {
+        QPixmap map = backend->saveImageFromMap(layer);
+        updateFeature(map, layer);
+    }
+
+    Mesh *plane= new Mesh();
+    int value = ui->subdiv_slider->value();
+    *plane = Mesh::gen_tesselatedSquare(value,value,1,1);
+    ui->widget->setMesh(plane);
 }

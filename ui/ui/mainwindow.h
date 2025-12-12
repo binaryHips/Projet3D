@@ -82,6 +82,8 @@ private slots:
 
     void toggleSimulationInfo(bool checked);
 
+    void resetSimulation();
+
 
 private:
     void loadDefaultMaps();
