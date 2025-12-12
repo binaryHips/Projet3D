@@ -499,8 +499,8 @@ GeoContextCPU GeoContextCPU::createGeoContext(){
         context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_U)](i,j) = 0.1f;
         context.attributeMaps[to_underlying(ATTRIBUTE_LAYERS::WATER_VELOCITY_V)](i,j) = 0.1f;
     }
-    context.addProcess(ProcessCPU(thermalErode, "erosion"));
-    context.addProcess(ProcessCPU(tectonics, "tectonics"));
+    context.addProcess(ProcessCPU(thermalErode, "Erosion"));
+    context.addProcess(ProcessCPU(tectonics, "Tectonics"));
     context.addProcess(ProcessCPU(fallingSand, "Sand"));
     context.addProcess(ProcessCPU(sandCalcification, "Cementation"));
     context.addProcess(ProcessCPU(wind, "Wind"));
