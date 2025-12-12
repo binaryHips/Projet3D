@@ -139,8 +139,9 @@ void GLWidget::paintGL()
         map = backend->saveImageFromMap(MAP_LAYERS::WATER);
         backend->setHeightmap(map , MAP_LAYERS::WATER);
         
-        cam.updateCamera(dt);
     }
+
+    cam.updateCamera(dt);
 
     glClearColor(0.5, 0.5, 0.7, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
